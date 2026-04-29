@@ -18,7 +18,7 @@ export function ModeToggle({ className }: { className?: string }) {
   if (!mounted) {
     return (
       <div
-        className={cn("bg-muted/50 h-8 w-[4.25rem] rounded-lg", className)}
+        className={cn("bg-muted/50 h-8 w-75 rounded-lg", className)}
         aria-hidden
       />
     );
