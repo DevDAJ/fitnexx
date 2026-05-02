@@ -1,38 +1,18 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { AppMobileNav, AppSidebar } from "@/components/app/navigation";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
-import { ThemeProvider } from "@/components/theme-provider";
-import "./globals.css";
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
-  title:
-    "Fitnexx | Privacy first gym performance and macro tracking app",
-  description: "",
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function AppRouteLayout({ children }: LayoutProps) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-      suppressHydrationWarning
-    >
-      <body className="flex min-h-full flex-col">
-        <ThemeProvider>{children}</ThemeProvider>
-      </body>
-    </html>
+    <SidebarProvider>
+      <div className="relative min-h-svh w-full">
+        <div className="flex min-h-svh w-full">
+          <AppSidebar />
+          <SidebarInset className="min-w-0 flex-1 pb-[calc(4.75rem+env(safe-area-inset-bottom))] md:pb-0">
+            {children}
+          </SidebarInset>
+        </div>
+        <AppMobileNav />
+      </div>
+    </SidebarProvider>
   );
 }

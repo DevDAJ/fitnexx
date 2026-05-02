@@ -3,7 +3,7 @@
 import { Menu } from "lucide-react";
 import Link from "next/link";
 
-import { ModeToggle } from "@/components/mode-toggle";
+import { ModeToggle } from "@/components/shared/mode-toggle";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -42,7 +42,7 @@ export function HomepageNavbar() {
             <Link href="/contact">Contact</Link>
           </Button>
           <Button size="sm" asChild>
-            <Link href="/coming-soon">Get started</Link>
+            <Link href="/app">Get started</Link>
           </Button>
         </nav>
 
@@ -87,7 +87,7 @@ export function HomepageNavbar() {
                 </DialogClose>
                 <DialogClose asChild>
                   <Button className="justify-start" asChild>
-                    <Link href="/coming-soon">Get started</Link>
+                    <Link href="/app">Get started</Link>
                   </Button>
                 </DialogClose>
               </nav>

@@ -8,7 +8,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import { foodScansPerDay } from "@/lib/food-scan-limits";
+import { foodScansPerDay } from "@/constants/food-scan-limits";
 
 export type FeatureItem = {
   icon: LucideIcon;
@@ -23,9 +23,9 @@ export const features: FeatureItem[] = [
     icon: MapPin,
     title: "Equipment at gyms we catalog",
     description:
-      "For gyms in our database we list documented equipment so you know what’s on the floor on Free and Pro. Pro adds gym workout suggestions: AI-guided movements based on your programming and the gear actually available.",
+      "For gyms in our database we list documented equipment so you know what's on the floor on Free and Pro. Pro adds gym workout suggestions: AI-guided movements based on your programming and the gear actually available.",
     details:
-      "This isn’t a facility ‘fit’ score. We surface inventory tied to venues on file so you can browse before or during your visit. Pro unlocks the suggestion layer when you train at a cataloged gym: options align with how your program progresses and what the room carries. Without Pro, listings stay informational and logging stays yours to drive.",
+      "This isn't a facility 'fit' score. We surface inventory tied to venues on file so you can browse before or during your visit. Pro unlocks the suggestion layer when you train at a cataloged gym: options align with how your program progresses and what the room carries. Without Pro, listings stay informational and logging stays yours to drive.",
   },
   {
     icon: Dumbbell,
@@ -39,7 +39,7 @@ export const features: FeatureItem[] = [
     icon: Ruler,
     title: "Body measurement tracking",
     description:
-      "Log the numbers you care about (weight, circumference, custom fields), included on Free so comp and progress aren’t gated by Pro.",
+      "Log the numbers you care about (weight, circumference, custom fields), included on Free so comp and progress aren't gated by Pro.",
     details:
       "Charts and history for the measurements you enable. Same privacy stance as the rest of Fitnexx: your numbers stay yours under your account controls. Higher OCR limits and gym or meal AI are Pro perks; baseline body tracking is not.",
   },
