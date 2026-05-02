@@ -1,6 +1,6 @@
 "use server";
 
-import { getPrisma } from "@/lib/prisma";
+import { getPrisma } from "@/utils/prisma";
 
 export type InterestListState =
   | { status: "idle" | "success" }
