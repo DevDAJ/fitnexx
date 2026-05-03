@@ -1,6 +1,8 @@
 "use client";
 import { endOfDay, parse, startOfDay, subDays } from "date-fns";
 import * as React from "react";
+import { BodyCompositionCharts } from "@/components/app/dashboard/BodyCompositionCharts";
+import { GoalEtaCard } from "@/components/app/dashboard/GoalEtaCard";
 import { PerformanceCharts } from "@/components/app/dashboard/PerformanceCharts";
 import { RangeSelector } from "@/components/app/dashboard/RangeSelector";
 import { Header } from "@/components/app/Header";
@@ -31,7 +33,17 @@ export default function Home() {
         setRangeEnd={setRangeEnd}
         datesWithData={datesWithData}
       />
-      <PerformanceCharts rangeStart={rangeStart} rangeEnd={rangeEnd} />
+      <div className="grid gap-8 grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,340px)] w-full">
+        <div className="flex min-w-0 flex-col gap-8">
+          <PerformanceCharts rangeStart={rangeStart} rangeEnd={rangeEnd} />
+        </div>
+      </div>
+      <div className="grid gap-8 grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,340px)] w-full">
+        <div className="flex min-w-0 flex-col xl:flex-row gap-8">
+          <BodyCompositionCharts rangeStart={rangeStart} rangeEnd={rangeEnd} />
+          <GoalEtaCard />
+        </div>
+      </div>
     </div>
   );
 }
