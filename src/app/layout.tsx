@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
+import type { LayoutPropsType } from "@/types/layoutProps";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,14 +20,14 @@ export const metadata: Metadata = {
   description: "",
 };
 
-export default function RootLayout({ children }: LayoutProps) {
+export default function RootLayout({ children }: LayoutPropsType) {
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="flex min-h-full flex-col">
+      <body className="flex min-h-full flex-col bg-background">
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

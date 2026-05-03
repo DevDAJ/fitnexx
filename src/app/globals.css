@@ -90,9 +90,9 @@ body {
 }
 
 .dark {
-  --background: oklch(0.1515 0.0469 145.32);
+  --background: oklch(0.1515 0.0469 145.32 / 50%);
   --foreground: oklch(0.987 0.002 197.1);
-  --card: oklch(0.218 0.008 223.9);
+  --card: oklch(0.218 0.008 223.9 / 50%);
   --card-foreground: oklch(0.987 0.002 197.1);
   --popover: oklch(0.218 0.008 223.9);
   --popover-foreground: oklch(0.987 0.002 197.1);
@@ -113,7 +113,7 @@ body {
   --chart-3: oklch(0.627 0.194 149.214);
   --chart-4: oklch(0.527 0.154 150.069);
   --chart-5: oklch(0.448 0.119 151.328);
-  --sidebar: oklch(0.218 0.008 223.9);
+  --sidebar: oklch(0.218 0.008 223.9 / 0%);
   --sidebar-foreground: oklch(0.987 0.002 197.1);
   --sidebar-primary: oklch(0.723 0.219 149.579);
   --sidebar-primary-foreground: oklch(0.982 0.018 155.826);

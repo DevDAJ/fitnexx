@@ -5,7 +5,7 @@ import { useActionState } from "react";
 import { submitContactForm } from "@/actions/contact";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/utils/utils";
+import cn from "@/utils/cn";
 
 const initialState = { status: "idle" as const };
 
