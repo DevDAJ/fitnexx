@@ -1,7 +1,8 @@
 import { AppMobileNav, AppSidebar } from "@/components/app/navigation";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import type { LayoutPropsType } from "@/types/layoutProps";
 
-export default function AppRouteLayout({ children }: LayoutProps) {
+export default function AppRouteLayout({ children }: LayoutPropsType) {
   return (
     <SidebarProvider>
       <div className="relative min-h-svh w-full">

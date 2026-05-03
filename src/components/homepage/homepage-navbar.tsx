@@ -45,7 +45,6 @@ export function HomepageNavbar() {
             <Link href="/app">Get started</Link>
           </Button>
         </nav>
-
         <div className="flex items-center gap-1.5 sm:hidden">
           <ModeToggle />
           <Dialog>

@@ -10,7 +10,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { cn } from "@/utils/utils";
+import cn from "@/utils/cn";
 
 function pathMatches(pathname: string, href: string, end?: boolean) {
   const p = pathname.replace(/\/$/, "") || "/";
