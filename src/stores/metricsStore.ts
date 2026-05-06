@@ -16,6 +16,9 @@ const baseline: MetricsState = {
   entries: [],
   targetWeightKg: null,
   targetBodyFatPercent: null,
+  activityLevel: "sedentary",
+  targetWeeklyPaceKg: null,
+  avgMacrosDaily: null,
 };
 
 function createMetricsPersistStorage() {
@@ -39,6 +42,9 @@ export const useMetricsStore = create<MetricsStore>()(
           entries: get().entries,
           targetWeightKg: get().targetWeightKg,
           targetBodyFatPercent: get().targetBodyFatPercent,
+          activityLevel: get().activityLevel,
+          targetWeeklyPaceKg: get().targetWeeklyPaceKg,
+          avgMacrosDaily: get().avgMacrosDaily,
         };
         const next =
           typeof updater === "function"
@@ -48,6 +54,9 @@ export const useMetricsStore = create<MetricsStore>()(
           entries: next.entries,
           targetWeightKg: next.targetWeightKg,
           targetBodyFatPercent: next.targetBodyFatPercent,
+          activityLevel: next.activityLevel,
+          targetWeeklyPaceKg: next.targetWeeklyPaceKg,
+          avgMacrosDaily: next.avgMacrosDaily,
         });
       },
     }),
@@ -58,6 +67,9 @@ export const useMetricsStore = create<MetricsStore>()(
         entries: s.entries,
         targetWeightKg: s.targetWeightKg,
         targetBodyFatPercent: s.targetBodyFatPercent,
+        activityLevel: s.activityLevel,
+        targetWeeklyPaceKg: s.targetWeeklyPaceKg,
+        avgMacrosDaily: s.avgMacrosDaily,
       }),
       merge: (persisted, current) => ({
         ...current,
