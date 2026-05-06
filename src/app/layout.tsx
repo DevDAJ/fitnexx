@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import "./globals.css";
 import { ThemeProvider } from "next-themes";
+import { PwaServiceWorkerRegister } from "@/components/shared/pwa-service-worker-register";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import type { LayoutPropsType } from "@/types/layoutProps";
+import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,7 +18,20 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Fitnexx | Privacy first gym performance and macro tracking app",
-  description: "",
+  description:
+    "Privacy-first gym performance and macro tracking in your browser.",
+  applicationName: "Fitnexx",
+  appleWebApp: {
+    capable: true,
+    title: "Fitnexx",
+    statusBarStyle: "default",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#208b9a",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: LayoutPropsType) {
@@ -28,6 +42,8 @@ export default function RootLayout({ children }: LayoutPropsType) {
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col bg-background">
+        {/* PWA: https://nextjs.org/docs/app/guides/progressive-web-apps */}
+        <PwaServiceWorkerRegister />
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
