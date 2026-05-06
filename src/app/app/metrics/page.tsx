@@ -1,5 +1,5 @@
-import { MetricsDashboard } from "@/components/app/metrics/MetricsDashboard";
 import { Header } from "@/components/app/Header";
+import { MetricsDashboard } from "@/components/app/metrics/MetricsDashboard";
 
 export default function MetricsPage() {
   return (

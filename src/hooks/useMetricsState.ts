@@ -30,6 +30,9 @@ export function useMetricsState(): {
       entries: s.entries,
       targetWeightKg: s.targetWeightKg,
       targetBodyFatPercent: s.targetBodyFatPercent,
+      activityLevel: s.activityLevel,
+      targetWeeklyPaceKg: s.targetWeeklyPaceKg,
+      avgMacrosDaily: s.avgMacrosDaily,
     })),
   );
 
