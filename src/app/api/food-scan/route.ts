@@ -1,6 +1,53 @@
+import { OpenRouter } from "@openrouter/sdk";
 import { NextResponse } from "next/server";
 
+const client = new OpenRouter({
+  apiKey: process.env.OPENROUTER_API_KEY,
+});
+
 const MAX_BYTES = 12 * 1024 * 1024;
+const MACRO_VISION_MODEL = "@preset/fitnexx-macro-vision";
+
+async function fileToDataUrl(file: File): Promise<string> {
+  const b64 = Buffer.from(await file.arrayBuffer()).toString("base64");
+  const mime = file.type || "image/jpeg";
+  return `data:${mime};base64,${b64}`;
+}
+
+function assistantTextContent(
+  content: string | Array<unknown> | null | undefined,
+): string | null {
+  if (typeof content === "string") {
+    return content;
+  }
+  if (!Array.isArray(content)) {
+    return null;
+  }
+  const parts = content
+    .filter(
+      (p): p is { type: string; text?: string } =>
+        typeof p === "object" &&
+        p !== null &&
+        "type" in p &&
+        (p as { type: string }).type === "text",
+    )
+    .map((p) => p.text ?? "")
+    .join("");
+  return parts.length ? parts : null;
+}
+
+function tryParseJsonPayload(raw: string): unknown {
+  const stripped = raw
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/u, "")
+    .trim();
+  try {
+    return JSON.parse(stripped) as unknown;
+  } catch {
+    console.error("Failed to parse JSON payload", stripped);
+    return null;
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -67,17 +114,44 @@ export async function POST(request: Request) {
       });
     }
 
-    return NextResponse.json({
-      ok: true,
-      bytesReceived: file.size,
-      filename: file.name || "unknown",
-      mimeType: file.type,
-      message:
-        "Image accepted locally. Set FOOD_SCAN_UPSTREAM_URL to POST the same multipart field to your OCR pipeline.",
-      macros: null,
-    });
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "Unexpected server error";
-    return NextResponse.json({ ok: false, error: msg }, { status: 500 });
+    const apiKey =
+      typeof process.env.OPENROUTER_API_KEY === "string"
+        ? process.env.OPENROUTER_API_KEY.trim()
+        : "";
+
+    if (apiKey) {
+      const dataUrl = await fileToDataUrl(file);
+      const result = await client.chat.send(
+        {
+          chatRequest: {
+            model: MACRO_VISION_MODEL,
+            messages: [
+              {
+                role: "user",
+                content: [
+                  {
+                    type: "text",
+                    text: "Analyze this food or meal image and return macro nutrition as JSON only, following your instructions.",
+                  },
+                  {
+                    type: "image_url",
+                    imageUrl: { url: dataUrl },
+                  },
+                ],
+              },
+            ],
+          },
+        },
+        { timeoutMs: 120_000 },
+      );
+
+      const raw = assistantTextContent(result.choices[0]?.message?.content);
+      return NextResponse.json(raw);
+    }
+  } catch {
+    return NextResponse.json(
+      { error: "Unexpected server error" },
+      { status: 500 },
+    );
   }
 }
