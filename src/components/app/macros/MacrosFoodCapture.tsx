@@ -2,9 +2,9 @@
 
 import {
   AlertCircleIcon,
-  SwitchCameraIcon,
   ImagePlusIcon,
   Loader2Icon,
+  SwitchCameraIcon,
   UploadCloudIcon,
 } from "lucide-react";
 import * as React from "react";
@@ -266,8 +266,8 @@ function MacrosDesktopDropZone({
               <code className="text-xs">FOOD_SCAN_UPSTREAM_URL</code>{" "}
               server-side.
             </span>
-            <Button type="button" size="sm" variant="secondary" disabled={busy}>
-              Browse files
+            <Button asChild size="sm" variant="secondary">
+              <span>Browse files</span>
             </Button>
           </button>
           <input
@@ -472,8 +472,8 @@ function MacrosMobileCameraExperience({
             onClick={toggleFacingCamera}
             disabled={
               busy ||
-              (typeof navigator === "undefined" ||
-                !navigator.mediaDevices?.getUserMedia)
+              typeof navigator === "undefined" ||
+              !navigator.mediaDevices?.getUserMedia
             }
           >
             <SwitchCameraIcon className="size-7" aria-hidden />
