@@ -36,19 +36,6 @@ function assistantTextContent(
   return parts.length ? parts : null;
 }
 
-function tryParseJsonPayload(raw: string): unknown {
-  const stripped = raw
-    .replace(/^```(?:json)?\s*/i, "")
-    .replace(/\s*```$/u, "")
-    .trim();
-  try {
-    return JSON.parse(stripped) as unknown;
-  } catch {
-    console.error("Failed to parse JSON payload", stripped);
-    return null;
-  }
-}
-
 export async function POST(request: Request) {
   try {
     const form = await request.formData();
@@ -144,8 +131,9 @@ export async function POST(request: Request) {
         },
         { timeoutMs: 120_000 },
       );
-
+      console.log(result);
       const raw = assistantTextContent(result.choices[0]?.message?.content);
+      console.log(raw);
       return NextResponse.json(raw);
     }
   } catch {
