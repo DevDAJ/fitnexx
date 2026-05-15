@@ -10,6 +10,8 @@ import {
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -18,7 +20,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
 import cn from "@/utils/cn";
+import { MacroCaptureRow, useMacrosCaptureStore } from "@/stores/macrosCaptureStore";
 
 function useViewportIsMobile(): boolean | undefined {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>();
@@ -34,11 +38,130 @@ function useViewportIsMobile(): boolean | undefined {
   return isMobile;
 }
 
+type MacroFieldKey =
+  | "protein"
+  | "fibre"
+  | "carbohydrates"
+  | "fat"
+  | "calories";
+
+function findMacroValue(value: unknown, key: string): string | undefined {
+  if (value === null || value === undefined) {
+    return undefined;
+  }
+
+  if (typeof value === "number" || typeof value === "string") {
+    return String(value);
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const found = findMacroValue(item, key);
+      if (found !== undefined) {
+        return found;
+      }
+    }
+    return undefined;
+  }
+
+  if (typeof value === "object") {
+    for (const [childKey, childValue] of Object.entries(value)) {
+      if (childKey.toLowerCase() === key.toLowerCase()) {
+        return findMacroValue(childValue, key);
+      }
+    }
+    for (const childValue of Object.values(value)) {
+      const found = findMacroValue(childValue, key);
+      if (found !== undefined) {
+        return found;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+function parseScanResult(result: unknown) {
+  const defaultFields = {
+    protein: "-",
+    fibre: "-",
+    carbohydrates: "-",
+    fat: "-",
+    calories: "-",
+    rawResult: typeof result === "string" ? result : JSON.stringify(result),
+  };
+
+  let parsed = result;
+  if (typeof result === "string") {
+    try {
+      parsed = JSON.parse(result);
+    } catch {
+      return defaultFields;
+    }
+  }
+
+  if (typeof parsed !== "object" || parsed === null) {
+    return defaultFields;
+  }
+
+  const fields: {
+    protein: string;
+    fibre: string;
+    carbohydrates: string;
+    fat: string;
+    calories: string;
+    rawResult: string;
+  } = {
+    ...defaultFields,
+    rawResult: typeof result === "string" ? result : JSON.stringify(result),
+  };
+
+  (['protein', 'fibre', 'carbohydrates', 'fat', 'calories'] as MacroFieldKey[]).forEach((key) => {
+    const value = findMacroValue(parsed, key);
+    if (value !== undefined && value !== null && value !== "") {
+      fields[key] = String(value);
+    }
+  });
+
+  return fields;
+}
+
+export function createCaptureRow(
+  imageUrl: string,
+  fileName: string,
+  scanResult: unknown,
+  context: string,
+): MacroCaptureRow {
+  const parsed = parseScanResult(scanResult);
+  const defaultName = context.trim() || fileName || "Scanned food";
+  const now = new Date();
+  const timeEaten = now.toTimeString().slice(0, 5);
+
+  return {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+    imageUrl,
+    fileName,
+    foodName: defaultName,
+    timeEaten,
+    mealClass: "snack",
+    protein: parsed.protein,
+    fibre: parsed.fibre,
+    carbohydrates: parsed.carbohydrates,
+    fat: parsed.fat,
+    calories: parsed.calories,
+    rawResult: parsed.rawResult,
+  };
+}
+
 async function foodScanMultipart(
   file: File,
+  context?: string,
 ): Promise<{ status: number; body: unknown }> {
   const fd = new FormData();
   fd.append("image", file, file.name);
+  if (typeof context === "string" && context.trim().length > 0) {
+    fd.append("context", context.trim());
+  }
 
   const res = await fetch("/api/food-scan", {
     method: "POST",
@@ -52,6 +175,21 @@ async function foodScanMultipart(
     body = { ok: false, error: "Response was not JSON" };
   }
   return { status: res.status, body };
+}
+
+async function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+      } else {
+        reject(new Error("Could not serialize file."));
+      }
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
 }
 
 function videoFrameToJpegFile(video: HTMLVideoElement): Promise<File | null> {
@@ -98,43 +236,93 @@ function MacrosFoodSkeleton() {
 
 export function MacrosFoodCapture() {
   const isMobileViewport = useViewportIsMobile();
+  const router = useRouter();
+  const {
+    busy,
+    scanError,
+    lastResult,
+    selectedFile,
+    selectedPreviewUrl,
+    context,
+    rows,
+    setBusy,
+    setScanError,
+    setLastResult,
+    setSelectedFile,
+    setSelectedPreviewUrl,
+    setContext,
+    addCaptureRow,
+    updateCaptureRow,
+    resetCapture,
+  } = useMacrosCaptureStore();
 
-  const [busy, setBusy] = React.useState(false);
-  const [scanError, setScanError] = React.useState<string | null>(null);
-  const [lastResult, setLastResult] = React.useState<unknown>(null);
-
-  const runScan = React.useCallback(async (file: File | undefined | null) => {
-    if (!(file instanceof File && file.type.startsWith("image/"))) {
-      setScanError("Pick an image file.");
-      return;
-    }
-
-    setScanError(null);
-    setLastResult(null);
-
-    setBusy(true);
-    try {
-      const { status, body } = await foodScanMultipart(file);
-      setLastResult(body);
-      const err =
-        body &&
-        typeof body === "object" &&
-        !Array.isArray(body) &&
-        "error" in body &&
-        typeof (body as { error?: unknown }).error === "string"
-          ? (body as { error: string }).error
-          : null;
-      if (!(status >= 200 && status < 300)) {
-        setScanError(err || `Request failed (${status}).`);
-      } else if (err) {
-        setScanError(err);
+  const runScan = React.useCallback(
+    async (file: File | undefined | null, contextValue?: string) => {
+      if (!(file instanceof File && file.type.startsWith("image/"))) {
+        setScanError("Pick an image file.");
+        return;
       }
-    } catch {
-      setScanError("Could not reach the server. Check your connection.");
-    } finally {
-      setBusy(false);
-    }
-  }, []);
+
+      setScanError(null);
+      setLastResult(null);
+      setBusy(true);
+
+      try {
+        const { status, body } = await foodScanMultipart(file, contextValue);
+        setLastResult(body);
+        const err =
+          body &&
+          typeof body === "object" &&
+          !Array.isArray(body) &&
+          "error" in body &&
+          typeof (body as { error?: unknown }).error === "string"
+            ? (body as { error: string }).error
+            : null;
+        if (!(status >= 200 && status < 300)) {
+          setScanError(err || `Request failed (${status}).`);
+        } else if (err) {
+          setScanError(err);
+        } else {
+          const imageUrl =
+            selectedPreviewUrl || (await fileToDataUrl(file));
+          addCaptureRow(
+            createCaptureRow(
+              imageUrl,
+              file.name || `food-capture-${Date.now()}.jpg`,
+              body,
+              contextValue ?? "",
+            ),
+          );
+        }
+      } catch {
+        setScanError("Could not reach the server. Check your connection.");
+      } finally {
+        setBusy(false);
+      }
+    },
+    [setBusy, setLastResult, setScanError],
+  );
+
+  const saveCaptureForReview = React.useCallback(
+    async (file: File | undefined | null) => {
+      if (!(file instanceof File && file.type.startsWith("image/"))) {
+        setScanError("Pick an image file.");
+        return;
+      }
+
+      setScanError(null);
+      try {
+        const previewUrl = await fileToDataUrl(file);
+        setSelectedFile(file);
+        setSelectedPreviewUrl(previewUrl);
+        setContext("");
+        router.push("/app/macros/capture");
+      } catch {
+        setScanError("Unable to serialize image. Try again.");
+      }
+    },
+    [router, setContext, setScanError, setSelectedFile, setSelectedPreviewUrl],
+  );
 
   if (isMobileViewport === undefined) {
     return (
@@ -150,20 +338,155 @@ export function MacrosFoodCapture() {
         busy={busy}
         scanError={scanError}
         lastResult={lastResult}
-        runScan={runScan}
+        onCapture={saveCaptureForReview}
       />
     );
   }
 
   return (
-    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-6">
       <MacrosDesktopDropZone
         busy={busy}
         scanError={scanError}
         lastResult={lastResult}
-        runScan={runScan}
+        selectedFile={selectedFile}
+        selectedPreviewUrl={selectedPreviewUrl}
+        context={context}
+        onContextChange={setContext}
+        onSelectFile={async (file) => {
+          if (!file || !file.type.startsWith("image/")) {
+            setScanError("Pick an image file.");
+            return;
+          }
+          setScanError(null);
+          setSelectedFile(file);
+          try {
+            setSelectedPreviewUrl(await fileToDataUrl(file));
+          } catch {
+            setSelectedPreviewUrl(null);
+          }
+        }}
+        onClear={resetCapture}
+        onSend={() => runScan(selectedFile, context)}
       />
+      <CaptureRowsList rows={rows} onUpdateRow={updateCaptureRow} />
     </div>
+  );
+}
+
+export function CaptureRowsList({
+  rows,
+  onUpdateRow,
+}: {
+  rows: MacroCaptureRow[];
+  onUpdateRow: (id: string, updater: (row: MacroCaptureRow) => MacroCaptureRow) => void;
+}) {
+  if (rows.length === 0) {
+    return null;
+  }
+
+  return (
+    <Card>
+      <CardHeader className="border-b">
+        <CardTitle>Captured foods</CardTitle>
+        <CardDescription>Edit the parsed values and food metadata before logging.</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {rows.map((row) => (
+          <div key={row.id} className="grid gap-4 rounded-xl border border-border p-4 md:grid-cols-[5rem_minmax(0,1fr)]">
+            <img
+              src={row.imageUrl}
+              alt={row.fileName || "Captured food"}
+              className="h-20 w-20 rounded-xl object-cover"
+            />
+            <div className="grid gap-3">
+              <div className="grid gap-2 sm:grid-cols-3 sm:items-end">
+                <div className="space-y-2">
+                  <Label htmlFor={`food-name-${row.id}`}>Food name</Label>
+                  <Input
+                    id={`food-name-${row.id}`}
+                    value={row.foodName}
+                    onChange={(event) =>
+                      onUpdateRow(row.id, (prev) => ({
+                        ...prev,
+                        foodName: event.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor={`time-eaten-${row.id}`}>Time eaten</Label>
+                  <Input
+                    id={`time-eaten-${row.id}`}
+                    type="time"
+                    value={row.timeEaten}
+                    onChange={(event) =>
+                      onUpdateRow(row.id, (prev) => ({
+                        ...prev,
+                        timeEaten: event.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor={`meal-class-${row.id}`}>Class</Label>
+                  <select
+                    id={`meal-class-${row.id}`}
+                    value={row.mealClass}
+                    onChange={(event) =>
+                      onUpdateRow(row.id, (prev) => ({
+                        ...prev,
+                        mealClass: event.target.value as MacroCaptureRow["mealClass"],
+                      }))
+                    }
+                    className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
+                  >
+                    <option value="breakfast">Breakfast</option>
+                    <option value="lunch">Lunch</option>
+                    <option value="dinner">Dinner</option>
+                    <option value="snack">Snack</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {[
+                  { label: "Protein", value: row.protein, field: "protein" as const },
+                  { label: "Fibre", value: row.fibre, field: "fibre" as const },
+                  { label: "Carbs", value: row.carbohydrates, field: "carbohydrates" as const },
+                  { label: "Fat", value: row.fat, field: "fat" as const },
+                  { label: "Calories", value: row.calories, field: "calories" as const },
+                ].map((field) => (
+                  <div key={field.field} className="space-y-2">
+                    <Label htmlFor={`${field.field}-${row.id}`}>{field.label}</Label>
+                    <Input
+                      id={`${field.field}-${row.id}`}
+                      value={field.value}
+                      onChange={(event) =>
+                        onUpdateRow(row.id, (prev) => ({
+                          ...prev,
+                          [field.field]: event.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {row.rawResult && (
+                <div className="rounded-xl bg-muted/60 p-3 text-xs text-muted-foreground">
+                  <p className="font-medium text-foreground">Raw scan result</p>
+                  <pre className="max-h-24 overflow-auto whitespace-pre-wrap break-words">
+                    {row.rawResult}
+                  </pre>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -171,27 +494,32 @@ function MacrosDesktopDropZone({
   busy,
   scanError,
   lastResult,
-  runScan,
+  selectedFile,
+  selectedPreviewUrl,
+  context,
+  onContextChange,
+  onSelectFile,
+  onClear,
+  onSend,
 }: {
   busy: boolean;
   scanError: string | null;
   lastResult: unknown;
-  runScan: (file: File | undefined | null) => Promise<void>;
+  selectedFile: File | null;
+  selectedPreviewUrl: string | null;
+  context: string;
+  onContextChange: (value: string) => void;
+  onSelectFile: (file: File | undefined | null) => Promise<void>;
+  onClear: () => void;
+  onSend: () => void;
 }) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = React.useState(false);
+  const [localError, setLocalError] = React.useState<string | null>(null);
 
   const onBrowse = React.useCallback(() => {
     inputRef.current?.click();
   }, []);
-
-  const consumeFiles = React.useCallback(
-    (list: FileList | null | undefined) => {
-      const next = list?.[0];
-      void runScan(next);
-    },
-    [runScan],
-  );
 
   const onDragOverFile = React.useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -213,18 +541,29 @@ function MacrosDesktopDropZone({
       e.preventDefault();
       e.stopPropagation();
       setDragOver(false);
-      consumeFiles(e.dataTransfer.files);
+      void onSelectFile(e.dataTransfer.files?.[0]);
     },
-    [consumeFiles],
+    [onSelectFile],
   );
 
   const onInputChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      consumeFiles(e.target.files);
+      void onSelectFile(e.target.files?.[0]);
       e.target.value = "";
     },
-    [consumeFiles],
+    [onSelectFile],
   );
+
+  const onSendClick = React.useCallback(() => {
+    if (!selectedFile) {
+      setLocalError("Choose an image before sending.");
+      return;
+    }
+    setLocalError(null);
+    onSend();
+  }, [onSend, selectedFile]);
+
+  const hasError = scanError || localError;
 
   return (
     <div className="flex flex-col gap-6">
@@ -232,44 +571,47 @@ function MacrosDesktopDropZone({
         <CardHeader className="border-b">
           <CardTitle>Food photo</CardTitle>
           <CardDescription>
-            Drop nutrition labels or meal photos — sent to OCR via{" "}
-            <code className="text-xs">POST /api/food-scan</code>.
+            Drag or browse an image, then add extra context before sending it to
+            OCR.
           </CardDescription>
         </CardHeader>
-        <CardContent className="pt-4">
-          <button
-            type="button"
-            disabled={busy}
-            onDragEnter={onDragOverFile}
-            onDragLeave={onLeave}
-            onDragOver={onDragOverFile}
-            onDrop={onDropFiles}
-            onClick={onBrowse}
-            className={cn(
-              "flex w-full cursor-pointer flex-col items-center gap-4 rounded-xl border-2 border-dashed border-border bg-muted/20 px-6 py-12 text-center transition-colors outline-none",
-              dragOver &&
-                !busy &&
-                "border-primary bg-primary/[0.04] ring-2 ring-primary/35",
-              busy && "pointer-events-none opacity-60 cursor-not-allowed",
-            )}
-          >
-            {busy ? (
-              <Loader2Icon className="size-14 text-muted-foreground animate-spin" />
-            ) : (
-              <UploadCloudIcon className="size-14 text-muted-foreground" />
-            )}
-            <span className="font-medium text-base">
-              {busy ? "Processing…" : "Drag an image here or click to browse"}
-            </span>
-            <span className="max-w-md text-muted-foreground text-sm">
-              JPEG, PNG, WebP · up to 12&nbsp;MB. Optional upstream: set{" "}
-              <code className="text-xs">FOOD_SCAN_UPSTREAM_URL</code>{" "}
-              server-side.
-            </span>
-            <Button asChild size="sm" variant="secondary">
-              <span>Browse files</span>
-            </Button>
-          </button>
+        <CardContent className="space-y-4 pt-4">
+          <div>
+            <button
+              type="button"
+              disabled={busy}
+              onDragEnter={onDragOverFile}
+              onDragLeave={onLeave}
+              onDragOver={onDragOverFile}
+              onDrop={onDropFiles}
+              onClick={onBrowse}
+              className={cn(
+                "flex w-full cursor-pointer flex-col items-center gap-4 rounded-xl border-2 border-dashed border-border bg-muted/20 px-6 py-12 text-center transition-colors outline-none",
+                dragOver &&
+                  !busy &&
+                  "border-primary bg-primary/[0.04] ring-2 ring-primary/35",
+                busy && "pointer-events-none opacity-60 cursor-not-allowed",
+              )}
+            >
+              {busy ? (
+                <Loader2Icon className="size-14 text-muted-foreground animate-spin" />
+              ) : (
+                <UploadCloudIcon className="size-14 text-muted-foreground" />
+              )}
+              <span className="font-medium text-base">
+                {busy ? "Processing…" : "Drag an image here or click to browse"}
+              </span>
+              <span className="max-w-md text-muted-foreground text-sm">
+                JPEG, PNG, WebP · up to 12&nbsp;MB. Optional upstream: set{" "}
+                <code className="text-xs">FOOD_SCAN_UPSTREAM_URL</code>{" "}
+                server-side.
+              </span>
+              <Button asChild size="sm" variant="secondary">
+                <span>{selectedFile ? "Replace image" : "Browse files"}</span>
+              </Button>
+            </button>
+          </div>
+
           <input
             ref={inputRef}
             type="file"
@@ -277,14 +619,68 @@ function MacrosDesktopDropZone({
             hidden
             onChange={onInputChange}
           />
+
+          {selectedPreviewUrl && (
+            <div className="rounded-xl border border-border bg-muted p-3">
+              <p className="text-sm text-foreground/80">Selected file</p>
+              <img
+                src={selectedPreviewUrl}
+                alt="Selected food capture preview"
+                className="mt-3 h-44 w-full rounded-lg object-contain"
+              />
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <label htmlFor="macros-context" className="text-sm font-medium">
+              Additional context (optional)
+            </label>
+            <textarea
+              id="macros-context"
+              value={context}
+              onChange={(event) => onContextChange(event.target.value)}
+              rows={4}
+              className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
+              placeholder="Describe what you captured, the meal type, or any note for OCR."
+            />
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              {selectedFile ? (
+                <span>{selectedFile.name}</span>
+              ) : (
+                <span>No image selected yet.</span>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {selectedFile && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={onClear}
+                >
+                  Clear
+                </Button>
+              )}
+              <Button
+                type="button"
+                onClick={onSendClick}
+                disabled={busy || !selectedFile}
+              >
+                Send to OCR
+              </Button>
+            </div>
+          </div>
         </CardContent>
 
-        {(scanError || lastResult !== null) && (
+        {(hasError || lastResult !== null) && (
           <CardFooter className="flex flex-col gap-3 items-start">
-            {scanError && (
+            {hasError && (
               <p className="flex items-start gap-2 text-destructive text-sm leading-relaxed">
                 <AlertCircleIcon className="mt-0.5 size-4 shrink-0" />
-                <span>{scanError}</span>
+                <span>{hasError}</span>
               </p>
             )}
             {lastResult !== null && (
@@ -310,12 +706,12 @@ function MacrosMobileCameraExperience({
   busy,
   scanError,
   lastResult,
-  runScan,
+  onCapture,
 }: {
   busy: boolean;
   scanError: string | null;
   lastResult: unknown;
-  runScan: (file: File | undefined | null) => Promise<void>;
+  onCapture: (file: File | undefined | null) => Promise<void>;
 }) {
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const streamRef = React.useRef<MediaStream | null>(null);
@@ -398,16 +794,16 @@ function MacrosMobileCameraExperience({
       return;
     }
     const file = await videoFrameToJpegFile(el);
-    await runScan(file);
-  }, [busy, runScan]);
+    await onCapture(file);
+  }, [busy, onCapture]);
 
   const onGalleryPick = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const next = e.target.files?.[0];
-      void runScan(next);
+      void onCapture(next);
       e.target.value = "";
     },
-    [runScan],
+    [onCapture],
   );
 
   const openGallery = React.useCallback(() => {

@@ -40,6 +40,11 @@ export async function POST(request: Request) {
   try {
     const form = await request.formData();
     const file = form.get("image");
+    const context = form.get("context");
+    const userContext =
+      typeof context === "string" && context.trim().length > 0
+        ? context.trim()
+        : "";
 
     if (!(file instanceof File)) {
       return NextResponse.json(
@@ -73,6 +78,9 @@ export async function POST(request: Request) {
     if (upstream) {
       const forward = new FormData();
       forward.append("image", file, file.name || "capture.jpg");
+      if (userContext) {
+        forward.append("context", userContext);
+      }
 
       const res = await fetch(upstream, {
         method: "POST",
@@ -108,6 +116,23 @@ export async function POST(request: Request) {
 
     if (apiKey) {
       const dataUrl = await fileToDataUrl(file);
+      const promptContent: Array<unknown> = [
+        {
+          type: "text",
+          text: "Analyze this food or meal image and return macro nutrition as JSON only, following your instructions.",
+        },
+      ];
+      if (userContext) {
+        promptContent.push({
+          type: "text",
+          text: `User note: ${userContext}`,
+        });
+      }
+      promptContent.push({
+        type: "image_url",
+        imageUrl: { url: dataUrl },
+      });
+
       const result = await client.chat.send(
         {
           chatRequest: {
@@ -115,16 +140,7 @@ export async function POST(request: Request) {
             messages: [
               {
                 role: "user",
-                content: [
-                  {
-                    type: "text",
-                    text: "Analyze this food or meal image and return macro nutrition as JSON only, following your instructions.",
-                  },
-                  {
-                    type: "image_url",
-                    imageUrl: { url: dataUrl },
-                  },
-                ],
+                content: promptContent,
               },
             ],
           },
