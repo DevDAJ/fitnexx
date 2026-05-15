@@ -15,7 +15,7 @@ import { useMacrosCaptureStore } from "@/stores/macrosCaptureStore";
 
 export default function MacrosCaptureRowsPage() {
   const router = useRouter();
-  const { rows, updateCaptureRow } = useMacrosCaptureStore();
+  const { rows, updateCaptureRow, removeCaptureRow } = useMacrosCaptureStore();
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-6 p-4 sm:px-6">
@@ -47,7 +47,11 @@ export default function MacrosCaptureRowsPage() {
           </CardContent>
         </Card>
       ) : (
-        <CaptureRowsList rows={rows} onUpdateRow={updateCaptureRow} />
+        <CaptureRowsList
+          rows={rows}
+          onUpdateRow={updateCaptureRow}
+          onRemoveRow={removeCaptureRow}
+        />
       )}
     </div>
   );
