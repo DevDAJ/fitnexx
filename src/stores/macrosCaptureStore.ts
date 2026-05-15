@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 type MacroCaptureRow = {
   id: string;
@@ -38,38 +39,126 @@ type MacrosCaptureStore = {
   resetCapture: () => void;
 };
 
-export const useMacrosCaptureStore = create<MacrosCaptureStore>((set) => ({
-  busy: false,
-  scanError: null,
-  lastResult: null,
-  selectedFile: null,
-  selectedPreviewUrl: null,
-  context: "",
-  rows: [],
-  setBusy: (busy) => set({ busy }),
-  setScanError: (scanError) => set({ scanError }),
-  setLastResult: (lastResult) => set({ lastResult }),
-  setSelectedFile: (selectedFile) => set({ selectedFile }),
-  setSelectedPreviewUrl: (selectedPreviewUrl) => set({ selectedPreviewUrl }),
-  setContext: (context) => set({ context }),
-  addCaptureRow: (row) => set((state) => ({ rows: [...state.rows, row] })),
-  updateCaptureRow: (id, updater) =>
-    set((state) => ({
-      rows: state.rows.map((row) =>
-        row.id === id ? updater(row) : row,
-      ),
-    })),
-  removeCaptureRow: (id) =>
-    set((state) => ({ rows: state.rows.filter((row) => row.id !== id) })),
-  resetCapture: () =>
-    set({
+const MACROS_CAPTURE_STORAGE_KEY = "fitnexx-macros-capture";
+const MACROS_CAPTURE_DB_NAME = "fitnexx-storage";
+const MACROS_CAPTURE_DB_STORE = "zustand";
+const MACROS_CAPTURE_DB_VERSION = 1;
+
+function openIndexedDb(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    if (typeof window === "undefined") {
+      reject(new Error("IndexedDB is not available"));
+      return;
+    }
+
+    const request = window.indexedDB.open(
+      MACROS_CAPTURE_DB_NAME,
+      MACROS_CAPTURE_DB_VERSION,
+    );
+
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(MACROS_CAPTURE_DB_STORE)) {
+        db.createObjectStore(MACROS_CAPTURE_DB_STORE);
+      }
+    };
+
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function createIndexedDbStorage() {
+  if (typeof window === "undefined") {
+    return {
+      getItem: async () => null,
+      setItem: async () => {},
+      removeItem: async () => {},
+    };
+  }
+
+  return {
+    async getItem(name: string) {
+      const db = await openIndexedDb();
+      return new Promise<string | null>((resolve, reject) => {
+        const transaction = db.transaction(MACROS_CAPTURE_DB_STORE, "readonly");
+        const request = transaction.objectStore(MACROS_CAPTURE_DB_STORE).get(name);
+        request.onsuccess = () => {
+          const result = request.result;
+          resolve(result === undefined ? null : String(result));
+        };
+        request.onerror = () => reject(request.error);
+      });
+    },
+    async setItem(name: string, value: string) {
+      const db = await openIndexedDb();
+      return new Promise<void>((resolve, reject) => {
+        const transaction = db.transaction(MACROS_CAPTURE_DB_STORE, "readwrite");
+        const request = transaction.objectStore(MACROS_CAPTURE_DB_STORE).put(value, name);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+    },
+    async removeItem(name: string) {
+      const db = await openIndexedDb();
+      return new Promise<void>((resolve, reject) => {
+        const transaction = db.transaction(MACROS_CAPTURE_DB_STORE, "readwrite");
+        const request = transaction.objectStore(MACROS_CAPTURE_DB_STORE).delete(name);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+    },
+  };
+}
+
+export const useMacrosCaptureStore = create<MacrosCaptureStore>()(
+  persist(
+    (set) => ({
       busy: false,
       scanError: null,
       lastResult: null,
       selectedFile: null,
       selectedPreviewUrl: null,
       context: "",
+      rows: [],
+      setBusy: (busy) => set({ busy }),
+      setScanError: (scanError) => set({ scanError }),
+      setLastResult: (lastResult) => set({ lastResult }),
+      setSelectedFile: (selectedFile) => set({ selectedFile }),
+      setSelectedPreviewUrl: (selectedPreviewUrl) => set({ selectedPreviewUrl }),
+      setContext: (context) => set({ context }),
+      addCaptureRow: (row) => set((state) => ({ rows: [...state.rows, row] })),
+      updateCaptureRow: (id, updater) =>
+        set((state) => ({
+          rows: state.rows.map((row) =>
+            row.id === id ? updater(row) : row,
+          ),
+        })),
+      removeCaptureRow: (id) =>
+        set((state) => ({ rows: state.rows.filter((row) => row.id !== id) })),
+      resetCapture: () =>
+        set({
+          busy: false,
+          scanError: null,
+          lastResult: null,
+          selectedFile: null,
+          selectedPreviewUrl: null,
+          context: "",
+        }),
     }),
-}));
+    {
+      name: MACROS_CAPTURE_STORAGE_KEY,
+      storage: createJSONStorage(createIndexedDbStorage),
+      partialize: (state) => ({
+        rows: state.rows,
+        context: state.context,
+      }),
+      merge: (persistedState, currentState) => ({
+        ...currentState,
+        ...(persistedState ?? {}),
+      }),
+    },
+  ),
+);
 
 export type { MacroCaptureRow };
