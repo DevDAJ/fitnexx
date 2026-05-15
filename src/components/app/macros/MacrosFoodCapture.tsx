@@ -303,6 +303,10 @@ export function MacrosFoodCapture() {
     [setBusy, setLastResult, setScanError],
   );
 
+  const openCapturedFoods = React.useCallback(() => {
+    router.push("/app/macros/capture/rows");
+  }, [router]);
+
   const saveCaptureForReview = React.useCallback(
     async (file: File | undefined | null) => {
       if (!(file instanceof File && file.type.startsWith("image/"))) {
@@ -338,7 +342,9 @@ export function MacrosFoodCapture() {
         busy={busy}
         scanError={scanError}
         lastResult={lastResult}
+        rowsCount={rows.length}
         onCapture={saveCaptureForReview}
+        onViewRows={openCapturedFoods}
       />
     );
   }
@@ -706,12 +712,16 @@ function MacrosMobileCameraExperience({
   busy,
   scanError,
   lastResult,
+  rowsCount,
   onCapture,
+  onViewRows,
 }: {
   busy: boolean;
   scanError: string | null;
   lastResult: unknown;
+  rowsCount: number;
   onCapture: (file: File | undefined | null) => Promise<void>;
+  onViewRows: () => void;
 }) {
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const streamRef = React.useRef<MediaStream | null>(null);
@@ -890,6 +900,20 @@ function MacrosMobileCameraExperience({
           </Button>
         </div>
       </div>
+
+      {rowsCount > 0 && (
+        <div className="mx-4 flex justify-end sm:mx-0">
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={onViewRows}
+            disabled={busy}
+          >
+            View captured foods ({rowsCount})
+          </Button>
+        </div>
+      )}
 
       {(scanError || lastResult !== null) && (
         <Card size="sm" className="mx-4 overflow-hidden rounded-xl sm:mx-0">
