@@ -54,6 +54,7 @@ export default function MacrosCaptureReviewPage() {
     setLastResult,
     addCaptureRow,
     updateCaptureRow,
+    removeCaptureRow,
     resetCapture,
   } = useMacrosCaptureStore();
 
@@ -188,7 +189,11 @@ export default function MacrosCaptureReviewPage() {
           )}
         </CardContent>
       </Card>
-      <CaptureRowsList rows={rows} onUpdateRow={updateCaptureRow} />
+      <CaptureRowsList
+        rows={rows}
+        onUpdateRow={updateCaptureRow}
+        onRemoveRow={removeCaptureRow}
+      />
     </div>
   );
 }

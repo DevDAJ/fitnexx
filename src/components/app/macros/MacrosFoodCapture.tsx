@@ -1,28 +1,29 @@
 "use client";
 
 import {
-  AlertCircleIcon,
   ImagePlusIcon,
   Loader2Icon,
   SwitchCameraIcon,
+  Trash2Icon,
   UploadCloudIcon,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import * as React from "react";
-
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  type MacroCaptureRow,
+  useMacrosCaptureStore,
+} from "@/stores/macrosCaptureStore";
 import cn from "@/utils/cn";
-import { MacroCaptureRow, useMacrosCaptureStore } from "@/stores/macrosCaptureStore";
 
 function useViewportIsMobile(): boolean | undefined {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>();
@@ -38,12 +39,7 @@ function useViewportIsMobile(): boolean | undefined {
   return isMobile;
 }
 
-type MacroFieldKey =
-  | "protein"
-  | "fibre"
-  | "carbohydrates"
-  | "fat"
-  | "calories";
+type MacroFieldKey = "protein" | "fibre" | "carbohydrates" | "fat" | "calories";
 
 function findMacroValue(value: unknown, key: string): string | undefined {
   if (value === null || value === undefined) {
@@ -116,7 +112,9 @@ function parseScanResult(result: unknown) {
     rawResult: typeof result === "string" ? result : JSON.stringify(result),
   };
 
-  (['protein', 'fibre', 'carbohydrates', 'fat', 'calories'] as MacroFieldKey[]).forEach((key) => {
+  (
+    ["protein", "fibre", "carbohydrates", "fat", "calories"] as MacroFieldKey[]
+  ).forEach((key) => {
     const value = findMacroValue(parsed, key);
     if (value !== undefined && value !== null && value !== "") {
       fields[key] = String(value);
@@ -239,37 +237,29 @@ export function MacrosFoodCapture() {
   const router = useRouter();
   const {
     busy,
-    scanError,
-    lastResult,
     selectedFile,
     selectedPreviewUrl,
     context,
     rows,
     setBusy,
-    setScanError,
-    setLastResult,
     setSelectedFile,
     setSelectedPreviewUrl,
     setContext,
     addCaptureRow,
     updateCaptureRow,
+    removeCaptureRow,
     resetCapture,
   } = useMacrosCaptureStore();
 
   const runScan = React.useCallback(
     async (file: File | undefined | null, contextValue?: string) => {
       if (!(file instanceof File && file.type.startsWith("image/"))) {
-        setScanError("Pick an image file.");
         return;
       }
-
-      setScanError(null);
-      setLastResult(null);
       setBusy(true);
 
       try {
         const { status, body } = await foodScanMultipart(file, contextValue);
-        setLastResult(body);
         const err =
           body &&
           typeof body === "object" &&
@@ -279,12 +269,11 @@ export function MacrosFoodCapture() {
             ? (body as { error: string }).error
             : null;
         if (!(status >= 200 && status < 300)) {
-          setScanError(err || `Request failed (${status}).`);
+          return;
         } else if (err) {
-          setScanError(err);
+          return;
         } else {
-          const imageUrl =
-            selectedPreviewUrl || (await fileToDataUrl(file));
+          const imageUrl = selectedPreviewUrl ?? (await fileToDataUrl(file));
           addCaptureRow(
             createCaptureRow(
               imageUrl,
@@ -295,13 +284,14 @@ export function MacrosFoodCapture() {
           );
         }
       } catch {
-        setScanError("Could not reach the server. Check your connection.");
+        return;
       } finally {
         setBusy(false);
       }
     },
-    [setBusy, setLastResult, setScanError],
+    [addCaptureRow, setBusy, selectedPreviewUrl],
   );
+  ``;
 
   const openCapturedFoods = React.useCallback(() => {
     router.push("/app/macros/capture/rows");
@@ -310,11 +300,9 @@ export function MacrosFoodCapture() {
   const saveCaptureForReview = React.useCallback(
     async (file: File | undefined | null) => {
       if (!(file instanceof File && file.type.startsWith("image/"))) {
-        setScanError("Pick an image file.");
         return;
       }
 
-      setScanError(null);
       try {
         const previewUrl = await fileToDataUrl(file);
         setSelectedFile(file);
@@ -322,10 +310,10 @@ export function MacrosFoodCapture() {
         setContext("");
         router.push("/app/macros/capture");
       } catch {
-        setScanError("Unable to serialize image. Try again.");
+        return;
       }
     },
-    [router, setContext, setScanError, setSelectedFile, setSelectedPreviewUrl],
+    [router, setContext, setSelectedFile, setSelectedPreviewUrl],
   );
 
   if (isMobileViewport === undefined) {
@@ -340,8 +328,6 @@ export function MacrosFoodCapture() {
     return (
       <MacrosMobileCameraExperience
         busy={busy}
-        scanError={scanError}
-        lastResult={lastResult}
         rowsCount={rows.length}
         onCapture={saveCaptureForReview}
         onViewRows={openCapturedFoods}
@@ -353,18 +339,14 @@ export function MacrosFoodCapture() {
     <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-6">
       <MacrosDesktopDropZone
         busy={busy}
-        scanError={scanError}
-        lastResult={lastResult}
         selectedFile={selectedFile}
         selectedPreviewUrl={selectedPreviewUrl}
         context={context}
         onContextChange={setContext}
         onSelectFile={async (file) => {
           if (!file || !file.type.startsWith("image/")) {
-            setScanError("Pick an image file.");
             return;
           }
-          setScanError(null);
           setSelectedFile(file);
           try {
             setSelectedPreviewUrl(await fileToDataUrl(file));
@@ -375,7 +357,11 @@ export function MacrosFoodCapture() {
         onClear={resetCapture}
         onSend={() => runScan(selectedFile, context)}
       />
-      <CaptureRowsList rows={rows} onUpdateRow={updateCaptureRow} />
+      <CaptureRowsList
+        rows={rows}
+        onUpdateRow={updateCaptureRow}
+        onRemoveRow={removeCaptureRow}
+      />
     </div>
   );
 }
@@ -383,9 +369,14 @@ export function MacrosFoodCapture() {
 export function CaptureRowsList({
   rows,
   onUpdateRow,
+  onRemoveRow,
 }: {
   rows: MacroCaptureRow[];
-  onUpdateRow: (id: string, updater: (row: MacroCaptureRow) => MacroCaptureRow) => void;
+  onUpdateRow: (
+    id: string,
+    updater: (row: MacroCaptureRow) => MacroCaptureRow,
+  ) => void;
+  onRemoveRow: (id: string) => void;
 }) {
   if (rows.length === 0) {
     return null;
@@ -395,11 +386,16 @@ export function CaptureRowsList({
     <Card>
       <CardHeader className="border-b">
         <CardTitle>Captured foods</CardTitle>
-        <CardDescription>Edit the parsed values and food metadata before logging.</CardDescription>
+        <CardDescription>
+          Edit the parsed values and food metadata before logging.
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {rows.map((row) => (
-          <div key={row.id} className="grid gap-4 rounded-xl border border-border p-4 md:grid-cols-[5rem_minmax(0,1fr)]">
+          <div
+            key={row.id}
+            className="grid gap-4 rounded-xl border border-border p-4 md:grid-cols-[5rem_minmax(0,1fr)]"
+          >
             <img
               src={row.imageUrl}
               alt={row.fileName || "Captured food"}
@@ -442,7 +438,8 @@ export function CaptureRowsList({
                     onChange={(event) =>
                       onUpdateRow(row.id, (prev) => ({
                         ...prev,
-                        mealClass: event.target.value as MacroCaptureRow["mealClass"],
+                        mealClass: event.target
+                          .value as MacroCaptureRow["mealClass"],
                       }))
                     }
                     className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
@@ -458,14 +455,28 @@ export function CaptureRowsList({
 
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {[
-                  { label: "Protein", value: row.protein, field: "protein" as const },
+                  {
+                    label: "Protein",
+                    value: row.protein,
+                    field: "protein" as const,
+                  },
                   { label: "Fibre", value: row.fibre, field: "fibre" as const },
-                  { label: "Carbs", value: row.carbohydrates, field: "carbohydrates" as const },
+                  {
+                    label: "Carbs",
+                    value: row.carbohydrates,
+                    field: "carbohydrates" as const,
+                  },
                   { label: "Fat", value: row.fat, field: "fat" as const },
-                  { label: "Calories", value: row.calories, field: "calories" as const },
+                  {
+                    label: "Calories",
+                    value: row.calories,
+                    field: "calories" as const,
+                  },
                 ].map((field) => (
                   <div key={field.field} className="space-y-2">
-                    <Label htmlFor={`${field.field}-${row.id}`}>{field.label}</Label>
+                    <Label htmlFor={`${field.field}-${row.id}`}>
+                      {field.label}
+                    </Label>
                     <Input
                       id={`${field.field}-${row.id}`}
                       value={field.value}
@@ -479,15 +490,19 @@ export function CaptureRowsList({
                   </div>
                 ))}
               </div>
-
-              {row.rawResult && (
-                <div className="rounded-xl bg-muted/60 p-3 text-xs text-muted-foreground">
-                  <p className="font-medium text-foreground">Raw scan result</p>
-                  <pre className="max-h-24 overflow-auto whitespace-pre-wrap break-words">
-                    {row.rawResult}
-                  </pre>
-                </div>
-              )}
+            </div>
+            <div className="flex justify-end border-t border-border pt-3 md:col-span-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                aria-label={`Remove ${row.foodName.trim() || "food item"}`}
+                onClick={() => onRemoveRow(row.id)}
+              >
+                <Trash2Icon className="mr-2 size-4" aria-hidden />
+                Remove
+              </Button>
             </div>
           </div>
         ))}
@@ -498,8 +513,6 @@ export function CaptureRowsList({
 
 function MacrosDesktopDropZone({
   busy,
-  scanError,
-  lastResult,
   selectedFile,
   selectedPreviewUrl,
   context,
@@ -509,8 +522,6 @@ function MacrosDesktopDropZone({
   onSend,
 }: {
   busy: boolean;
-  scanError: string | null;
-  lastResult: unknown;
   selectedFile: File | null;
   selectedPreviewUrl: string | null;
   context: string;
@@ -521,7 +532,6 @@ function MacrosDesktopDropZone({
 }) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = React.useState(false);
-  const [localError, setLocalError] = React.useState<string | null>(null);
 
   const onBrowse = React.useCallback(() => {
     inputRef.current?.click();
@@ -561,15 +571,8 @@ function MacrosDesktopDropZone({
   );
 
   const onSendClick = React.useCallback(() => {
-    if (!selectedFile) {
-      setLocalError("Choose an image before sending.");
-      return;
-    }
-    setLocalError(null);
     onSend();
-  }, [onSend, selectedFile]);
-
-  const hasError = scanError || localError;
+  }, [onSend]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -661,12 +664,7 @@ function MacrosDesktopDropZone({
             </div>
             <div className="flex flex-wrap gap-2">
               {selectedFile && (
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={onClear}
-                >
+                <Button type="button" variant="secondary" onClick={onClear}>
                   Clear
                 </Button>
               )}
@@ -680,29 +678,6 @@ function MacrosDesktopDropZone({
             </div>
           </div>
         </CardContent>
-
-        {(hasError || lastResult !== null) && (
-          <CardFooter className="flex flex-col gap-3 items-start">
-            {hasError && (
-              <p className="flex items-start gap-2 text-destructive text-sm leading-relaxed">
-                <AlertCircleIcon className="mt-0.5 size-4 shrink-0" />
-                <span>{hasError}</span>
-              </p>
-            )}
-            {lastResult !== null && (
-              <div className="w-full space-y-1">
-                <p className="font-medium text-foreground text-sm">
-                  Latest response
-                </p>
-                <pre className="max-h-48 overflow-auto rounded-lg bg-muted/60 p-3 text-xs whitespace-pre-wrap break-words">
-                  {typeof lastResult === "string"
-                    ? lastResult
-                    : JSON.stringify(lastResult, null, 2)}
-                </pre>
-              </div>
-            )}
-          </CardFooter>
-        )}
       </Card>
     </div>
   );
@@ -710,15 +685,11 @@ function MacrosDesktopDropZone({
 
 function MacrosMobileCameraExperience({
   busy,
-  scanError,
-  lastResult,
   rowsCount,
   onCapture,
   onViewRows,
 }: {
   busy: boolean;
-  scanError: string | null;
-  lastResult: unknown;
   rowsCount: number;
   onCapture: (file: File | undefined | null) => Promise<void>;
   onViewRows: () => void;
@@ -913,32 +884,6 @@ function MacrosMobileCameraExperience({
             View captured foods ({rowsCount})
           </Button>
         </div>
-      )}
-
-      {(scanError || lastResult !== null) && (
-        <Card size="sm" className="mx-4 overflow-hidden rounded-xl sm:mx-0">
-          <CardHeader className="border-b">
-            <CardTitle className="text-sm font-medium">Scan result</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 pt-3">
-            {scanError && (
-              <p className="flex items-start gap-2 text-destructive text-sm leading-relaxed">
-                <AlertCircleIcon
-                  className="mt-0.5 size-4 shrink-0"
-                  aria-hidden
-                />
-                <span>{scanError}</span>
-              </p>
-            )}
-            {lastResult !== null && (
-              <pre className="max-h-40 overflow-auto rounded-lg bg-muted/60 p-3 text-[0.6875rem] whitespace-pre-wrap break-words leading-snug">
-                {typeof lastResult === "string"
-                  ? lastResult
-                  : JSON.stringify(lastResult, null, 2)}
-              </pre>
-            )}
-          </CardContent>
-        </Card>
       )}
     </div>
   );

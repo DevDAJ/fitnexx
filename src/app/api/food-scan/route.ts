@@ -116,35 +116,44 @@ export async function POST(request: Request) {
 
     if (apiKey) {
       const dataUrl = await fileToDataUrl(file);
-      const result = await client.chat.send(
-        {
-          chatRequest: {
-            model: MACRO_VISION_MODEL,
-            messages: [
-              {
-                role: "user",
-                content: [
-                  {
-                    type: "file",
-                    file: {
-                      fileData: dataUrl,
+      try {
+        const result = await client.chat.send(
+          {
+            chatRequest: {
+              model: MACRO_VISION_MODEL,
+              messages: [
+                {
+                  role: "user",
+                  content: [
+                    {
+                      type: "image_url",
+                      imageUrl: {
+                        url: dataUrl,
+                      },
                     },
-                  },
-                  {
-                    type: "text",
-                    text: userContext,
-                  },
-                ],
-              },
-            ],
+                    {
+                      type: "text",
+                      text: userContext,
+                    },
+                  ],
+                },
+              ],
+            },
           },
-        },
-        { timeoutMs: 120_000 },
-      );
-      console.log(result);
-      const raw = assistantTextContent(result.choices[0]?.message?.content);
-      console.log(raw);
-      return NextResponse.json(raw);
+          { timeoutMs: 120_000 },
+        );
+
+        console.log(result);
+        const raw = assistantTextContent(result.choices[0]?.message?.content);
+        console.log(raw);
+        return NextResponse.json(raw);
+      } catch (error) {
+        console.error(error);
+        return NextResponse.json(
+          { error: "Unexpected server error" },
+          { status: 500 },
+        );
+      }
     }
   } catch {
     return NextResponse.json(
