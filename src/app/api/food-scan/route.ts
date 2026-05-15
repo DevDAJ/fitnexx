@@ -116,23 +116,6 @@ export async function POST(request: Request) {
 
     if (apiKey) {
       const dataUrl = await fileToDataUrl(file);
-      const promptContent: Array<unknown> = [
-        {
-          type: "text",
-          text: "Analyze this food or meal image and return macro nutrition as JSON only, following your instructions.",
-        },
-      ];
-      if (userContext) {
-        promptContent.push({
-          type: "text",
-          text: `User note: ${userContext}`,
-        });
-      }
-      promptContent.push({
-        type: "image_url",
-        imageUrl: { url: dataUrl },
-      });
-
       const result = await client.chat.send(
         {
           chatRequest: {
@@ -140,7 +123,18 @@ export async function POST(request: Request) {
             messages: [
               {
                 role: "user",
-                content: promptContent,
+                content: [
+                  {
+                    type: "file",
+                    file: {
+                      fileData: dataUrl,
+                    },
+                  },
+                  {
+                    type: "text",
+                    text: userContext,
+                  },
+                ],
               },
             ],
           },
