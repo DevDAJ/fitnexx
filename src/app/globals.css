@@ -29,6 +29,8 @@
   --chart-4: oklch(0.53 0.15 198);
   --chart-5: oklch(0.44 0.12 195);
   --radius: 0.45rem;
+  --shadow-clerk-social:
+    0px 2px 3px -1px rgba(0, 0, 0, 0.08), 0px 1px 0px 0px rgba(0, 0, 0, 0.02);
   --sidebar: oklch(0.986 0.006 215);
   --sidebar-foreground: oklch(0.148 0.02 228);
   --sidebar-primary: oklch(0.62 0.17 200);
@@ -121,6 +123,25 @@ body {
   --sidebar-accent-foreground: oklch(0.987 0.004 215);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.55 0.04 215);
+}
+
+@layer utilities {
+  .shadow-clerk-social {
+    box-shadow: var(--shadow-clerk-social);
+  }
+  /** Clerk OAuth buttons — 1px border + theme tint */
+  .border-clerk-social {
+    border-width: 1px;
+    border-style: solid;
+    border-color: color-mix(in srgb, transparent, var(--border) 11%);
+  }
+
+  .cl-socialButtonsProviderIcon__x {
+    filter: grayscale(1) brightness(0);
+  }
+  .dark .cl-socialButtonsProviderIcon__x {
+    filter: grayscale(1) brightness(0) invert(1);
+  }
 }
 
 @layer base {
