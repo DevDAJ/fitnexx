@@ -5,6 +5,9 @@ import { PwaServiceWorkerRegister } from "@/components/shared/pwa-service-worker
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { LayoutPropsType } from "@/types/layoutProps";
 import "./globals.css";
+import { ClerkProvider } from "@clerk/nextjs";
+
+import { clerkAppearance } from "@/lib/clerk-appearance";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,16 +45,18 @@ export default function RootLayout({ children }: LayoutPropsType) {
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col bg-background">
-        {/* PWA: https://nextjs.org/docs/app/guides/progressive-web-apps */}
-        <PwaServiceWorkerRegister />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem={false}
-          storageKey="fitnexx-theme"
-        >
-          <TooltipProvider>{children}</TooltipProvider>
-        </ThemeProvider>
+        <ClerkProvider appearance={clerkAppearance}>
+          {/* PWA: https://nextjs.org/docs/app/guides/progressive-web-apps */}
+          <PwaServiceWorkerRegister />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem={false}
+            storageKey="fitnexx-theme"
+          >
+            <TooltipProvider>{children}</TooltipProvider>
+          </ThemeProvider>
+        </ClerkProvider>
       </body>
     </html>
   );

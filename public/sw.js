@@ -5,7 +5,7 @@
  * Adds a fetch handler so Chromium can treat the site as installable when criteria are met.
  */
 
-self.addEventListener("push", function (event) {
+self.addEventListener("push", (event) => {
   if (!event.data) return;
 
   let data;
@@ -31,14 +31,22 @@ self.addEventListener("push", function (event) {
   );
 });
 
-self.addEventListener("notificationclick", function (event) {
+self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   const openTo = new URL("/app", self.location.origin).href;
-  event.waitUntil(
-    clients.openWindow(openTo),
-  );
+  event.waitUntil(clients.openWindow(openTo));
 });
 
-self.addEventListener("fetch", function (event) {
+self.addEventListener("fetch", (event) => {
+  // Do not intercept cross-origin loads. Passing every request through
+  // respondWith(fetch(...)) breaks some third-party <script crossorigin>
+  // loads (e.g. Clerk CDN with redirects).
+  try {
+    const scopeOrigin = new URL(self.registration.scope).origin;
+    const requestOrigin = new URL(event.request.url).origin;
+    if (requestOrigin !== scopeOrigin) return;
+  } catch {
+    return;
+  }
   event.respondWith(fetch(event.request));
 });

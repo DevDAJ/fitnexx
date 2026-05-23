@@ -1,5 +1,6 @@
 "use client";
 
+import { UserButton } from "@clerk/nextjs";
 import {
   Activity,
   BarChart3,
@@ -47,14 +48,15 @@ export function AppSidebar() {
       className="sticky top-0 hidden h-svh w-(--sidebar-width) shrink-0 border-e border-sidebar-border md:flex"
     >
       <SidebarHeader className="px-4 py-3">
-        <div className="flex justify-between">
+        <div className="flex items-center justify-between gap-2">
           <Link
             href="/app"
-            className="text-md font-semibold tracking-tight text-sidebar-foreground hover:text-sidebar-accent-foreground"
+            className="text-md min-w-0 font-semibold tracking-tight text-sidebar-foreground truncate hover:text-sidebar-accent-foreground"
           >
             Fitnexx
           </Link>
-          <ModeToggle />
+
+          <UserButton />
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -80,6 +82,11 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup className="mt-auto">
+          <SidebarGroupContent>
+            <ModeToggle />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

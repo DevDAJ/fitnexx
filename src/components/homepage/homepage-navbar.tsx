@@ -1,5 +1,6 @@
 "use client";
 
+import { Show, UserButton } from "@clerk/nextjs";
 import { Menu } from "lucide-react";
 import Link from "next/link";
 
@@ -41,12 +42,25 @@ export function HomepageNavbar() {
           <Button variant="ghost" size="sm" asChild>
             <Link href="/contact">Contact</Link>
           </Button>
-          <Button size="sm" asChild>
-            <Link href="/app">Get started</Link>
-          </Button>
+          <Show when="signed-out">
+            <Button size="sm" asChild>
+              <Link href="/app">Get started</Link>
+            </Button>
+          </Show>
+          <Show when="signed-in">
+            <div className="contents">
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/app">Open app</Link>
+              </Button>
+              <UserButton />
+            </div>
+          </Show>
         </nav>
         <div className="flex items-center gap-1.5 sm:hidden">
           <ModeToggle />
+          <Show when="signed-in">
+            <UserButton />
+          </Show>
           <Dialog>
             <DialogTrigger asChild>
               <Button
@@ -84,11 +98,20 @@ export function HomepageNavbar() {
                     <Link href="/contact">Contact</Link>
                   </Button>
                 </DialogClose>
-                <DialogClose asChild>
-                  <Button className="justify-start" asChild>
-                    <Link href="/app">Get started</Link>
-                  </Button>
-                </DialogClose>
+                <Show when="signed-out">
+                  <DialogClose asChild>
+                    <Button className="justify-start" asChild>
+                      <Link href="/app">Get started</Link>
+                    </Button>
+                  </DialogClose>
+                </Show>
+                <Show when="signed-in">
+                  <DialogClose asChild>
+                    <Button className="justify-start" variant="outline" asChild>
+                      <Link href="/app">Open app</Link>
+                    </Button>
+                  </DialogClose>
+                </Show>
               </nav>
             </DialogContent>
           </Dialog>
