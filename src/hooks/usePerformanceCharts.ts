@@ -154,7 +154,13 @@ export function usePerformanceCharts(rangeStart: Date, rangeEnd: Date) {
       if (c === 0) return { date, delta: null };
       if (i === firstDataIndex) return { date, delta: 0 };
 
-      const prev = values[i - 1] ?? 0;
+      let prev = 0;
+      for (let j = i - 1; j >= 0; j--) {
+        if (values[j] > 0) {
+          prev = values[j];
+          break;
+        }
+      }
       return { date, delta: c - prev };
     });
   }, [

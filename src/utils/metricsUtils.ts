@@ -4,7 +4,6 @@ import {
 } from "@/constants/metricsConstants";
 import type {
   ActivityLevel,
-  AvgMacrosDaily,
   BodyMetricEntry,
   MetricsState,
 } from "@/types/metricsTypes";
@@ -23,32 +22,7 @@ const empty: MetricsState = {
   targetBodyFatPercent: null,
   activityLevel: "sedentary",
   targetWeeklyPaceKg: null,
-  avgMacrosDaily: null,
 };
-
-function mergeAvgMacrosDaily(parsed: unknown): AvgMacrosDaily | null {
-  if (!parsed || typeof parsed !== "object") return null;
-  const o = parsed as Record<string, unknown>;
-  const n = (key: string): number | null => {
-    const v = o[key];
-    return typeof v === "number" && Number.isFinite(v) && v >= 0 ? v : null;
-  };
-  const out: AvgMacrosDaily = {
-    calories: n("calories"),
-    proteinG: n("proteinG"),
-    carbsG: n("carbsG"),
-    fatG: n("fatG"),
-  };
-  if (
-    out.calories == null &&
-    out.proteinG == null &&
-    out.carbsG == null &&
-    out.fatG == null
-  ) {
-    return null;
-  }
-  return out;
-}
 
 export function mergePartialMetricsState(parsed: unknown): MetricsState {
   if (!parsed || typeof parsed !== "object") {
@@ -66,8 +40,18 @@ export function mergePartialMetricsState(parsed: unknown): MetricsState {
     p.targetWeeklyPaceKg > 0
       ? p.targetWeeklyPaceKg
       : null;
+  const rawEntries = Array.isArray(p.entries) ? p.entries : [];
+  const entries = rawEntries.filter(
+    (e): e is BodyMetricEntry =>
+      typeof e === "object" &&
+      e !== null &&
+      typeof (e as BodyMetricEntry).weightKg === "number" &&
+      Number.isFinite((e as BodyMetricEntry).weightKg) &&
+      typeof (e as BodyMetricEntry).date === "string" &&
+      (e as BodyMetricEntry).date.length > 0,
+  );
   return {
-    entries: Array.isArray(p.entries) ? p.entries : [],
+    entries,
     targetWeightKg:
       typeof p.targetWeightKg === "number" && Number.isFinite(p.targetWeightKg)
         ? p.targetWeightKg
@@ -79,7 +63,6 @@ export function mergePartialMetricsState(parsed: unknown): MetricsState {
         : null,
     activityLevel,
     targetWeeklyPaceKg,
-    avgMacrosDaily: mergeAvgMacrosDaily(p.avgMacrosDaily),
   };
 }
 

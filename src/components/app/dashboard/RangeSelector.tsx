@@ -1,7 +1,22 @@
-import { endOfDay, startOfDay, subDays } from "date-fns";
+import { differenceInDays, endOfDay, startOfDay, subDays } from "date-fns";
 import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DatePickerButton } from "../DatePickerButton";
+
+function matchPreset(
+  start: Date,
+  end: Date,
+): "week" | "month" | "year" | null {
+  const now = endOfDay(new Date());
+  const endNorm = endOfDay(end);
+  const diff = Math.round(differenceInDays(endNorm, startOfDay(start))) + 1;
+  if (endNorm.getTime() === now.getTime()) {
+    if (diff === 7) return "week";
+    if (diff === 30) return "month";
+    if (diff === 365) return "year";
+  }
+  return null;
+}
 
 export function RangeSelector({
   rangeStart,
@@ -17,7 +32,7 @@ export function RangeSelector({
   datesWithData?: readonly Date[];
 }) {
   const [isActive, setIsActive] = useState<("week" | "month" | "year") | null>(
-    "week",
+    () => matchPreset(rangeStart, rangeEnd),
   );
   const presetWeek = useCallback(() => {
     setIsActive("week");

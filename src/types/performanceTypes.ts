@@ -10,6 +10,7 @@ export type Exercise = {
   id: string;
   name: string;
   muscleGroupId: string;
+  requiredEquipmentIds?: string[];
 };
 
 export type WorkoutSet = {
@@ -19,6 +20,7 @@ export type WorkoutSet = {
   weight: number;
   reps: number;
   unit: WeightUnit;
+  sessionId?: string; // links to a programming session
 };
 
 export type PerformanceState = {

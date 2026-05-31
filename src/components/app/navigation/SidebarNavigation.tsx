@@ -51,7 +51,7 @@ export function AppSidebar() {
         <div className="flex items-center justify-between gap-2">
           <Link
             href="/app"
-            className="text-md min-w-0 font-semibold tracking-tight text-sidebar-foreground truncate hover:text-sidebar-accent-foreground"
+            className="text-base min-w-0 font-semibold tracking-tight text-sidebar-foreground truncate hover:text-sidebar-accent-foreground"
           >
             Fitnexx
           </Link>

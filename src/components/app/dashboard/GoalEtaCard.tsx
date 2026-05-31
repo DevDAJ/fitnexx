@@ -14,6 +14,7 @@ import {
   DASHBOARD_ASSUMED_AVG_CALORIES,
 } from "@/constants/metricsConstants";
 import { useMetricsState } from "@/hooks/useMetricsState";
+import { useMacrosCaptureStore } from "@/stores/macrosCaptureStore";
 import {
   estimateWeightGoalEta,
   formatEtaDuration,
@@ -26,6 +27,20 @@ export function GoalEtaCard() {
   const { state, ready } = useMetricsState();
 
   const latest = latestMetricEntry(state.entries);
+
+  const todayDate = React.useMemo(
+    () =>
+      `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`,
+    [],
+  );
+  const macroRows = useMacrosCaptureStore((s) => s.rows);
+  const todayCalories = React.useMemo(() => {
+    const todayRows = macroRows.filter((r) => r.date === todayDate);
+    return todayRows.reduce((acc, r) => {
+      const v = Number.parseFloat(r.calories);
+      return acc + (Number.isFinite(v) ? v : 0);
+    }, 0);
+  }, [macroRows, todayDate]);
 
   const content = React.useMemo(() => {
     if (!ready) return null;
@@ -41,19 +56,18 @@ export function GoalEtaCard() {
 
     const targetKg = state.targetWeightKg;
     const activityMultiplier = ACTIVITY_TDEE_MULTIPLIERS[state.activityLevel];
-    const savedAvgCalories = state.avgMacrosDaily?.calories;
     const avgCaloriesForBalance =
-      savedAvgCalories != null && Number.isFinite(savedAvgCalories)
-        ? savedAvgCalories
+      todayCalories > 0
+        ? todayCalories
         : DASHBOARD_ASSUMED_AVG_CALORIES;
 
     const assumptionNote = (
       <p key="assumption" className="text-muted-foreground text-sm">
-        {savedAvgCalories != null && Number.isFinite(savedAvgCalories) ? (
+        {todayCalories > 0 ? (
           <>
-            Your saved average intake is{" "}
+            Today's captured intake is{" "}
             <span className="text-foreground font-medium tabular-nums">
-              {Math.round(savedAvgCalories).toLocaleString()} kcal/day
+              {Math.round(todayCalories).toLocaleString()} kcal
             </span>
             .
           </>
@@ -63,7 +77,7 @@ export function GoalEtaCard() {
             <span className="text-foreground font-medium tabular-nums">
               {DASHBOARD_ASSUMED_AVG_CALORIES.toLocaleString()} kcal/day
             </span>{" "}
-            until you enter typical calories on Metrics.
+            until you capture macros today using the Macros page.
           </>
         )}
       </p>
@@ -145,38 +159,11 @@ export function GoalEtaCard() {
           </dd>
         </div>
         <div className="flex justify-between gap-4">
-          <dt className="text-muted-foreground">Avg intake − TDEE</dt>
+          <dt className="text-muted-foreground">Intake − TDEE</dt>
           <dd className="tabular-nums font-medium">{balRounded} kcal/day</dd>
         </div>
       </dl>,
     );
-
-    const m = state.avgMacrosDaily;
-    if (
-      m &&
-      ((m.proteinG != null && m.proteinG >= 0) ||
-        (m.carbsG != null && m.carbsG >= 0) ||
-        (m.fatG != null && m.fatG >= 0))
-    ) {
-      const parts: string[] = [];
-      if (m.proteinG != null && m.proteinG >= 0)
-        parts.push(`P ${m.proteinG % 1 === 0 ? m.proteinG : m.proteinG.toFixed(1)} g`);
-      if (m.carbsG != null && m.carbsG >= 0)
-        parts.push(`C ${m.carbsG % 1 === 0 ? m.carbsG : m.carbsG.toFixed(1)} g`);
-      if (m.fatG != null && m.fatG >= 0)
-        parts.push(`F ${m.fatG % 1 === 0 ? m.fatG : m.fatG.toFixed(1)} g`);
-      para.push(
-        <div
-          key="avg-macros"
-          className="text-muted-foreground flex justify-between gap-4 text-sm"
-        >
-          <span className="shrink-0">Saved avg macros</span>
-          <span className="tabular-nums font-medium text-foreground">
-            {parts.join(" · ")}
-          </span>
-        </div>,
-      );
-    }
 
     if (
       state.targetWeeklyPaceKg != null &&
@@ -246,7 +233,7 @@ export function GoalEtaCard() {
     state.targetWeightKg,
     state.activityLevel,
     state.targetWeeklyPaceKg,
-    state.avgMacrosDaily,
+    todayCalories,
   ]);
 
   return (

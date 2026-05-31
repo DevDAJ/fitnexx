@@ -13,20 +13,10 @@ export type ActivityLevel =
   | "active"
   | "very_active";
 
-/** Optional typical daily intake averages for dashboard energy balance. */
-export type AvgMacrosDaily = {
-  calories: number | null;
-  proteinG: number | null;
-  carbsG: number | null;
-  fatG: number | null;
-};
-
 export type MetricsState = {
   entries: BodyMetricEntry[];
   targetWeightKg: number | null;
   targetBodyFatPercent: number | null;
   activityLevel: ActivityLevel;
-  /** kg per week toward the scale-weight goal (loss when cutting, gain when bulking). */
   targetWeeklyPaceKg: number | null;
-  avgMacrosDaily: AvgMacrosDaily | null;
 };

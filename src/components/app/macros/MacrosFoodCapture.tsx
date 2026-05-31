@@ -134,9 +134,11 @@ export function createCaptureRow(
   const defaultName = context.trim() || fileName || "Scanned food";
   const now = new Date();
   const timeEaten = now.toTimeString().slice(0, 5);
+  const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
   return {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+    date,
     imageUrl,
     fileName,
     foodName: defaultName,
@@ -249,6 +251,7 @@ export function MacrosFoodCapture() {
     updateCaptureRow,
     removeCaptureRow,
     resetCapture,
+    setScanError,
   } = useMacrosCaptureStore();
 
   const runScan = React.useCallback(
@@ -269,8 +272,10 @@ export function MacrosFoodCapture() {
             ? (body as { error: string }).error
             : null;
         if (!(status >= 200 && status < 300)) {
+          setScanError(err || `Request failed (${status}).`);
           return;
         } else if (err) {
+          setScanError(err);
           return;
         } else {
           const imageUrl = selectedPreviewUrl ?? (await fileToDataUrl(file));
@@ -284,14 +289,13 @@ export function MacrosFoodCapture() {
           );
         }
       } catch {
-        return;
+        setScanError("Could not reach the server. Check your connection.");
       } finally {
         setBusy(false);
       }
     },
-    [addCaptureRow, setBusy, selectedPreviewUrl],
+    [addCaptureRow, setBusy, setScanError, selectedPreviewUrl],
   );
-  ``;
 
   const openCapturedFoods = React.useCallback(() => {
     router.push("/app/macros/capture/rows");
@@ -611,9 +615,7 @@ function MacrosDesktopDropZone({
                 {busy ? "Processing…" : "Drag an image here or click to browse"}
               </span>
               <span className="max-w-md text-muted-foreground text-sm">
-                JPEG, PNG, WebP · up to 12&nbsp;MB. Optional upstream: set{" "}
-                <code className="text-xs">FOOD_SCAN_UPSTREAM_URL</code>{" "}
-                server-side.
+                JPEG, PNG, WebP · up to 12&nbsp;MB.
               </span>
               <Button asChild size="sm" variant="secondary">
                 <span>{selectedFile ? "Replace image" : "Browse files"}</span>

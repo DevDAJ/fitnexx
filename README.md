@@ -61,7 +61,7 @@ This repo targets a **recent Next.js major** with breaking changes versus older 
 
 - **`src/components/ui/`**: reusable primitives; extend here rather than copying patterns.
 - **`homepage/`**, **`app/`**, **`shared/`**: feature-level grouping—place new UI where it is primarily used; promote to `shared/` when two surfaces need it.
-- Use `cn()` from `src/lib/utils.ts` for conditional Tailwind classes.
+- Use `cn()` (default export from `src/utils/cn.ts`) for conditional Tailwind classes.
 
 ### Server vs client
 

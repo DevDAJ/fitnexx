@@ -27,10 +27,8 @@ export function SetHistoryRow({
 }: {
   row: WorkoutSet;
   exerciseOptions: ComboboxOption[];
-  muscleGroups: MuscleGroup[];
   onUpdate: (next: WorkoutSet) => void;
   onDelete: (id: string) => void;
-  onAddExercise: (exercise: Exercise) => void;
 }) {
   const [exerciseId, setExerciseId] = useState(row.exerciseId);
   const [unit, setUnit] = useState<WeightUnit>(row.unit);
@@ -56,6 +54,9 @@ export function SetHistoryRow({
   const handleSave = () => {
     const reps = Number.parseInt(repsStr, 10);
     const weight = Number.parseFloat(weightStr.replace(",", "."));
+    if (!exerciseId || typeof exerciseId !== "string") {
+      return;
+    }
     if (
       !Number.isFinite(reps) ||
       reps <= 0 ||
@@ -71,6 +72,7 @@ export function SetHistoryRow({
       weight,
       reps,
       unit,
+      sessionId: row.sessionId,
     });
   };
 

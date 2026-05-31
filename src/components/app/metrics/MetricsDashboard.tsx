@@ -21,11 +21,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useMetricsState } from "@/hooks/useMetricsState";
-import type {
-  ActivityLevel,
-  AvgMacrosDaily,
-  BodyMetricEntry,
-} from "@/types/metricsTypes";
+import { useMacrosCaptureStore } from "@/stores/macrosCaptureStore";
+import type { ActivityLevel, BodyMetricEntry } from "@/types/metricsTypes";
 import { bmrKatchMcArdle } from "@/utils/metricsUtils";
 
 function parseOptionalFloat(raw: string): number | null {
@@ -56,10 +53,28 @@ export function MetricsDashboard() {
   const [activityLevel, setActivityLevel] =
     React.useState<ActivityLevel>("sedentary");
   const [targetWeeklyPace, setTargetWeeklyPace] = React.useState("");
-  const [avgCalories, setAvgCalories] = React.useState("");
-  const [avgProteinG, setAvgProteinG] = React.useState("");
-  const [avgCarbsG, setAvgCarbsG] = React.useState("");
-  const [avgFatG, setAvgFatG] = React.useState("");
+
+  const todayDate = React.useMemo(
+    () =>
+      `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`,
+    [],
+  );
+  const macroRows = useMacrosCaptureStore((s) => s.rows);
+  const todayMacros = React.useMemo(() => {
+    const todayRows = macroRows.filter((r) => r.date === todayDate);
+    const sum = (key: keyof typeof todayRows[0]) =>
+      todayRows.reduce((acc, r) => {
+        const v = Number.parseFloat(String(r[key]));
+        return acc + (Number.isFinite(v) ? v : 0);
+      }, 0);
+    return {
+      calories: sum("calories"),
+      proteinG: sum("protein"),
+      carbsG: sum("carbohydrates"),
+      fatG: sum("fat"),
+      count: todayRows.length,
+    };
+  }, [macroRows, todayDate]);
 
   React.useEffect(() => {
     const key = format(logDate, "yyyy-MM-dd");
@@ -87,30 +102,12 @@ export function MetricsDashboard() {
     setTargetWeeklyPace(
       state.targetWeeklyPaceKg != null ? String(state.targetWeeklyPaceKg) : "",
     );
-    const a = state.avgMacrosDaily;
-    setAvgCalories(
-      a?.calories != null && Number.isFinite(a.calories)
-        ? String(a.calories)
-        : "",
-    );
-    setAvgProteinG(
-      a?.proteinG != null && Number.isFinite(a.proteinG)
-        ? String(a.proteinG)
-        : "",
-    );
-    setAvgCarbsG(
-      a?.carbsG != null && Number.isFinite(a.carbsG) ? String(a.carbsG) : "",
-    );
-    setAvgFatG(
-      a?.fatG != null && Number.isFinite(a.fatG) ? String(a.fatG) : "",
-    );
   }, [
     ready,
     state.targetWeightKg,
     state.targetBodyFatPercent,
     state.activityLevel,
     state.targetWeeklyPaceKg,
-    state.avgMacrosDaily,
   ]);
 
   const draftWeightKg = parseOptionalFloat(logWeight);
@@ -123,41 +120,14 @@ export function MetricsDashboard() {
     const paceRaw = parseOptionalFloat(targetWeeklyPace);
     const targetWeeklyPaceKg =
       paceRaw != null && paceRaw > 0 && paceRaw <= 3 ? paceRaw : null;
-    const ac = parseOptionalFloat(avgCalories);
-    const ap = parseOptionalFloat(avgProteinG);
-    const ab = parseOptionalFloat(avgCarbsG);
-    const af = parseOptionalFloat(avgFatG);
-    const avgMacrosDaily: AvgMacrosDaily | null =
-      (ac != null && ac >= 0) ||
-      (ap != null && ap >= 0) ||
-      (ab != null && ab >= 0) ||
-      (af != null && af >= 0)
-        ? {
-            calories: ac != null && ac >= 0 ? ac : null,
-            proteinG: ap != null && ap >= 0 ? ap : null,
-            carbsG: ab != null && ab >= 0 ? ab : null,
-            fatG: af != null && af >= 0 ? af : null,
-          }
-        : null;
     setState((prev) => ({
       ...prev,
       targetWeightKg: tw,
       targetBodyFatPercent: tb,
       activityLevel,
       targetWeeklyPaceKg,
-      avgMacrosDaily,
     }));
-  }, [
-    setState,
-    targetBf,
-    targetWeight,
-    activityLevel,
-    targetWeeklyPace,
-    avgCalories,
-    avgProteinG,
-    avgCarbsG,
-    avgFatG,
-  ]);
+  }, [setState, targetBf, targetWeight, activityLevel, targetWeeklyPace]);
 
   const saveEntry = React.useCallback(() => {
     const weightKg = parseOptionalFloat(logWeight);
@@ -266,51 +236,47 @@ export function MetricsDashboard() {
                   Values above 3 kg/week are not saved.
                 </p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <p className="text-muted-foreground text-xs sm:col-span-2">
-                  Optional typical daily averages (powers the dashboard when
-                  entered; calories drive the surplus/deficit estimate).
+              <div className="rounded-lg border bg-muted/30 px-4 py-3 text-sm">
+                <p className="text-muted-foreground mb-1 text-xs font-medium uppercase tracking-wide">
+                  Today's live intake
                 </p>
-                <div className="grid gap-2">
-                  <Label htmlFor="avg-cal">Avg calories (kcal)</Label>
-                  <Input
-                    id="avg-cal"
-                    inputMode="numeric"
-                    placeholder="e.g. 2100"
-                    value={avgCalories}
-                    onChange={(e) => setAvgCalories(e.target.value)}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="avg-p">Avg protein (g)</Label>
-                  <Input
-                    id="avg-p"
-                    inputMode="decimal"
-                    placeholder="150"
-                    value={avgProteinG}
-                    onChange={(e) => setAvgProteinG(e.target.value)}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="avg-c">Avg carbs (g)</Label>
-                  <Input
-                    id="avg-c"
-                    inputMode="decimal"
-                    placeholder="200"
-                    value={avgCarbsG}
-                    onChange={(e) => setAvgCarbsG(e.target.value)}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="avg-f">Avg fat (g)</Label>
-                  <Input
-                    id="avg-f"
-                    inputMode="decimal"
-                    placeholder="65"
-                    value={avgFatG}
-                    onChange={(e) => setAvgFatG(e.target.value)}
-                  />
-                </div>
+                {todayMacros.count > 0 ? (
+                  <div className="flex flex-wrap gap-x-4 gap-y-1">
+                    <span>
+                      <span className="text-muted-foreground">Calories: </span>
+                      <span className="font-medium tabular-nums">
+                        {Math.round(todayMacros.calories).toLocaleString()} kcal
+                      </span>
+                    </span>
+                    <span>
+                      <span className="text-muted-foreground">Protein: </span>
+                      <span className="font-medium tabular-nums">
+                        {todayMacros.proteinG.toFixed(1)} g
+                      </span>
+                    </span>
+                    <span>
+                      <span className="text-muted-foreground">Carbs: </span>
+                      <span className="font-medium tabular-nums">
+                        {todayMacros.carbsG.toFixed(1)} g
+                      </span>
+                    </span>
+                    <span>
+                      <span className="text-muted-foreground">Fat: </span>
+                      <span className="font-medium tabular-nums">
+                        {todayMacros.fatG.toFixed(1)} g
+                      </span>
+                    </span>
+                    <span className="text-muted-foreground text-xs">
+                      ({todayMacros.count} item{todayMacros.count !== 1 ? "s" : ""})
+                    </span>
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-xs">
+                    No macros captured today. Use the{" "}
+                    <span className="text-foreground font-medium">Macros</span>{" "}
+                    page to log your meals.
+                  </p>
+                )}
               </div>
               <Button type="button" variant="secondary" onClick={saveTargets}>
                 Save targets
@@ -318,8 +284,7 @@ export function MetricsDashboard() {
               {(state.targetWeightKg != null ||
                 state.targetBodyFatPercent != null ||
                 state.targetWeeklyPaceKg != null ||
-                state.activityLevel !== "sedentary" ||
-                state.avgMacrosDaily != null) && (
+                state.activityLevel !== "sedentary") && (
                 <p className="text-muted-foreground text-sm">
                   Saved:{" "}
                   {[
@@ -333,23 +298,6 @@ export function MetricsDashboard() {
                       )?.label,
                     state.targetWeeklyPaceKg != null &&
                       `${state.targetWeeklyPaceKg} kg/week pace`,
-                    ...(state.avgMacrosDaily
-                      ? [
-                          state.avgMacrosDaily.calories != null
-                            ? `~${state.avgMacrosDaily.calories} kcal/day avg`
-                            : null,
-                          (() => {
-                            const a = state.avgMacrosDaily;
-                            if (!a) return null;
-                            const m = [
-                              a.proteinG != null && `P ${a.proteinG}g`,
-                              a.carbsG != null && `C ${a.carbsG}g`,
-                              a.fatG != null && `F ${a.fatG}g`,
-                            ].filter(Boolean) as string[];
-                            return m.length > 0 ? m.join(" ") : null;
-                          })(),
-                        ].filter(Boolean)
-                      : []),
                   ]
                     .filter(Boolean)
                     .join(" · ")}

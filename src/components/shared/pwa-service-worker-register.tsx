@@ -15,7 +15,9 @@ export function PwaServiceWorkerRegister() {
         scope: "/",
         updateViaCache: "none",
       })
-      .catch(() => {});
+      .catch((error) => {
+        console.error("Service worker registration failed", error);
+      });
   }, []);
 
   return null;

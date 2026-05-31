@@ -11,8 +11,7 @@ import {
 } from "@/components/ui/select";
 import { usePerformanceState } from "@/hooks/usePerfomanceState";
 import type { MetricMode } from "@/types/performanceTypes";
-
-const ALL_MUSCLES = "__all__" as const;
+import { ALL_MUSCLES } from "@/constants/performanceConstants";
 
 export function MeasurementSelector({
   metric,

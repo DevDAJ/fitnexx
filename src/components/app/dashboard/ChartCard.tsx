@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import {
   Card,
   CardContent,
@@ -17,8 +18,8 @@ export function ChartCard({
 }: {
   title: string;
   description: string;
-  children: React.ReactNode;
-  footer?: React.ReactNode;
+  children: ReactNode;
+  footer?: ReactNode;
   className?: string;
   headerExtra?: React.ReactNode;
 }) {

@@ -10,11 +10,7 @@ export function usePerformanceState(): {
   ) => void;
   ready: boolean;
 } {
-  const [ready, setReady] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      usePerformanceStore.persist.hasHydrated(),
-  );
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const unsub = usePerformanceStore.persist.onFinishHydration(() => {

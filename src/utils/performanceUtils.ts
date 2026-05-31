@@ -7,8 +7,6 @@ import {
 } from "date-fns";
 import {
   ALL_MUSCLES,
-  DEMO_EXERCISES,
-  DEMO_MUSCLE_GROUPS,
   VOLUME_LABEL,
 } from "@/constants/performanceConstants";
 import type {
@@ -19,29 +17,16 @@ import type {
   WorkoutSet,
 } from "@/types/performanceTypes";
 
-export function seededPerformanceState(): PerformanceState {
-  return {
-    muscleGroups: DEMO_MUSCLE_GROUPS,
-    exercises: DEMO_EXERCISES,
-    sets: [],
-  };
-}
-
 export function mergePartialPerformanceState(
   parsed: unknown,
 ): PerformanceState {
   if (!parsed || typeof parsed !== "object") {
-    return seededPerformanceState();
+    return { muscleGroups: [], exercises: [], sets: [] };
   }
   const p = parsed as Partial<PerformanceState>;
-  const base = seededPerformanceState();
   return {
-    muscleGroups:
-      p.muscleGroups && p.muscleGroups.length > 0
-        ? p.muscleGroups
-        : base.muscleGroups,
-    exercises:
-      p.exercises && p.exercises.length > 0 ? p.exercises : base.exercises,
+    muscleGroups: Array.isArray(p.muscleGroups) ? p.muscleGroups : [],
+    exercises: Array.isArray(p.exercises) ? p.exercises : [],
     sets: Array.isArray(p.sets) ? p.sets : [],
   };
 }

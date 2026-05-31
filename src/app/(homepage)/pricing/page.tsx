@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { foodScansPerDay } from "@/constants/food-scan-limits";
+import { foodScansPerDay, formatScanLimit } from "@/constants/food-scan-limits";
 import { proSubscriptionUsd } from "@/constants/pro-pricing";
 
 const usdFormatter = new Intl.NumberFormat("en-US", {
@@ -50,7 +50,7 @@ const tiers: {
     badge: "Premium AI",
     bullets: [
       "Everything in Free, including body measurement tracking",
-      `Up to ${foodScansPerDay.proMax} OCR food scans per day`,
+      `Up to ${formatScanLimit(foodScansPerDay.proMax)} OCR food scans per day`,
       "Gym workout suggestions: AI-guided options based on your programming and equipment available where you train (cataloged gyms)",
       "Daily meal AI overview: a synthesized read of your day’s meals and macros (not a replacement for logs)",
     ],

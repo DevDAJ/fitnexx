@@ -4,6 +4,7 @@ import {
   endOfDay,
   format,
   isWithinInterval,
+  isValid,
   parseISO,
   startOfDay,
 } from "date-fns";
@@ -36,9 +37,11 @@ export function BodyCompositionCharts({
     const start = startOfDay(rangeStart);
     const end = endOfDay(rangeEnd);
     return state.entries
-      .filter((e) =>
-        isWithinInterval(parseISO(`${e.date}T12:00:00`), { start, end }),
-      )
+      .filter((e) => {
+        const parsed = parseISO(`${e.date}T12:00:00`);
+        if (!isValid(parsed)) return false;
+        return isWithinInterval(parsed, { start, end });
+      })
       .sort((a, b) => a.date.localeCompare(b.date))
       .map((e) => ({
         date: e.date,
@@ -47,7 +50,11 @@ export function BodyCompositionCharts({
       }));
   }, [rangeEnd, rangeStart, state.entries]);
 
-  const xTickFmt = (iso: string) => format(parseISO(iso), "MMM d");
+  const xTickFmt = (iso: string) => {
+    const parsed = parseISO(iso);
+    if (!isValid(parsed)) return iso;
+    return format(parsed, "MMM d");
+  };
 
   return (
     <ChartCard
