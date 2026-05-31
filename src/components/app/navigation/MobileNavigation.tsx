@@ -44,6 +44,7 @@ function EdgeNavLink({ item }: { item: EdgeItem }) {
   return (
     <Link
       href={item.href}
+      aria-current={active ? "page" : undefined}
       className={cn(
         "flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-lg px-1 py-1 text-[0.65rem] font-medium text-muted-foreground transition-colors",
         active && "text-primary",

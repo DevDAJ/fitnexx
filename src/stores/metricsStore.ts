@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { METRICS_STORAGE_KEY } from "@/constants/metricsConstants";
+import { createIndexedDbStorage } from "@/stores/indexedDbStorage";
 import type { MetricsState } from "@/types/metricsTypes";
 import { mergePartialMetricsState } from "@/utils/metricsUtils";
 
@@ -18,19 +19,29 @@ const baseline: MetricsState = {
   targetBodyFatPercent: null,
   activityLevel: "sedentary",
   targetWeeklyPaceKg: null,
-  avgMacrosDaily: null,
 };
 
 function createMetricsPersistStorage() {
-  if (typeof window === "undefined") {
-    return {
-      getItem: (): null => null,
-      setItem: () => {},
-      removeItem: () => {},
-    };
-  }
-  const { localStorage } = window;
-  return localStorage;
+  const idb = createIndexedDbStorage();
+  if (typeof window === "undefined") return idb;
+
+  return {
+    async getItem(name: string) {
+      const raw = await idb.getItem(name);
+      if (raw !== null) return raw;
+      const lsRaw = localStorage.getItem(name);
+      if (lsRaw === null) return null;
+      await idb.setItem(name, lsRaw);
+      localStorage.removeItem(name);
+      return lsRaw;
+    },
+    async setItem(name: string, value: string) {
+      await idb.setItem(name, value);
+    },
+    async removeItem(name: string) {
+      await idb.removeItem(name);
+    },
+  };
 }
 
 export const useMetricsStore = create<MetricsStore>()(
@@ -44,7 +55,6 @@ export const useMetricsStore = create<MetricsStore>()(
           targetBodyFatPercent: get().targetBodyFatPercent,
           activityLevel: get().activityLevel,
           targetWeeklyPaceKg: get().targetWeeklyPaceKg,
-          avgMacrosDaily: get().avgMacrosDaily,
         };
         const next =
           typeof updater === "function"
@@ -56,7 +66,6 @@ export const useMetricsStore = create<MetricsStore>()(
           targetBodyFatPercent: next.targetBodyFatPercent,
           activityLevel: next.activityLevel,
           targetWeeklyPaceKg: next.targetWeeklyPaceKg,
-          avgMacrosDaily: next.avgMacrosDaily,
         });
       },
     }),
@@ -69,7 +78,6 @@ export const useMetricsStore = create<MetricsStore>()(
         targetBodyFatPercent: s.targetBodyFatPercent,
         activityLevel: s.activityLevel,
         targetWeeklyPaceKg: s.targetWeeklyPaceKg,
-        avgMacrosDaily: s.avgMacrosDaily,
       }),
       merge: (persisted, current) => ({
         ...current,

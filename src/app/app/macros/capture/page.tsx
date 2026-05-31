@@ -105,7 +105,7 @@ export default function MacrosCaptureReviewPage() {
     } finally {
       setBusy(false);
     }
-  }, [context, resetCapture, selectedFile, setBusy, setLastResult, setScanError]);
+  }, [context, selectedFile, selectedPreviewUrl, addCaptureRow, setBusy, setLastResult, setScanError]);
 
   if (!selectedPreviewUrl) {
     return (

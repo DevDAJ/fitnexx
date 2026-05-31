@@ -3,6 +3,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 
 type MacroCaptureRow = {
   id: string;
+  date: string;
   imageUrl: string;
   fileName: string;
   foodName: string;

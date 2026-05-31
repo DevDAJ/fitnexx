@@ -2,7 +2,7 @@ import { OpenRouter } from "@openrouter/sdk";
 import { NextResponse } from "next/server";
 
 const client = new OpenRouter({
-  apiKey: process.env.OPENROUTER_API_KEY,
+  apiKey: process.env.OPENROUTER_API_KEY ?? "",
 });
 
 const MAX_BYTES = 12 * 1024 * 1024;
@@ -143,22 +143,23 @@ export async function POST(request: Request) {
           { timeoutMs: 120_000 },
         );
 
-        console.log(result);
-        const raw = assistantTextContent(result.choices[0]?.message?.content);
-        console.log(raw);
-        return NextResponse.json(raw);
-      } catch (error) {
-        console.error(error);
+        return NextResponse.json(assistantTextContent(result.choices[0]?.message?.content));
+      } catch (_e) {
         return NextResponse.json(
           { error: "Unexpected server error" },
           { status: 500 },
         );
       }
     }
+
+    return NextResponse.json(
+      { ok: false, error: "Food scan backend not configured." },
+      { status: 503 },
+    );
   } catch {
     return NextResponse.json(
-      { error: "Unexpected server error" },
-      { status: 500 },
+      { ok: false, error: "Food scan backend not configured." },
+      { status: 503 },
     );
   }
 }

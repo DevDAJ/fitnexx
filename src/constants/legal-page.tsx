@@ -37,7 +37,7 @@ export const legalPages: Record<string, LegalPage> = {
             as part of core Fitnexx processing. Training and body measurement
             data you generate is sent for processing{" "}
             <strong className="text-foreground">anonymously</strong> through our{" "}
-            <strong className="text-foreground">self-hosted LLM</strong>; we{" "}
+            <strong className="text-foreground">server-side OCR processing</strong>; we{" "}
             <strong className="text-foreground">do not retain</strong> those
             inputs or outputs after that processing completes, except where a
             separate, narrowly scoped technical log is strictly required for
@@ -122,7 +122,7 @@ export const legalPages: Record<string, LegalPage> = {
         content: (
           <p>
             We do not sell your personal information. Anonymous training and
-            body measurement streams processed on our self-hosted LLM are not
+            body measurement streams processed on our server-side OCR processing are not
             provided to third parties for their own model training. Where we use
             other infrastructure or service providers (&ldquo;processors&rdquo;)
             for disjoint services (e.g. hosting, billing, or support mail), they

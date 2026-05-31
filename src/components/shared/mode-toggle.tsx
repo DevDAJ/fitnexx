@@ -29,16 +29,6 @@ export function ModeToggle({ className }: { className?: string }) {
 
   return (
     <fieldset
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          setTheme(isLight ? "dark" : "light");
-        }
-      }}
-      onClick={(e) => {
-        e.preventDefault();
-        setTheme(isLight ? "dark" : "light");
-      }}
       className={cn(
         "bg-muted/50 m-0 inline-flex min-w-0 items-center rounded-lg border-0 p-0.5 ring-1 ring-border/80 hover:cursor-pointer",
         className,

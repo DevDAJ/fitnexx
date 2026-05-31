@@ -8,7 +8,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import { foodScansPerDay } from "@/constants/food-scan-limits";
+import { foodScansPerDay, formatScanLimit } from "@/constants/food-scan-limits";
 
 export type FeatureItem = {
   icon: LucideIcon;
@@ -46,7 +46,7 @@ export const features: FeatureItem[] = [
   {
     icon: ScanLine,
     title: "Macro tracking with OCR",
-    description: `Snap nutrition labels or meals; OCR fills macros. Free includes ${foodScansPerDay.free} food scans per day; Pro allows up to ${foodScansPerDay.proMax} per day. Edits after a scan refine recognition. Personal information from those flows is not saved.`,
+    description: `Snap nutrition labels or meals; OCR fills macros. Free includes ${foodScansPerDay.free} food scans per day; Pro allows up to ${formatScanLimit(foodScansPerDay.proMax)} per day. Edits after a scan refine recognition. Personal information from those flows is not saved.`,
     details:
       "Daily allowances keep OCR sustainable to operate; tiers and resets are spelled out on Pricing. Photos and tweaks after a read improve parsing over time. Processing aims at recognition quality only. Fitnexx does not persist personal identifiers tied to imagery or corrections for profiling, resale, or advertising.",
   },

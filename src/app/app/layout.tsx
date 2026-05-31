@@ -1,11 +1,17 @@
 import { Show, SignIn } from "@clerk/nextjs";
 import { AppMobileNav, AppSidebar } from "@/components/app/navigation";
+import { DevDataSeeder } from "@/components/providers/DevDataSeeder";
+import { ReferenceDataHydrator } from "@/components/providers/ReferenceDataHydrator";
+import { ReferenceDataProvider } from "@/components/providers/ReferenceDataProvider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import type { LayoutPropsType } from "@/types/layoutProps";
 
 export default function AppRouteLayout({ children }: LayoutPropsType) {
   return (
     <>
+      <ReferenceDataProvider />
+      <ReferenceDataHydrator />
+      {process.env.NODE_ENV === 'development' && <DevDataSeeder />}
       <Show when="signed-out">
         {/* Path routing requires /app/[[...rest]]; this app uses nested /app/* routes instead. */}
         <div className="flex min-h-svh w-full flex-col items-center justify-center px-4 py-8">

@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
 
 type SettingsRowProps = {
@@ -8,7 +9,7 @@ type SettingsRowProps = {
   mobileActionLabel: string;
   onMobileClick: () => void;
   mobileTrailing?: "chevron" | "control";
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
 export function SettingsRow({
