@@ -36,13 +36,12 @@ yarn-error.log*
 # vercel
 .vercel
 
+# opennext
+.open-next
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
 
-# prisma generated client
-/src/generated/prisma
-
 # VS Code Settings
 .vscode/
-/src/generated/prisma
