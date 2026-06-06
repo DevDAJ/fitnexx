@@ -6,6 +6,7 @@ import type { NextConfig } from "next";
  */
 const nextConfig: NextConfig = {
   reactCompiler: true,
+  serverExternalPackages: ["@prisma/client", ".prisma/client", "pg", "pg-cloudflare", "pgpass"],
   async headers() {
     return [
       {
@@ -47,3 +48,6 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
+import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
+initOpenNextCloudflareForDev();

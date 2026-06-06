@@ -1,5 +1,5 @@
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../src/generated/prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 const connectionString =
   process.env.FITNEXX_PRISMA_DATABASE_URL ?? process.env.FITNEXX_POSTGRES_URL;
