@@ -1,16 +1,32 @@
 import { ScrollView, View, Switch } from "react-native";
 import { useColorScheme } from "nativewind";
+import { useRouter } from "expo-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Header } from "@/components/ui/header";
+import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 
 export default function SettingsScreen() {
   const { colorScheme, setColorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
+  const router = useRouter();
 
   return (
     <ScrollView className="flex-1 bg-background p-4">
       <Header title="Settings" description="Manage your preferences." />
+
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle>Food scanning</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Button
+            variant="outline"
+            onPress={() => router.push("/(tabs)/settings/ai")}
+            title="AI provider & key"
+          />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

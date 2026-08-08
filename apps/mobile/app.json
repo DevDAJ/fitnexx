@@ -15,7 +15,8 @@
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
       },
-      "package": "com.fitnexx.app"
+      "package": "com.fitnexx.app",
+      "usesCleartextTraffic": true
     },
     "plugins": [
       "expo-router",
@@ -30,7 +31,8 @@
         {
           "photosPermission": "Allow Fitnexx to access your photos for food scanning."
         }
-      ]
+      ],
+      "expo-secure-store"
     ]
   }
 }
