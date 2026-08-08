@@ -28,6 +28,22 @@ export default function SettingsScreen() {
         </CardContent>
       </Card>
 
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle>Account</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Text className="mb-2 text-sm text-muted-foreground">
+            Sign in for free managed food scans and bonus scans from ads.
+          </Text>
+          <Button
+            variant="outline"
+            onPress={() => router.push("/(tabs)/settings/account")}
+            title="Account & free scans"
+          />
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>Appearance</CardTitle>

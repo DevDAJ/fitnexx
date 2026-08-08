@@ -11,6 +11,7 @@ export default function SettingsLayout() {
     >
       <Stack.Screen name="index" options={{ title: "Settings" }} />
       <Stack.Screen name="ai" options={{ title: "AI Food Scanning" }} />
+      <Stack.Screen name="account" options={{ title: "Account" }} />
     </Stack>
   );
 }

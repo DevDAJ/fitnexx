@@ -63,6 +63,9 @@ export default function PerformanceScreen() {
         <Button variant="outline" onPress={() => router.push("/(tabs)/performance/programming")}>
           <Text className="text-foreground font-medium">Programming</Text>
         </Button>
+        <Button variant="outline" onPress={() => router.push("/(tabs)/performance/suggest")}>
+          <Text className="text-foreground font-medium">Suggest next workout</Text>
+        </Button>
       </View>
 
       <Card className="mb-4">
