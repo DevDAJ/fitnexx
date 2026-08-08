@@ -47,3 +47,7 @@ export { scanFoodWithProvider, normalizeScanResult, emptyTotals } from "./ai";
 export type { AiProviderConfig, ProviderId, ScanResult, IngredientMacro, MacroTotals } from "./ai";
 export { DEFAULT_SYSTEM_PROMPT } from "./ai";
 export { PROVIDER_ADAPTERS, PROVIDER_IDS } from "./ai";
+export { WORKOUT_SUGGESTION_PROMPT, buildWorkoutContext, normalizeWorkoutSuggestion } from "./ai/workout";
+export type { WorkoutSuggestion, WorkoutSuggestionExercise, WorkoutContextInput } from "./ai/workout";
+export { FREE_SCANS_PER_DAY, computeScanQuota } from "./ai/quota";
+export type { ScanQuota } from "./ai/quota";
