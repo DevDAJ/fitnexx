@@ -2,7 +2,13 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { ScrollView, View, Image } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { useMacrosCaptureStore, parseMacroScanResult, randomId } from "@fitnexx/shared";
+import {
+  useMacrosCaptureStore,
+  useAiSettingsStore,
+  scanFoodWithProvider,
+  randomId,
+} from "@fitnexx/shared";
+import { getApiKey } from "@/lib/secureKeys";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Header } from "@/components/ui/header";
 import { Button } from "@/components/ui/button";
@@ -12,10 +18,13 @@ import { Text, MutedText } from "@/components/ui/text";
 export default function CaptureScreen() {
   const router = useRouter();
   const [image, setImage] = useState<string | null>(null);
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
+  const [mimeType, setMimeType] = useState("image/jpeg");
   const [context, setContext] = useState("");
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const addCaptureRow = useMacrosCaptureStore((s) => s.addCaptureRow);
-  const rows = useMacrosCaptureStore((s) => s.rows);
+  const aiConfig = useAiSettingsStore((s) => s.config);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchCameraAsync({
@@ -25,55 +34,44 @@ export default function CaptureScreen() {
     });
     if (!result.canceled && result.assets[0]) {
       setImage(result.assets[0].uri);
+      setImageBase64(result.assets[0].base64 ?? null);
+      setMimeType(result.assets[0].mimeType ?? "image/jpeg");
+      setError(null);
     }
   };
 
   const scanFood = async () => {
-    if (!image) return;
+    if (!image || !imageBase64) return;
     setBusy(true);
+    setError(null);
     try {
-      const formData = new FormData();
-      formData.append("image", {
-        uri: image,
-        type: "image/jpeg",
-        name: "scan.jpg",
-      } as unknown as Blob);
-      if (context) formData.append("context", context);
-
-      const apiKey = process.env.EXPO_PUBLIC_FOOD_SCAN_API_KEY;
-      const res = await fetch(
-        process.env.EXPO_PUBLIC_API_URL
-          ? `${process.env.EXPO_PUBLIC_API_URL}/api/food-scan`
-          : "/api/food-scan",
-        {
-          method: "POST",
-          body: formData,
-          headers: apiKey ? { "X-API-Key": apiKey } : undefined,
-        },
-      );
-
-      if (!res.ok) throw new Error("Scan failed");
-      const data = await res.json();
-      const parsed = parseMacroScanResult(data);
+      const apiKey = await getApiKey(aiConfig.provider);
+      const result = await scanFoodWithProvider(aiConfig, {
+        imageBase64,
+        mimeType,
+        context,
+        apiKey: apiKey ?? undefined,
+      });
 
       addCaptureRow({
         id: randomId("scan"),
         date: new Date().toISOString().slice(0, 10),
         imageUrl: image,
         fileName: "scan.jpg",
-        foodName: parsed.foodName || context || "Scanned food",
+        foodName: result.foodName || context || "Scanned food",
         timeEaten: new Date().toLocaleTimeString(),
         mealClass: "other",
-        protein: parsed.protein,
-        fibre: parsed.fibre,
-        carbohydrates: parsed.carbohydrates,
-        fat: parsed.fat,
-        calories: parsed.calories,
-        rawResult: parsed.rawResult,
+        protein: String(result.total.protein),
+        fibre: String(result.total.fibre),
+        carbohydrates: String(result.total.carbohydrates),
+        fat: String(result.total.fat),
+        calories: String(result.total.calories),
+        rawResult: JSON.stringify(result),
       });
 
       router.push("/(tabs)/macros/capture-rows");
     } catch (err) {
+      setError(err instanceof Error ? err.message : "Scan failed");
       console.error(err);
     } finally {
       setBusy(false);
@@ -95,6 +93,9 @@ export default function CaptureScreen() {
       )}
 
       <View className="gap-3 mb-4">
+        {error && (
+          <MutedText className="text-red-500">{error}</MutedText>
+        )}
         <Button onPress={pickImage} disabled={busy}>
           <Text className="text-primary-foreground font-medium">
             {image ? "Retake Photo" : "Take Photo"}

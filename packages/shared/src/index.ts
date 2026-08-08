@@ -40,3 +40,10 @@ export { mergePartialPerformanceState } from "./utils/performanceUtils";
 export { mergePartialMetricsState } from "./utils/metricsUtils";
 export { randomId } from "./utils/id";
 export { parseMacroScanResult } from "./utils/macros";
+
+export { useAiSettingsStore } from "./stores/aiSettingsStore";
+
+export { scanFoodWithProvider, normalizeScanResult, emptyTotals } from "./ai";
+export type { AiProviderConfig, ProviderId, ScanResult, IngredientMacro, MacroTotals } from "./ai";
+export { DEFAULT_SYSTEM_PROMPT } from "./ai";
+export { PROVIDER_ADAPTERS, PROVIDER_IDS } from "./ai";
