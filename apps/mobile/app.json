@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Fitnexx",
+    "slug": "fitnexx",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "fitnexx",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.fitnexx.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.fitnexx.app"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Fitnexx to access your camera for food scanning."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Fitnexx to access your photos for food scanning."
+        }
+      ]
+    ]
+  }
+}
