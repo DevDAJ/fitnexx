@@ -1,11 +1,13 @@
 import { Stack } from "expo-router";
+import { useThemeColors } from "@/lib/theme";
 
 export default function MetricsLayout() {
+  const c = useThemeColors();
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: "hsl(0, 0%, 100%)" },
-        headerTintColor: "hsl(189, 65%, 36%)",
+        headerStyle: { backgroundColor: c.background },
+        headerTintColor: c.primary,
         headerTitleStyle: { fontWeight: "600" },
       }}
     >

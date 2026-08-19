@@ -45,7 +45,8 @@ export async function generateWorkoutSuggestion(
       ],
       temperature: 0.3,
       n_predict: 640,
-      response_format: { type: "json_object" },
+      // ponytail: no response_format grammar; a 0.5B model emits empty valid JSON
+      // under strict gbnf. The prompt instructs JSON-only and normalize() parses it.
     },
     onToken ? (data) => onToken(data.token) : undefined,
   );

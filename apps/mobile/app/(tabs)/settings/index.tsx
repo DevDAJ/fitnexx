@@ -5,10 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Header } from "@/components/ui/header";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
+import { useThemeColors } from "@/lib/theme";
 
 export default function SettingsScreen() {
   const { colorScheme, setColorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
+  const c = useThemeColors();
   const router = useRouter();
 
   return (
@@ -59,7 +61,7 @@ export default function SettingsScreen() {
             <Switch
               value={isDark}
               onValueChange={(v) => setColorScheme(v ? "dark" : "light")}
-              trackColor={{ false: "hsl(240, 5.9%, 90%)", true: "hsl(189, 65%, 36%)" }}
+              trackColor={{ false: c.border, true: c.primary }}
               thumbColor="white"
             />
           </View>

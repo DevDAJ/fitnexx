@@ -1,5 +1,6 @@
 import { useShallow } from "zustand/react/shallow";
 import { ScrollView, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { usePerformanceStore } from "@fitnexx/shared";
 import { useMacrosCaptureStore } from "@fitnexx/shared";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,8 +18,9 @@ export default function DashboardScreen() {
   const recentMacros = rows.slice(-5).reverse();
 
   return (
-    <ScrollView className="flex-1 bg-background p-4">
-      <Header title="Dashboard" description="Your fitness overview" />
+    <SafeAreaView edges={["top"]} className="flex-1 bg-background">
+      <ScrollView className="flex-1 bg-background p-4">
+        <Header title="Dashboard" description="Your fitness overview" />
 
       <View className="flex-row gap-3 mb-4">
         <Card className="flex-1">
@@ -69,6 +71,7 @@ export default function DashboardScreen() {
           </CardContent>
         </Card>
       )}
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
