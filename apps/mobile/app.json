@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "Fitnexx",
+    "slug": "fitnexx",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "fitnexx",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.fitnexx.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#000000"
+      },
+      "package": "com.fitnexx.app"
+    },
+    "plugins": ["expo-router"]
+  }
+}
