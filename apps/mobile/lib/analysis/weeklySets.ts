@@ -1,15 +1,8 @@
 import type { Workout, MuscleWeeklyData, WeightUnit } from "../types";
+import { SET_TYPE_FACTORS } from "../types";
 import { MUSCLES, type Muscle } from "../../constants/muscles";
 import { getRemoteExerciseByName } from "../exerciseDatabase";
 import { calculateHypertrophyScore } from "./hypertrophyScore";
-
-const SET_TYPE_FACTOR: Record<string, number> = {
-  normal: 1.0,
-  failure: 1.0,
-  amrap: 1.0,
-  dropset: 0.5,
-  warmup: 0.0,
-};
 
 export async function computeWeeklySets(
   workouts: Workout[],
@@ -34,7 +27,7 @@ export async function computeWeeklySets(
       if (!asset) continue;
 
       for (const set of exercise.sets) {
-        const factor = SET_TYPE_FACTOR[set.setType] ?? 1.0;
+        const factor = SET_TYPE_FACTORS[set.setType] ?? 1.0;
         if (factor === 0) continue;
 
         const primary = asset.primaryMuscle as Muscle;

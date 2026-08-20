@@ -1,4 +1,81 @@
-export type SetType = "normal" | "warmup" | "dropset" | "failure" | "amrap";
+export type SetType =
+  | "normal"
+  | "warmup"
+  | "dropset"
+  | "failure"
+  | "amrap"
+  | "left"
+  | "right"
+  | "cluster"
+  | "giantset"
+  | "superset"
+  | "backoff"
+  | "topset"
+  | "feeder"
+  | "negative"
+  | "partial"
+  | "rest-pause"
+  | "myoreps";
+
+export const SET_TYPE_FACTORS: Record<SetType, number> = {
+  normal: 1.0,
+  failure: 1.0,
+  amrap: 1.0,
+  cluster: 1.0,
+  giantset: 1.0,
+  superset: 1.0,
+  backoff: 1.0,
+  topset: 1.0,
+  negative: 0.8,
+  partial: 0.6,
+  "rest-pause": 1.0,
+  myoreps: 1.0,
+  feeder: 0.5,
+  dropset: 0.5,
+  left: 1.0,
+  right: 1.0,
+  warmup: 0.0,
+};
+
+export const SET_TYPE_LABELS: Record<SetType, string> = {
+  normal: "Normal",
+  warmup: "Warmup",
+  dropset: "Drop Set",
+  failure: "Failure",
+  amrap: "AMRAP",
+  left: "Left",
+  right: "Right",
+  cluster: "Cluster",
+  giantset: "Giant Set",
+  superset: "Superset",
+  backoff: "Backoff",
+  topset: "Top Set",
+  feeder: "Feeder",
+  negative: "Negative",
+  partial: "Partial",
+  "rest-pause": "Rest-Pause",
+  myoreps: "Myo-Reps",
+};
+
+export const SET_TYPE_COLORS: Record<SetType, string> = {
+  normal: "#3b82f6",
+  warmup: "#6b7280",
+  dropset: "#f97316",
+  failure: "#ef4444",
+  amrap: "#ec4899",
+  left: "#06b6d4",
+  right: "#0ea5e9",
+  cluster: "#8b5cf6",
+  giantset: "#a855f7",
+  superset: "#d946ef",
+  backoff: "#f59e0b",
+  topset: "#fbbf24",
+  feeder: "#78716c",
+  negative: "#dc2626",
+  partial: "#fb923c",
+  "rest-pause": "#14b8a6",
+  myoreps: "#10b981",
+};
 
 export type PrType =
   | "weight"
