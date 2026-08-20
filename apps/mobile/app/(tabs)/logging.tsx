@@ -10,11 +10,12 @@ import {
 import { useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
-import { storage } from "../../lib/storage";
+import { useAppStore } from "../../lib/store";
 import type { Workout, ExerciseEntry, WorkoutSet, WorkoutTemplate, ExerciseAsset } from "../../lib/types";
 import { detectPrs } from "../../lib/analysis/prDetection";
 import { getExerciseByName } from "../../constants/exercises";
 import { saveWorkoutAsTemplate } from "../../lib/templates";
+import { useToast } from "../../components/shared/Toast";
 import { ExerciseBlock } from "../../components/logging/ExerciseBlock";
 import { ExercisePicker } from "../../components/logging/ExercisePicker";
 import { RestTimer } from "../../components/logging/RestTimer";
@@ -22,18 +23,14 @@ import { TemplatePicker } from "../../components/logging/TemplatePicker";
 
 export default function LoggingScreen() {
   const insets = useSafeAreaInsets();
+  const workouts = useAppStore((s) => s.workouts);
+  const addWorkout = useAppStore((s) => s.addWorkout);
+  const toast = useToast();
   const [title, setTitle] = useState("");
   const [exercises, setExercises] = useState<ExerciseEntry[]>([]);
   const [showExercisePicker, setShowExercisePicker] = useState(false);
   const [showTemplatePicker, setShowTemplatePicker] = useState(false);
   const [startTime] = useState(Date.now());
-  const [allWorkouts, setAllWorkouts] = useState<Workout[]>([]);
-
-  useFocusEffect(
-    useCallback(() => {
-      storage.getWorkouts().then(setAllWorkouts);
-    }, [])
-  );
 
   const addExercise = (asset: ExerciseAsset) => {
     const newEntry: ExerciseEntry = {
@@ -89,8 +86,7 @@ export default function LoggingScreen() {
       totalVolume: calculateTotalVolume(),
     };
 
-    // Detect PRs
-    const prResults = detectPrs([...allWorkouts, workout]);
+    const prResults = detectPrs([...workouts, workout]);
     const recentPrs = prResults.filter(
       (pr) => pr.date === workout.date
     );
@@ -107,14 +103,14 @@ export default function LoggingScreen() {
       }
     }
 
-    await storage.saveWorkout(workout);
+    await addWorkout(workout);
 
     const prCount = recentPrs.length;
-    Alert.alert(
-      "Workout Saved",
-      prCount > 0 ? `${prCount} new PR${prCount > 1 ? "s" : ""} detected!` : "Great workout!",
-      [{ text: "OK" }]
-    );
+    if (prCount > 0) {
+      toast.showToast(`${prCount} new PR${prCount > 1 ? "s" : ""} detected!`, "pr");
+    } else {
+      toast.showToast("Workout saved!", "success");
+    }
 
     setExercises([]);
     setTitle("");
