@@ -1,21 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ScrollView, View, Text, TouchableOpacity, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { storage } from "../../lib/storage";
+import { useAppStore } from "../../lib/store";
 import type { WeightUnit } from "../../lib/types";
+import { clearCache } from "../../lib/computationCache";
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
-  const [weightUnit, setWeightUnitState] = useState<WeightUnit>("kg");
+  const weightUnit = useAppStore((s) => s.weightUnit);
+  const setWeightUnit = useAppStore((s) => s.setWeightUnit);
 
-  useEffect(() => {
-    storage.getWeightUnit().then(setWeightUnitState);
-  }, []);
-
-  const setWeightUnit = async (unit: WeightUnit) => {
-    await storage.setWeightUnit(unit);
-    setWeightUnitState(unit);
+  const handleSetWeightUnit = async (unit: WeightUnit) => {
+    await setWeightUnit(unit);
+    clearCache();
   };
 
   const clearAllData = () => {
@@ -29,6 +27,8 @@ export default function SettingsScreen() {
           style: "destructive",
           onPress: async () => {
             await AsyncStorage.clear();
+            clearCache();
+            useAppStore.getState().loadAll();
             Alert.alert("Done", "All data cleared.");
           },
         },
@@ -56,7 +56,7 @@ export default function SettingsScreen() {
           {(["kg", "lbs"] as WeightUnit[]).map((unit) => (
             <TouchableOpacity
               key={unit}
-              onPress={() => setWeightUnit(unit)}
+              onPress={() => handleSetWeightUnit(unit)}
               style={{
                 flex: 1,
                 backgroundColor: weightUnit === unit ? "#3b82f6" : "#1a1a1a",
