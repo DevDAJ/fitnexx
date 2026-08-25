@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import type { Workout, WorkoutTemplate, WeightUnit, MuscleWeeklyData } from "./types";
 import { storage } from "./storage";
+import { MOCK_WORKOUTS, MOCK_TEMPLATES } from "./mockData";
+
+const __DEV__ = process.env.NODE_ENV !== "production";
 
 interface AppState {
   workouts: Workout[];
@@ -26,11 +29,21 @@ export const useAppStore = create<AppState>((set, get) => ({
   loaded: false,
 
   loadAll: async () => {
-    const [workouts, templates, weightUnit] = await Promise.all([
+    let [workouts, templates, weightUnit] = await Promise.all([
       storage.getWorkouts(),
       storage.getTemplates(),
       storage.getWeightUnit(),
     ]);
+
+    if (__DEV__ && workouts.length === 0) {
+      workouts = MOCK_WORKOUTS;
+      templates = MOCK_TEMPLATES;
+      await Promise.all([
+        ...workouts.map((w) => storage.saveWorkout(w)),
+        ...templates.map((t) => storage.saveTemplate(t)),
+      ]);
+    }
+
     set({ workouts, templates, weightUnit, loaded: true });
   },
 
