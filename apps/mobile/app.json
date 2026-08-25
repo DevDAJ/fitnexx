@@ -17,6 +17,9 @@
       },
       "package": "com.fitnexx.app"
     },
-    "plugins": ["expo-router"]
+    "plugins": [
+      "expo-router",
+      "expo-status-bar"
+    ]
   }
 }
