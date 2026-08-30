@@ -19,7 +19,16 @@
     },
     "plugins": [
       "expo-router",
-      "expo-status-bar"
+      "expo-status-bar",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Fitnexx uses your location to detect which gym you are at.",
+          "locationAlwaysAndWhenInUsePermission": "Fitnexx uses your location to detect which gym you are at, even while the app is in the background."
+        }
+      ],
+      "expo-task-manager",
+      "expo-notifications"
     ]
   }
 }

@@ -4,7 +4,7 @@ import Svg, { Path, G, Rect } from "react-native-svg";
 import { MUSCLE_COLORS, type Muscle } from "../../constants/muscles";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
-const MAP_WIDTH = SCREEN_WIDTH - 48;
+const MAP_WIDTH = (SCREEN_WIDTH - 48) * 0.5;
 const MAP_HEIGHT = MAP_WIDTH * (1206.46 / 660.46);
 
 // ViewBox from LiftShift SVGs
@@ -255,7 +255,7 @@ export function BodyMap({ muscleData, onSelectMuscle, selectedMuscle }: BodyMapP
           const isSelected = selectedMuscle === group.muscle;
 
           return (
-            <G key={group.muscle}>
+            <G key={group.muscle} transform={group.muscle === "Calves" && view === "front" ? "translate(0, -90)" : undefined}>
               {paths.map((d, i) => (
                 <Path
                   key={`${group.muscle}-${i}`}
