@@ -1,4 +1,4 @@
-import { View, Text, Dimensions } from "react-native";
+import { View, Text, ScrollView, Dimensions } from "react-native";
 import type { DailySummary } from "../../lib/types";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -70,23 +70,25 @@ export function ActivityHeatmap({ dailySummaries }: { dailySummaries: DailySumma
         </Text>
       </View>
 
-      <View style={{ flexDirection: "row", gap: CELL_GAP }}>
-        {weeks.map((week, wi) => (
-          <View key={wi} style={{ gap: CELL_GAP }}>
-            {week.map((day, di) => (
-              <View
-                key={di}
-                style={{
-                  width: CELL_SIZE,
-                  height: CELL_SIZE,
-                  borderRadius: 3,
-                  backgroundColor: getColor(day.intensity),
-                }}
-              />
-            ))}
-          </View>
-        ))}
-      </View>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <View style={{ flexDirection: "row", gap: CELL_GAP }}>
+          {weeks.map((week, wi) => (
+            <View key={wi} style={{ gap: CELL_GAP }}>
+              {week.map((day, di) => (
+                <View
+                  key={di}
+                  style={{
+                    width: CELL_SIZE,
+                    height: CELL_SIZE,
+                    borderRadius: 3,
+                    backgroundColor: getColor(day.intensity),
+                  }}
+                />
+              ))}
+            </View>
+          ))}
+        </View>
+      </ScrollView>
 
       <View style={{ flexDirection: "row", alignItems: "center", gap: 4, marginTop: 10, alignSelf: "flex-end" }}>
         <Text style={{ color: "#666", fontSize: 10 }}>Less</Text>
