@@ -86,7 +86,11 @@ export type PrType =
   | "sessionVolume"
   | "distance";
 
-export type ExerciseTrendStatus = "overload" | "stagnant" | "regression" | "new";
+export type ExerciseTrendStatus =
+  | "overload"
+  | "stagnant"
+  | "regression"
+  | "new";
 
 export interface WorkoutSet {
   weight: number;
@@ -176,3 +180,72 @@ export interface PlateauInfo {
 }
 
 export type WeightUnit = "kg" | "lbs";
+
+export type ScheduleSplit = "push_pull_legs" | "upper_lower" | "custom";
+
+export interface ScheduleDay {
+  dayOfWeek: number;
+  templateId: string;
+  label: string;
+}
+
+export interface Schedule {
+  id: string;
+  name: string;
+  split: ScheduleSplit;
+  days: ScheduleDay[];
+}
+
+export interface ExerciseSuggestion {
+  muscle: string;
+  reason: string;
+  exercises: { name: string; primaryMuscle: string }[];
+}
+
+export interface Meal {
+  id: string;
+  date: string;
+  name: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  imageUri?: string;
+}
+
+export interface MealTemplate {
+  id: string;
+  name: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
+export interface Gym {
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  radius: number;
+  equipment: string[];
+}
+
+export interface BodyMetrics {
+  date: string;
+  weight: number;
+  height: number;
+  bodyFat?: number;
+  age: number;
+  sex: "male" | "female";
+  targetWeight?: number;
+  activityLevel: "sedentary" | "light" | "moderate" | "active" | "very_active";
+}
+
+export interface MetricsReminder {
+  enabled: boolean;
+  frequency: "daily" | "weekly";
+  weekday?: number;
+  hour: number;
+  minute: number;
+}

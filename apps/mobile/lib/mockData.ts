@@ -1,4 +1,4 @@
-import type { Workout, WorkoutTemplate } from "./types";
+import type { Workout, WorkoutTemplate, Schedule } from "./types";
 
 const DAY = 86400000;
 
@@ -944,4 +944,39 @@ export const MOCK_TEMPLATES: WorkoutTemplate[] = [
       { exerciseName: "Calf Raise", targetSets: 3, targetReps: 15 },
     ],
   },
+  {
+    id: "tpl_upper",
+    name: "Upper Body",
+    exercises: [
+      { exerciseName: "Barbell Bench Press", targetSets: 4, targetReps: 8 },
+      { exerciseName: "Barbell Row", targetSets: 3, targetReps: 8 },
+      { exerciseName: "Overhead Press", targetSets: 3, targetReps: 10 },
+      { exerciseName: "Lat Pulldown", targetSets: 3, targetReps: 10 },
+      { exerciseName: "Barbell Curl", targetSets: 3, targetReps: 12 },
+      { exerciseName: "Tricep Pushdown", targetSets: 3, targetReps: 12 },
+    ],
+  },
+  {
+    id: "tpl_lower",
+    name: "Lower Body",
+    exercises: [
+      { exerciseName: "Barbell Squat", targetSets: 4, targetReps: 8 },
+      { exerciseName: "Romanian Deadlift", targetSets: 3, targetReps: 10 },
+      { exerciseName: "Leg Extension", targetSets: 3, targetReps: 12 },
+      { exerciseName: "Leg Curl", targetSets: 3, targetReps: 12 },
+      { exerciseName: "Calf Raise", targetSets: 3, targetReps: 15 },
+      { exerciseName: "Cable Crunch", targetSets: 3, targetReps: 15 },
+    ],
+  },
 ];
+
+export const MOCK_SCHEDULE: Schedule = {
+  id: "sched_ppl",
+  name: "Push / Pull / Legs",
+  split: "push_pull_legs",
+  days: [
+    { dayOfWeek: 1, templateId: "tpl_push", label: "Push Day" },
+    { dayOfWeek: 3, templateId: "tpl_pull", label: "Pull Day" },
+    { dayOfWeek: 5, templateId: "tpl_legs", label: "Leg Day" },
+  ],
+};

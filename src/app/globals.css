@@ -1,0 +1,110 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  background: #0a0a0a;
+  color: #e5e5e5;
+}
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: #3b82f6;
+  color: #ffffff;
+}
+
+/* Thin dark scrollbars to match the mobile UI */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a2a #0a0a0a;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 8px;
+}
+
+/* Legal document content (server-rendered HTML elements) */
+.legal {
+  color: #888888;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.legal h2 {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-top: 24px;
+}
+
+.legal h3 {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  margin-top: 20px;
+}
+
+.legal p {
+  margin: 0;
+}
+
+.legal ul,
+.legal ol {
+  margin: 12px 0;
+  padding-left: 24px;
+}
+
+.legal li {
+  margin: 4px 0;
+}
+
+.legal li::marker {
+  color: #666666;
+}
+
+.legal a {
+  color: #60a5fa;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.legal strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.legal .text-xs {
+  font-size: 12px;
+}
+
+/* Native form fields (kept for server-action compatibility) */
+input:focus,
+textarea:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 1px #3b82f6;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #666666;
+}

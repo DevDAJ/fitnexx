@@ -41,15 +41,15 @@ export default function TabLayout() {
       <Tabs.Screen
         name="logging"
         options={{
-          title: "Log",
-          tabBarIcon: ({ focused }) => <TabIcon name="add-circle-outline" focused={focused} />,
+          title: "Workouts",
+          tabBarIcon: ({ focused }) => <TabIcon name="barbell-outline" focused={focused} />,
         }}
       />
       <Tabs.Screen
-        name="history"
+        name="meals"
         options={{
-          title: "History",
-          tabBarIcon: ({ focused }) => <TabIcon name="time-outline" focused={focused} />,
+          title: "Meals",
+          tabBarIcon: ({ focused }) => <TabIcon name="restaurant-outline" focused={focused} />,
         }}
       />
       <Tabs.Screen
@@ -57,13 +57,6 @@ export default function TabLayout() {
         options={{
           title: "Muscles",
           tabBarIcon: ({ focused }) => <TabIcon name="body-outline" focused={focused} />,
-        }}
-      />
-      <Tabs.Screen
-        name="flex"
-        options={{
-          title: "Flex",
-          tabBarIcon: ({ focused }) => <TabIcon name="trophy-outline" focused={focused} />,
         }}
       />
       <Tabs.Screen
