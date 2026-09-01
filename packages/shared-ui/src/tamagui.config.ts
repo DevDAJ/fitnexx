@@ -3,6 +3,11 @@ import { createTamagui } from "tamagui";
 
 const geist = "var(--font-geist-sans), system-ui, -apple-system, sans-serif";
 
+const withGeist = <T extends { family?: string }>(font: T) => ({
+  ...font,
+  family: geist,
+});
+
 const dark = {
   ...config.themes.dark,
   background: "#0a0a0a",
@@ -54,8 +59,8 @@ export const tamaguiConfig = createTamagui({
   ...config,
   fonts: {
     ...config.fonts,
-    body: { ...config.fonts.body, family: geist },
-    heading: { ...config.fonts.heading, family: geist },
+    body: withGeist(config.fonts.body),
+    heading: withGeist(config.fonts.heading),
   },
   themes: {
     ...config.themes,
@@ -65,9 +70,5 @@ export const tamaguiConfig = createTamagui({
 });
 
 export type AppConfig = typeof tamaguiConfig;
-
-declare module "tamagui" {
-  interface TamaguiCustomConfig extends AppConfig {}
-}
 
 export default tamaguiConfig;

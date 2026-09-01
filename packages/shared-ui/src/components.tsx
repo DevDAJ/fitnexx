@@ -60,7 +60,7 @@ export const Muted = styled(Text, {
   color: "$muted",
 });
 
-export const Button = styled(TButton, {
+export const BaseButton = styled(TButton, {
   name: "Button",
   borderRadius: 10,
   backgroundColor: "$primary",
@@ -83,14 +83,22 @@ export const Button = styled(TButton, {
       ghost: { backgroundColor: "transparent", color: "$color" },
       secondary: { backgroundColor: "$surface", color: "$color" },
     },
-    size: {
+    siz: {
       sm: { height: 32, paddingHorizontal: 12, fontSize: 14 },
       md: { height: 40, paddingHorizontal: 16, fontSize: 15 },
       lg: { height: 48, paddingHorizontal: 22, fontSize: 16 },
     },
   } as const,
-  defaultVariants: { variant: "primary", size: "md" },
+  defaultVariants: { variant: "primary", siz: "md" },
 });
+
+export const Button = BaseButton.styleable<{ size?: "sm" | "md" | "lg" }>(
+  ({ size = "md", ...props }, ref) => (
+    // siz is an internal variant name so `size` never reaches the TButton
+    // font-size resolver (avoids "No font size found" warnings).
+    <BaseButton ref={ref} siz={size} {...props} />
+  ),
+);
 
 export const Input = styled(TInput, {
   name: "Input",
