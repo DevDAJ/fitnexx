@@ -9,13 +9,15 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+/.tamagui
 
 # testing
 /coverage
 
 # next.js
-/.next/
-/out/
+/.next
+/apps/web/.next/
+/apps/web/out/
 
 # production
 /build
@@ -32,6 +34,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -41,8 +44,8 @@ yarn-error.log*
 next-env.d.ts
 
 # prisma generated client
-/src/generated/prisma
+/apps/web/src/generated/prisma
+/apps/web/prisma/*.db
 
 # VS Code Settings
 .vscode/
-/src/generated/prisma

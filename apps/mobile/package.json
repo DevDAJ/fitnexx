@@ -12,7 +12,7 @@
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
     "@react-native-async-storage/async-storage": "^2.1.0",
-    "@tamagui/config": "^1.120.0",
+    "@tamagui/config": "1.144.4",
     "expo": "~57.0.0",
     "expo-file-system": "^57.0.4",
     "expo-haptics": "~57.0.1",
@@ -28,7 +28,7 @@
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "~4.26.0",
     "react-native-svg": "^15.15.4",
-    "tamagui": "^1.120.0",
+    "tamagui": "1.144.4",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
