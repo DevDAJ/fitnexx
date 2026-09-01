@@ -3,50 +3,23 @@
   "version": "0.1.0",
   "private": true,
   "workspaces": [
+    "apps/*",
     "packages/*"
   ],
   "scripts": {
-    "dev": "next dev --webpack",
-    "build": "prisma generate && next build --webpack",
-    "postinstall": "prisma generate",
-    "start": "next start",
+    "dev": "npm run dev --workspace=fitnexx-web",
+    "build": "npm run build --workspace=fitnexx-web",
+    "start": "npm run start --workspace=fitnexx-web",
     "mobile": "cd apps/mobile && npx expo start --tunnel",
     "lint": "biome check",
     "format": "biome format --write"
   },
   "dependencies": {
-    "@fitnexx/ui": "workspace:*",
-    "@prisma/adapter-pg": "^7.8.0",
-    "@prisma/client": "^7.8.0",
-    "@tamagui/config": "^1.120.0",
-    "@tamagui/next-plugin": "1.144.4",
-    "@tamagui/next-theme": "^1.120.0",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "lucide-react": "^1.11.0",
-    "next": "16.2.4",
-    "next-themes": "^0.4.6",
-    "pg": "^8.20.0",
-    "radix-ui": "^1.4.3",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "react-native-web": "0.19.13",
-    "shadcn": "^4.5.0",
-    "tailwind-merge": "^3.5.0",
-    "tamagui": "^1.120.0",
-    "tw-animate-css": "^1.4.0"
+    "@tamagui/config": "1.144.4",
+    "tamagui": "1.144.4"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/pg": "^8.20.0",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "babel-plugin-react-compiler": "1.0.0",
-    "dotenv": "^17.4.2",
-    "prisma": "^7.8.0",
-    "tailwindcss": "^4",
     "typescript": "^5"
   }
 }
