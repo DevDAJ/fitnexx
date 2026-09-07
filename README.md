@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Fitnexx
 
-## Getting Started
+Monorepo for the Fitnexx fitness tracker: a marketing/web app (Next.js) and a mobile app (Expo).
 
-First, run the development server:
+| Workspace       | Package         | Description                                    |
+| --------------- | --------------- | ---------------------------------------------- |
+| `apps/web`      | `fitnexx-web`   | Next.js site and `/app` dashboard              |
+| `apps/mobile`   | `fitnexx-mobile`| Expo (React Native) app                        |
+| `packages/shared-ui` | `@fitnexx/ui` | Shared Tamagui components and theme config   |
+| `packages/database`  |               | Generated Prisma client                        |
+
+## Requirements
+
+- Node.js 20+
+- Bun (the lockfile at the repo root is `bun.lock`)
+
+## Getting started
+
+Install dependencies once from the repo root:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Web app
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+bun run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Runs the Next.js app on [http://localhost:3000](http://localhost:3000). The `build`
+script runs `prisma generate` before `next build`, so `FITNEXX_PRISMA_DATABASE_URL`
+(or `FITNEXX_POSTGRES_URL`) must be set.
 
-## Learn More
+### Mobile app
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+bun run mobile        # starts Expo with a tunnel
+# or, from apps/mobile
+bun start
+bun ios
+bun android
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The food-photo scanner (`lib/foodScan.ts`) uses `onnxruntime-react-native` and
+`expo-gl` (native modules), so it needs a **development build**, not Expo Go.
+Build once with `bun ios` / `bun android` (or EAS), then keep going with `bun
+start`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Tests live next to the code and run with `bun test` from `apps/mobile`.
 
-## Deploy on Vercel
+## Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+From the repo root:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Script           | Description                        |
+| ---------------- | ---------------------------------- |
+| `bun run dev`    | Start the web dev server           |
+| `bun run build`  | Build the web app                  |
+| `bun run start`  | Serve the production web build     |
+| `bun run mobile` | Start Expo for the mobile app      |
+| `bun run lint`   | Biome check across the repo        |
+| `bun run format` | Biome format across the repo       |
+
+## Deployment (Vercel)
+
+The web app lives in `apps/web`, so the Vercel project needs:
+
+- **Root Directory**: `apps/web`
+- **Include source files outside of the Root Directory**: enabled, because
+  `apps/web` imports `@fitnexx/ui` from `packages/shared-ui`
+- `FITNEXX_PRISMA_DATABASE_URL` (or `FITNEXX_POSTGRES_URL`) set as an environment
+  variable

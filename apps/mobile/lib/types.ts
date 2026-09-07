@@ -249,3 +249,14 @@ export interface MetricsReminder {
   hour: number;
   minute: number;
 }
+
+export interface HabitReminder {
+  enabled: boolean;
+  hour: number;
+  minute: number;
+}
+
+export interface HabitReminders {
+  training: HabitReminder;
+  mealLog: HabitReminder;
+}

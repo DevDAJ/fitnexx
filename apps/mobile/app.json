@@ -28,7 +28,15 @@
         }
       ],
       "expo-task-manager",
-      "expo-notifications"
+      "expo-notifications",
+      "onnxruntime-react-native",
+      "expo-sharing",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Fitnexx uses your camera to take food photos and scan barcodes."
+        }
+      ]
     ]
   }
 }

@@ -1,4 +1,9 @@
-import type { Workout, WorkoutSet, PrType, ExerciseHistoryEntry } from "../types";
+import type {
+  ExerciseHistoryEntry,
+  PrType,
+  Workout,
+  WorkoutSet,
+} from "../types";
 import { calculate1RM, calculateVolume } from "./oneRepMax";
 
 interface PrResult {
@@ -14,7 +19,7 @@ export function detectPrs(workouts: Workout[]): PrResult[] {
 
   for (const [name, history] of exerciseHistory) {
     const sorted = [...history].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
     );
 
     let bestWeight = 0;
@@ -62,6 +67,15 @@ export function detectPrs(workouts: Workout[]): PrResult[] {
   return prs;
 }
 
+export function detectSessionVolumePr(
+  priorWorkouts: Workout[],
+  workout: Workout,
+): boolean {
+  if (priorWorkouts.length === 0 || workout.totalVolume <= 0) return false;
+  const bestPrior = Math.max(...priorWorkouts.map((w) => w.totalVolume));
+  return workout.totalVolume > bestPrior;
+}
+
 export function getPrCount(workouts: Workout[], days?: number): number {
   const cutoff = days
     ? new Date(Date.now() - days * 86400000).toISOString()
@@ -80,11 +94,11 @@ export function getPrCount(workouts: Workout[], days?: number): number {
 }
 
 function buildExerciseHistory(
-  workouts: Workout[]
+  workouts: Workout[],
 ): Map<string, ExerciseHistoryEntry[]> {
   const map = new Map<string, ExerciseHistoryEntry[]>();
   const sorted = [...workouts].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   );
 
   for (const workout of sorted) {

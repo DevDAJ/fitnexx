@@ -9,13 +9,14 @@ import { useExerciseEquipment } from "../lib/useExerciseEquipment";
 export function ExerciseSuggestions() {
   const workouts = useAppStore((s) => s.workouts);
   const currentGym = useAppStore((s) => s.currentGym);
+  const weightUnit = useAppStore((s) => s.weightUnit);
   const { equipment } = useExerciseEquipment();
   const [suggestions, setSuggestions] = useState<ExerciseSuggestion[]>([]);
 
   useEffect(() => {
     if (workouts.length < 3) return;
-    suggestExercises(workouts).then(setSuggestions);
-  }, [workouts]);
+    suggestExercises(workouts, weightUnit).then(setSuggestions);
+  }, [workouts, weightUnit]);
 
   if (suggestions.length === 0) return null;
 

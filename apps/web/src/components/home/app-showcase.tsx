@@ -136,19 +136,31 @@ export function AppShowcase() {
   // content is fully read. Each slide owns its own full scroll range, so no
   // slide is short-changed and there is no early slide swap.
   const activeRef = useRef(0);
+  const topRef = useRef(0);
+  const stickyHRef = useRef(0);
+
+  // Live measurement keeps the scroll math aligned with the page on mobile,
+  // where the browser toolbar collapses/expands while scrolling (fires resize
+  // + visualViewport resize) and 100dvh != a static cache.
+  const measure = useCallback(() => {
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+    topRef.current = wrap.getBoundingClientRect().top + window.scrollY;
+    stickyHRef.current = window.innerHeight - 56;
+  }, []);
 
   useEffect(() => {
     const wrap = wrapRef.current;
     if (!wrap) return;
-    const stickyH = window.innerHeight - 56;
-    const top = wrap.getBoundingClientRect().top + window.scrollY;
+    measure();
     const N = SLIDES.length;
-    const scrollable = N * stickyH;
-    const S = stickyH;
 
     const apply = () => {
+      const stickyH = stickyHRef.current;
+      const top = topRef.current;
+      const scrollable = N * stickyH;
       const s = Math.min(Math.max(window.scrollY - top, 0), scrollable);
-      const unit = s / S;
+      const unit = s / stickyH;
       const nextActive = Math.min(Math.floor(unit), N - 1);
       const localP = Math.min(Math.max(unit - nextActive, 0), 1);
       if (nextActive !== activeRef.current) {
@@ -167,21 +179,27 @@ export function AppShowcase() {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(apply);
     };
+    const onResize = () => {
+      measure();
+      onScroll();
+    };
     apply();
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    window.addEventListener("resize", onResize);
+    window.visualViewport?.addEventListener("resize", onResize);
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("resize", onResize);
+      window.visualViewport?.removeEventListener("resize", onResize);
     };
-  }, []);
+  }, [measure]);
 
   const scrollToIndex = useCallback((i: number) => {
     const wrap = wrapRef.current;
     if (!wrap) return;
     const top = wrap.getBoundingClientRect().top + window.scrollY;
-    const step = window.innerHeight - 56;
+    const step = stickyHRef.current || window.innerHeight - 56;
     window.scrollTo({
       top: Math.max(0, top + step * i),
       behavior: prefersReducedMotion() ? "auto" : "smooth",
@@ -267,7 +285,7 @@ export function AppShowcase() {
         <div
           ref={wrapRef}
           style={{
-            height: `calc(${(SLIDES.length + 1) * 100}vh - ${(SLIDES.length + 1) * 56}px)`,
+            height: `calc(${(SLIDES.length + 1) * 100}dvh - ${(SLIDES.length + 1) * 56}px)`,
             position: "relative",
           }}
         >
@@ -275,7 +293,7 @@ export function AppShowcase() {
             style={{
               position: "sticky",
               top: 56,
-              height: "calc(100vh - 56px)",
+              height: "calc(100dvh - 56px)",
               overflowY: "auto",
               display: "flex",
               alignItems: "center",

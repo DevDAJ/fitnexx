@@ -2,15 +2,12 @@ import { create } from "zustand";
 import { getDetectedGymId, startGymGeofencing } from "./geofencing";
 import { detectCurrentGym } from "./location";
 import { MOCK_SCHEDULE, MOCK_TEMPLATES, MOCK_WORKOUTS } from "./mockData";
-import {
-  cancelMetricsReminder,
-  rescheduleMetricsReminderIfGranted,
-  scheduleMetricsReminder,
-} from "./notifications";
+import { ensureNotificationPermission, rescheduleAll } from "./notifications";
 import { storage } from "./storage";
 import type {
   BodyMetrics,
   Gym,
+  HabitReminders,
   Meal,
   MealTemplate,
   MetricsReminder,
@@ -34,6 +31,9 @@ interface AppState {
   currentGym: Gym | null;
   metricsReminder: MetricsReminder | null;
   dailyCalorieGoal: number | null;
+  waterLog: Record<string, number>;
+  habitReminders: HabitReminders;
+  isPro: boolean;
   loaded: boolean;
 
   loadAll: () => Promise<void>;
@@ -53,6 +53,9 @@ interface AppState {
   addBodyMetrics: (metrics: BodyMetrics) => Promise<void>;
   setMetricsReminder: (reminder: MetricsReminder) => Promise<void>;
   setDailyCalorieGoal: (goal: number | null) => Promise<void>;
+  addWater: (ml: number) => Promise<void>;
+  setHabitReminders: (reminders: HabitReminders) => Promise<void>;
+  setIsPro: (pro: boolean) => Promise<void>;
   addGym: (gym: Gym) => Promise<void>;
   deleteGym: (id: string) => Promise<void>;
   refreshCurrentGym: () => Promise<void>;
@@ -71,6 +74,12 @@ export const useAppStore = create<AppState>((set, get) => ({
   currentGym: null,
   metricsReminder: null,
   dailyCalorieGoal: null,
+  waterLog: {},
+  habitReminders: {
+    training: { enabled: false, hour: 8, minute: 0 },
+    mealLog: { enabled: false, hour: 20, minute: 0 },
+  },
+  isPro: false,
   loaded: false,
 
   loadAll: async () => {
@@ -85,6 +94,9 @@ export const useAppStore = create<AppState>((set, get) => ({
       gyms,
       metricsReminder,
       dailyCalorieGoal,
+      waterLog,
+      habitReminders,
+      isPro,
     ] = await Promise.all([
       storage.getWorkouts(),
       storage.getTemplates(),
@@ -96,7 +108,25 @@ export const useAppStore = create<AppState>((set, get) => ({
       storage.getGyms(),
       storage.getMetricsReminder(),
       storage.getDailyCalorieGoal(),
+      storage.getWaterLog(),
+      storage.getHabitReminders(),
+      storage.getPro(),
     ]);
+
+    habitReminders = {
+      training: {
+        enabled: false,
+        hour: 8,
+        minute: 0,
+        ...habitReminders?.training,
+      },
+      mealLog: {
+        enabled: false,
+        hour: 20,
+        minute: 0,
+        ...habitReminders?.mealLog,
+      },
+    };
 
     if (workouts.length === 0) {
       workouts = MOCK_WORKOUTS;
@@ -124,12 +154,17 @@ export const useAppStore = create<AppState>((set, get) => ({
         : null,
       metricsReminder,
       dailyCalorieGoal,
+      waterLog,
+      habitReminders,
+      isPro,
       loaded: true,
     });
     startGymGeofencing(gyms);
-    if (metricsReminder?.enabled) {
-      void rescheduleMetricsReminderIfGranted(metricsReminder);
-    }
+    void rescheduleAll({
+      metricsReminder,
+      habitReminders,
+      schedule,
+    });
   },
 
   addWorkout: async (workout) => {
@@ -210,15 +245,47 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   setMetricsReminder: async (reminder) => {
-    if (reminder.enabled) await scheduleMetricsReminder(reminder);
-    else await cancelMetricsReminder();
+    const state = get();
+    const enabling =
+      reminder.enabled ||
+      state.habitReminders.training.enabled ||
+      state.habitReminders.mealLog.enabled;
+    if (enabling && !(await ensureNotificationPermission())) {
+      throw new Error("Notifications are disabled in system settings.");
+    }
     await storage.setMetricsReminder(reminder);
     set({ metricsReminder: reminder });
+    await rescheduleAll({ ...get() });
   },
 
   setDailyCalorieGoal: async (goal) => {
     await storage.setDailyCalorieGoal(goal);
     set({ dailyCalorieGoal: goal });
+  },
+
+  addWater: async (ml) => {
+    const today = new Date().toISOString().slice(0, 10);
+    const waterLog = {
+      ...get().waterLog,
+      [today]: Math.max(0, (get().waterLog[today] || 0) + ml),
+    };
+    await storage.saveWaterLog(waterLog);
+    set({ waterLog });
+  },
+
+  setHabitReminders: async (reminders) => {
+    const enabling = reminders.training.enabled || reminders.mealLog.enabled;
+    if (enabling && !(await ensureNotificationPermission())) {
+      throw new Error("Notifications are disabled in system settings.");
+    }
+    await storage.saveHabitReminders(reminders);
+    set({ habitReminders: reminders });
+    await rescheduleAll({ ...get() });
+  },
+
+  setIsPro: async (pro) => {
+    await storage.setPro(pro);
+    set({ isPro: pro });
   },
 
   addGym: async (gym) => {
