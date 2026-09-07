@@ -1,13 +1,19 @@
-import type { Workout, MuscleWeeklyData, ExerciseSuggestion } from "../types";
-import { computeWeeklySets } from "./weeklySets";
 import { EXERCISES } from "../../constants/exercises";
+import type {
+  ExerciseSuggestion,
+  MuscleWeeklyData,
+  WeightUnit,
+  Workout,
+} from "../types";
+import { computeWeeklySets } from "./weeklySets";
 
 export async function suggestExercises(
-  workouts: Workout[]
+  workouts: Workout[],
+  weightUnit: WeightUnit,
 ): Promise<ExerciseSuggestion[]> {
   if (workouts.length < 3) return [];
 
-  const weeklyData = await computeWeeklySets(workouts, 28, "kg");
+  const weeklyData = await computeWeeklySets(workouts, 28, weightUnit);
 
   const weak = weeklyData
     .filter((m) => m.hypertrophyScore < 60)

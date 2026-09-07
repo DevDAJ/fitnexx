@@ -1,35 +1,41 @@
-import { useState, useCallback } from "react";
-import { ScrollView, View, Text, RefreshControl } from "react-native";
 import { useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
+import { RefreshControl, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ActivityHeatmap } from "../../components/dashboard/ActivityHeatmap";
+import InjuryRiskCard from "../../components/dashboard/InjuryRiskCard";
+import IntensityEvolutionCard from "../../components/dashboard/IntensityEvolutionCard";
+import { KpiCard } from "../../components/dashboard/KpiCard";
+import MuscleTrendCard from "../../components/dashboard/MuscleTrendCard";
+import { NutritionRecapCard } from "../../components/dashboard/NutritionRecapCard";
+import { PlateauCard } from "../../components/dashboard/PlateauCard";
+import PrTrendCard from "../../components/dashboard/PrTrendCard";
+import { StreakCard } from "../../components/dashboard/StreakCard";
+import StrengthBalanceCard from "../../components/dashboard/StrengthBalanceCard";
+import TopExercisesCard from "../../components/dashboard/TopExercisesCard";
+import TrainingTimelineCard from "../../components/dashboard/TrainingTimelineCard";
+import VolumeDensityCard from "../../components/dashboard/VolumeDensityCard";
+import { WaterCard } from "../../components/dashboard/WaterCard";
+import WeeklyRhythmCard from "../../components/dashboard/WeeklyRhythmCard";
+import { WeeklySetsChart } from "../../components/dashboard/WeeklySetsChart";
+import { MUSCLE_COLORS } from "../../constants/muscles";
+import { computeInjuryRisk } from "../../lib/analysis/injuryRisk";
+import { computeIntensityEvolution } from "../../lib/analysis/intensityEvolution";
+import {
+  computeMuscleTrend,
+  type MuscleTrendPoint,
+} from "../../lib/analysis/muscleTrend";
+import { detectPlateaus } from "../../lib/analysis/plateauDetection";
+import { getPrCount } from "../../lib/analysis/prDetection";
+import { computePrTrend } from "../../lib/analysis/prTrend";
+import { computeStrengthBalance } from "../../lib/analysis/strengthBalance";
+import { computeTopExercises } from "../../lib/analysis/topExercises";
+import { computeTrainingTimeline } from "../../lib/analysis/trainingTimeline";
+import { computeVolumeDensity } from "../../lib/analysis/volumeDensity";
+import { computeWeeklyRhythm } from "../../lib/analysis/weeklyRhythm";
+import { computeWeeklySets } from "../../lib/analysis/weeklySets";
 import { useAppStore } from "../../lib/store";
 import type { DailySummary, MuscleWeeklyData } from "../../lib/types";
-import { MUSCLE_COLORS } from "../../constants/muscles";
-import { getPrCount } from "../../lib/analysis/prDetection";
-import { detectPlateaus } from "../../lib/analysis/plateauDetection";
-import { computeWeeklySets } from "../../lib/analysis/weeklySets";
-import { computePrTrend } from "../../lib/analysis/prTrend";
-import { computeVolumeDensity } from "../../lib/analysis/volumeDensity";
-import { computeMuscleTrend, type MuscleTrendPoint } from "../../lib/analysis/muscleTrend";
-import { computeIntensityEvolution } from "../../lib/analysis/intensityEvolution";
-import { computeWeeklyRhythm } from "../../lib/analysis/weeklyRhythm";
-import { computeTopExercises } from "../../lib/analysis/topExercises";
-import { computeInjuryRisk } from "../../lib/analysis/injuryRisk";
-import { computeTrainingTimeline } from "../../lib/analysis/trainingTimeline";
-import { computeStrengthBalance } from "../../lib/analysis/strengthBalance";
-import { KpiCard } from "../../components/dashboard/KpiCard";
-import { PlateauCard } from "../../components/dashboard/PlateauCard";
-import { WeeklySetsChart } from "../../components/dashboard/WeeklySetsChart";
-import { ActivityHeatmap } from "../../components/dashboard/ActivityHeatmap";
-import PrTrendCard from "../../components/dashboard/PrTrendCard";
-import VolumeDensityCard from "../../components/dashboard/VolumeDensityCard";
-import MuscleTrendCard from "../../components/dashboard/MuscleTrendCard";
-import IntensityEvolutionCard from "../../components/dashboard/IntensityEvolutionCard";
-import WeeklyRhythmCard from "../../components/dashboard/WeeklyRhythmCard";
-import TopExercisesCard from "../../components/dashboard/TopExercisesCard";
-import InjuryRiskCard from "../../components/dashboard/InjuryRiskCard";
-import TrainingTimelineCard from "../../components/dashboard/TrainingTimelineCard";
-import StrengthBalanceCard from "../../components/dashboard/StrengthBalanceCard";
 
 const WINDOW_DAYS = 90;
 
@@ -42,7 +48,9 @@ export default function DashboardScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   // Computed data
-  const [muscleTrendData, setMuscleTrendData] = useState<MuscleTrendPoint[]>([]);
+  const [muscleTrendData, setMuscleTrendData] = useState<MuscleTrendPoint[]>(
+    [],
+  );
 
   const loadAll = useCallback(async () => {
     if (workouts.length === 0) return;
@@ -55,7 +63,7 @@ export default function DashboardScreen() {
   useFocusEffect(
     useCallback(() => {
       loadAll();
-    }, [loadAll])
+    }, [loadAll]),
   );
 
   const onRefresh = async () => {
@@ -71,7 +79,8 @@ export default function DashboardScreen() {
   const volumePrev = getVolumePrev30d(workouts);
   const avgWeeklySets =
     weeklySetsData.length > 0
-      ? weeklySetsData.reduce((a, m) => a + m.weeklySets, 0) / weeklySetsData.length
+      ? weeklySetsData.reduce((a, m) => a + m.weeklySets, 0) /
+        weeklySetsData.length
       : 0;
 
   // New analytics
@@ -92,10 +101,23 @@ export default function DashboardScreen() {
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: "#0a0a0a" }}
-      contentContainerStyle={{ paddingTop: insets.top + 16, paddingHorizontal: 16, paddingBottom: 100, gap: 12 }}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3b82f6" />}
+      contentContainerStyle={{
+        paddingTop: insets.top + 16,
+        paddingHorizontal: 16,
+        paddingBottom: 100,
+        gap: 12,
+      }}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor="#3b82f6"
+        />
+      }
     >
-      <Text style={{ color: "#fff", fontSize: 28, fontWeight: "800" }}>Dashboard</Text>
+      <Text style={{ color: "#fff", fontSize: 28, fontWeight: "800" }}>
+        Dashboard
+      </Text>
 
       {/* KPI Row */}
       <View style={{ flexDirection: "row", gap: 10 }}>
@@ -124,6 +146,11 @@ export default function DashboardScreen() {
         color="#8b5cf6"
       />
 
+      <WaterCard />
+
+      <StreakCard />
+      <NutritionRecapCard />
+
       {/* Charts */}
       <PrTrendCard data={prTrendData} />
       <VolumeDensityCard data={volumeDensityData} />
@@ -134,7 +161,11 @@ export default function DashboardScreen() {
       <WeeklyRhythmCard data={rhythmData} />
       <TopExercisesCard data={topExercises} />
       <PlateauCard plateaus={plateaus} />
-      <InjuryRiskCard score={injuryRisk.score} factors={injuryRisk.factors} riskLevel={injuryRisk.riskLevel} />
+      <InjuryRiskCard
+        score={injuryRisk.score}
+        factors={injuryRisk.factors}
+        riskLevel={injuryRisk.riskLevel}
+      />
       <TrainingTimelineCard
         tier={timeline.tier.name}
         tierIndex={timeline.tierIndex}
@@ -150,17 +181,26 @@ export default function DashboardScreen() {
 
 // --- helpers ---
 
-function getVolume30d(workouts: { totalVolume: number; date: string }[]): number {
+function getVolume30d(
+  workouts: { totalVolume: number; date: string }[],
+): number {
   const cutoff = Date.now() - 30 * 86400000;
-  return workouts.filter((w) => new Date(w.date).getTime() >= cutoff).reduce((a, w) => a + w.totalVolume, 0);
+  return workouts
+    .filter((w) => new Date(w.date).getTime() >= cutoff)
+    .reduce((a, w) => a + w.totalVolume, 0);
 }
 
-function getVolumePrev30d(workouts: { totalVolume: number; date: string }[]): number {
+function getVolumePrev30d(
+  workouts: { totalVolume: number; date: string }[],
+): number {
   const now = Date.now();
   const start = now - 60 * 86400000;
   const end = now - 30 * 86400000;
   return workouts
-    .filter((w) => { const t = new Date(w.date).getTime(); return t >= start && t < end; })
+    .filter((w) => {
+      const t = new Date(w.date).getTime();
+      return t >= start && t < end;
+    })
     .reduce((a, w) => a + w.totalVolume, 0);
 }
 
@@ -173,12 +213,29 @@ function formatVolume(v: number): string {
 function calcDelta(current: number, previous: number) {
   if (previous > 0) {
     const pct = ((current - previous) / previous) * 100;
-    return { value: Math.abs(pct), direction: pct > 0 ? ("up" as const) : pct < 0 ? ("down" as const) : ("same" as const) };
+    return {
+      value: Math.abs(pct),
+      direction:
+        pct > 0
+          ? ("up" as const)
+          : pct < 0
+            ? ("down" as const)
+            : ("same" as const),
+    };
   }
-  return { value: current > 0 ? 100 : 0, direction: current > 0 ? ("up" as const) : ("same" as const) };
+  return {
+    value: current > 0 ? 100 : 0,
+    direction: current > 0 ? ("up" as const) : ("same" as const),
+  };
 }
 
-function buildDailySummaries(workouts: { date: string; totalVolume: number; exercises: { sets: unknown[] }[] }[]): DailySummary[] {
+function buildDailySummaries(
+  workouts: {
+    date: string;
+    totalVolume: number;
+    exercises: { sets: unknown[] }[];
+  }[],
+): DailySummary[] {
   const map = new Map<string, DailySummary>();
   for (const w of workouts) {
     const date = w.date.split("T")[0];
@@ -187,32 +244,55 @@ function buildDailySummaries(workouts: { date: string; totalVolume: number; exer
       existing.totalVolume += w.totalVolume;
       existing.sets += w.exercises.reduce((a, e) => a + e.sets.length, 0);
     } else {
-      map.set(date, { date, totalVolume: w.totalVolume, sets: w.exercises.reduce((a, e) => a + e.sets.length, 0), workoutTitle: "" });
+      map.set(date, {
+        date,
+        totalVolume: w.totalVolume,
+        sets: w.exercises.reduce((a, e) => a + e.sets.length, 0),
+        workoutTitle: "",
+      });
     }
   }
   return Array.from(map.values());
 }
 
-function getPrSparkline(workouts: { date: string; exercises: { sets: { isPr?: boolean }[] }[] }[]): number[] {
+function getPrSparkline(
+  workouts: { date: string; exercises: { sets: { isPr?: boolean }[] }[] }[],
+): number[] {
   const weeks: number[] = [];
   for (let i = 7; i <= 35; i += 7) {
     const start = Date.now() - i * 86400000;
     const end = Date.now() - (i - 7) * 86400000;
     const count = workouts
-      .filter((w) => { const t = new Date(w.date).getTime(); return t >= start && t < end; })
-      .reduce((a, w) => a + w.exercises.reduce((b, e) => b + e.sets.filter((s) => s.isPr).length, 0), 0);
+      .filter((w) => {
+        const t = new Date(w.date).getTime();
+        return t >= start && t < end;
+      })
+      .reduce(
+        (a, w) =>
+          a +
+          w.exercises.reduce(
+            (b, e) => b + e.sets.filter((s) => s.isPr).length,
+            0,
+          ),
+        0,
+      );
     weeks.push(count);
   }
   return weeks;
 }
 
-function getVolumeSparkline(workouts: { date: string; totalVolume: number }[]): number[] {
+function getVolumeSparkline(
+  workouts: { date: string; totalVolume: number }[],
+): number[] {
   const weeks: number[] = [];
   for (let i = 7; i <= 35; i += 7) {
     const start = Date.now() - i * 86400000;
     const end = Date.now() - (i - 7) * 86400000;
     const vol = workouts
-      .filter((w) => { const t = new Date(w.date).getTime(); return t >= start && t < end; })
+      .filter((w) => {
+        const t = new Date(w.date).getTime();
+        return t >= start && t < end;
+      })
       .reduce((a, w) => a + w.totalVolume, 0);
     weeks.push(vol);
   }

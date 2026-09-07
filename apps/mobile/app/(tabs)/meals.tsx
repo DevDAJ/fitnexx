@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
@@ -20,6 +21,8 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SegmentedControl } from "../../components/shared/SegmentedControl";
 import { calcTDEE, fmtWeight } from "../../lib/bodyMetrics";
+import { macrosForServing } from "../../lib/foodDb";
+import { classifyFood } from "../../lib/foodScan";
 import { useAppStore } from "../../lib/store";
 import type { BodyMetrics, Meal, MealTemplate } from "../../lib/types";
 
@@ -213,6 +216,17 @@ export default function MealsScreen() {
   const [carbs, setCarbs] = useState("");
   const [fat, setFat] = useState("");
   const [imageUri, setImageUri] = useState<string | undefined>();
+  const [isScanning, setIsScanning] = useState(false);
+  const [servingPer100, setServingPer100] = useState<{
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  } | null>(null);
+  const [servingG, setServingG] = useState("");
+  const [showBarcodeScan, setShowBarcodeScan] = useState(false);
+  const [camPermission, requestCamPermission] = useCameraPermissions();
+  const [scanningLock, setScanningLock] = useState(false);
   const [editingGoal, setEditingGoal] = useState(false);
   const [goalDraft, setGoalDraft] = useState("");
 
@@ -265,17 +279,26 @@ export default function MealsScreen() {
       }));
   }, [meals]);
 
-  const pickImageInto = async (set: (uri: string) => void) => {
+  const pickImageInto = async (
+    set: (uri: string) => void,
+    onAsset?: (uri: string, width: number, height: number) => void,
+  ) => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       quality: 0.7,
     });
     if (!result.canceled && result.assets[0]) {
-      set(result.assets[0].uri);
+      const asset = result.assets[0];
+      set(asset.uri);
+      if (onAsset && asset.width && asset.height)
+        onAsset(asset.uri, asset.width, asset.height);
     }
   };
 
-  const takePhotoInto = async (set: (uri: string) => void) => {
+  const takePhotoInto = async (
+    set: (uri: string) => void,
+    onAsset?: (uri: string, width: number, height: number) => void,
+  ) => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") {
       Alert.alert(
@@ -289,7 +312,104 @@ export default function MealsScreen() {
       quality: 0.7,
     });
     if (!result.canceled && result.assets[0]) {
-      set(result.assets[0].uri);
+      const asset = result.assets[0];
+      set(asset.uri);
+      if (onAsset && asset.width && asset.height)
+        onAsset(asset.uri, asset.width, asset.height);
+    }
+  };
+
+  const scanAndFill = async (uri: string, width: number, height: number) => {
+    setIsScanning(true);
+    try {
+      const result = await classifyFood(uri, width, height);
+      if (result) {
+        const { info, confidence } = result;
+        const macros = macrosForServing(info.label, info.defaultServingG);
+        setName(info.name);
+        setCalories(String(macros.calories));
+        setProtein(String(macros.protein));
+        setCarbs(String(macros.carbs));
+        setFat(String(macros.fat));
+        setServingPer100(macrosForServing(info.label, 100));
+        setServingG(String(info.defaultServingG));
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        Alert.alert(
+          `Detected ${info.name}`,
+          `Confidence ${Math.round(confidence * 100)}%. Values are per ${
+            info.defaultServingG
+          }g; edit if needed.`,
+        );
+      } else {
+        Alert.alert(
+          "No match",
+          "Couldn't confidently identify that photo as a known food. You can still log it manually.",
+        );
+      }
+    } catch (err) {
+      Alert.alert(
+        "Scan failed",
+        err instanceof Error
+          ? err.message
+          : "Something went wrong while scanning.",
+      );
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  const handleServingChange = (t: string) => {
+    setServingG(t);
+    if (!servingPer100) return;
+    const g = parseFloat(t);
+    if (g > 0) {
+      const scale = g / 100;
+      setCalories(String(Math.round(servingPer100.calories * scale)));
+      setProtein(String(Math.round(servingPer100.protein * scale)));
+      setCarbs(String(Math.round(servingPer100.carbs * scale)));
+      setFat(String(Math.round(servingPer100.fat * scale)));
+    } else {
+      setServingPer100(null);
+    }
+  };
+
+  const handleBarcodeScanned = async ({ data }: { data: string }) => {
+    if (scanningLock || !data) return;
+    setScanningLock(true);
+    try {
+      const res = await fetch(
+        `https://world.openfoodfacts.org/api/v2/product/${data}.json`,
+      );
+      const json = await res.json();
+      if (json?.status !== 1 || !json.product?.product_name) {
+        Alert.alert(
+          "Not found",
+          `No product for barcode ${data} in Open Food Facts.`,
+        );
+        return;
+      }
+      const n = json.product.nutriments ?? {};
+      const serving = json.product.serving_quantity ?? 100;
+      const per100 = {
+        calories: Math.round(n["energy-kcal_100g"] ?? 0),
+        protein: Math.round(n.proteins_100g ?? 0),
+        carbs: Math.round(n.carbohydrates_100g ?? 0),
+        fat: Math.round(n.fat_100g ?? 0),
+      };
+      const scale = serving / 100;
+      setName(json.product.product_name || `Product ${data}`);
+      setCalories(String(Math.round(per100.calories * scale)));
+      setProtein(String(Math.round(per100.protein * scale)));
+      setCarbs(String(Math.round(per100.carbs * scale)));
+      setFat(String(Math.round(per100.fat * scale)));
+      setServingPer100(per100);
+      setServingG(String(serving));
+      setShowBarcodeScan(false);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch {
+      Alert.alert("Lookup failed", "Could not reach Open Food Facts.");
+    } finally {
+      setScanningLock(false);
     }
   };
 
@@ -317,6 +437,13 @@ export default function MealsScreen() {
     setCarbs("");
     setFat("");
     setImageUri(undefined);
+    setServingPer100(null);
+    setServingG("");
+  };
+
+  const manualSet = (setter: (v: string) => void) => (v: string) => {
+    setServingPer100(null);
+    setter(v);
   };
 
   const saveAsTemplate = async () => {
@@ -695,27 +822,61 @@ export default function MealsScreen() {
               }}
             />
 
+            {servingPer100 && (
+              <View
+                style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+              >
+                <Text style={{ color: "#666", fontSize: 13, flex: 1 }}>
+                  Serving
+                </Text>
+                <TextInput
+                  keyboardType="decimal-pad"
+                  placeholder="0"
+                  placeholderTextColor="#444"
+                  value={servingG}
+                  onChangeText={handleServingChange}
+                  style={{
+                    backgroundColor: "#161616",
+                    borderRadius: 10,
+                    padding: 10,
+                    color: "#fff",
+                    fontSize: 15,
+                    borderWidth: 1,
+                    borderColor: "#2a2a2a",
+                    width: 72,
+                    textAlign: "center",
+                  }}
+                />
+                <Text style={{ color: "#666", fontSize: 13 }}>g</Text>
+              </View>
+            )}
+
             <View style={{ flexDirection: "row", gap: 8 }}>
               {[
                 {
                   label: "Cal",
                   value: calories,
-                  set: setCalories,
+                  set: manualSet(setCalories),
                   placeholder: "0",
                 },
                 {
                   label: "Protein",
                   value: protein,
-                  set: setProtein,
+                  set: manualSet(setProtein),
                   placeholder: "0g",
                 },
                 {
                   label: "Carbs",
                   value: carbs,
-                  set: setCarbs,
+                  set: manualSet(setCarbs),
                   placeholder: "0g",
                 },
-                { label: "Fat", value: fat, set: setFat, placeholder: "0g" },
+                {
+                  label: "Fat",
+                  value: fat,
+                  set: manualSet(setFat),
+                  placeholder: "0g",
+                },
               ].map((f) => (
                 <View key={f.label} style={{ flex: 1 }}>
                   <Text
@@ -751,7 +912,7 @@ export default function MealsScreen() {
 
             <View style={{ flexDirection: "row", gap: 8 }}>
               <TouchableOpacity
-                onPress={() => takePhotoInto(setImageUri)}
+                onPress={() => takePhotoInto(setImageUri, scanAndFill)}
                 style={{
                   flex: 1,
                   backgroundColor: "#161616",
@@ -769,7 +930,7 @@ export default function MealsScreen() {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => pickImageInto(setImageUri)}
+                onPress={() => pickImageInto(setImageUri, scanAndFill)}
                 style={{
                   flex: 1,
                   backgroundColor: "#161616",
@@ -787,6 +948,32 @@ export default function MealsScreen() {
                 </Text>
               </TouchableOpacity>
             </View>
+
+            <TouchableOpacity
+              onPress={() => setShowBarcodeScan(true)}
+              style={{
+                backgroundColor: "#161616",
+                borderRadius: 10,
+                padding: 14,
+                borderWidth: 1,
+                borderColor: "#2a2a2a",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={{ color: "#22c55e", fontSize: 14, fontWeight: "600" }}
+              >
+                Scan Barcode (Open Food Facts)
+              </Text>
+            </TouchableOpacity>
+
+            {isScanning && (
+              <Text
+                style={{ color: "#8b5cf6", fontSize: 13, textAlign: "center" }}
+              >
+                Scanning... this happens on your device.
+              </Text>
+            )}
 
             {imageUri && (
               <Image
@@ -1220,6 +1407,73 @@ export default function MealsScreen() {
               </TouchableOpacity>
             </View>
           </View>
+        </View>
+      </Modal>
+
+      {/* Barcode scanner */}
+      <Modal
+        visible={showBarcodeScan}
+        animationType="slide"
+        onRequestClose={() => setShowBarcodeScan(false)}
+      >
+        <View style={{ flex: 1, backgroundColor: "#000" }}>
+          <View
+            style={{
+              padding: 16,
+              paddingTop: insets.top + 8,
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ color: "#fff", fontSize: 16, fontWeight: "700" }}>
+              Scan a barcode
+            </Text>
+            <TouchableOpacity onPress={() => setShowBarcodeScan(false)}>
+              <Text style={{ color: "#888", fontSize: 15 }}>Close</Text>
+            </TouchableOpacity>
+          </View>
+
+          {camPermission?.granted ? (
+            <CameraView
+              style={{ flex: 1 }}
+              barcodeScannerSettings={{
+                barcodeTypes: ["ean13", "ean8", "upc_a", "upc_e", "code128"],
+              }}
+              onBarcodeScanned={handleBarcodeScanned}
+            />
+          ) : (
+            <View
+              style={{
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 12,
+              }}
+            >
+              <Text style={{ color: "#888", fontSize: 14 }}>
+                Camera access is needed to scan barcodes.
+              </Text>
+              <TouchableOpacity
+                onPress={requestCamPermission}
+                style={{
+                  backgroundColor: "#3b82f6",
+                  borderRadius: 10,
+                  padding: 12,
+                }}
+              >
+                <Text style={{ color: "#fff", fontWeight: "600" }}>
+                  Grant access
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {scanningLock && (
+            <Text style={{ color: "#888", textAlign: "center", padding: 12 }}>
+              Looking up product...
+            </Text>
+          )}
         </View>
       </Modal>
     </>

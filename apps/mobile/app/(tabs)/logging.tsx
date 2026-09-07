@@ -21,7 +21,10 @@ import { ExerciseInfoSheet } from "../../components/shared/ExerciseInfoSheet";
 import { SegmentedControl } from "../../components/shared/SegmentedControl";
 import { useToast } from "../../components/shared/Toast";
 import { TodaySchedule } from "../../components/TodaySchedule";
-import { detectPrs } from "../../lib/analysis/prDetection";
+import {
+  detectPrs,
+  detectSessionVolumePr,
+} from "../../lib/analysis/prDetection";
 import { isExerciseAvailable } from "../../lib/gyms";
 import { useAppStore } from "../../lib/store";
 import { saveWorkoutAsTemplate } from "../../lib/templates";
@@ -130,11 +133,14 @@ export default function LoggingScreen() {
     await addWorkout(workout);
 
     const prCount = recentPrs.length;
+    const sessionPr = detectSessionVolumePr(workouts, workout);
     if (prCount > 0) {
       toast.showToast(
         `${prCount} new PR${prCount > 1 ? "s" : ""} detected!`,
         "pr",
       );
+    } else if (sessionPr) {
+      toast.showToast("New session volume PR!", "pr");
     } else {
       toast.showToast("Workout saved!", "success");
     }

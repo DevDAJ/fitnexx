@@ -1,7 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { KEYS } from "./backupSchema";
 import type {
   BodyMetrics,
   Gym,
+  HabitReminders,
   Meal,
   MealTemplate,
   MetricsReminder,
@@ -10,19 +12,6 @@ import type {
   Workout,
   WorkoutTemplate,
 } from "./types";
-
-const KEYS = {
-  WORKOUTS: "fitnexx_workouts",
-  TEMPLATES: "fitnexx_templates",
-  WEIGHT_UNIT: "fitnexx_weight_unit",
-  SCHEDULE: "fitnexx_schedule",
-  MEALS: "fitnexx_meals",
-  MEAL_TEMPLATES: "fitnexx_meal_templates",
-  BODY_METRICS: "fitnexx_body_metrics",
-  GYMS: "fitnexx_gyms",
-  METRICS_REMINDER: "fitnexx_metrics_reminder",
-  DAILY_CALORIE_GOAL: "fitnexx_daily_calorie_goal",
-};
 
 export const storage = {
   async getWorkouts(): Promise<Workout[]> {
@@ -203,5 +192,32 @@ export const storage = {
     } else {
       await AsyncStorage.setItem(KEYS.DAILY_CALORIE_GOAL, JSON.stringify(goal));
     }
+  },
+
+  async getWaterLog(): Promise<Record<string, number>> {
+    const raw = await AsyncStorage.getItem(KEYS.WATER);
+    return raw ? JSON.parse(raw) : {};
+  },
+
+  async saveWaterLog(log: Record<string, number>): Promise<void> {
+    await AsyncStorage.setItem(KEYS.WATER, JSON.stringify(log));
+  },
+
+  async getHabitReminders(): Promise<HabitReminders | null> {
+    const raw = await AsyncStorage.getItem(KEYS.REMINDERS);
+    return raw ? (JSON.parse(raw) as HabitReminders) : null;
+  },
+
+  async saveHabitReminders(reminders: HabitReminders): Promise<void> {
+    await AsyncStorage.setItem(KEYS.REMINDERS, JSON.stringify(reminders));
+  },
+
+  async getPro(): Promise<boolean> {
+    const raw = await AsyncStorage.getItem(KEYS.PRO);
+    return raw === "true";
+  },
+
+  async setPro(pro: boolean): Promise<void> {
+    await AsyncStorage.setItem(KEYS.PRO, String(pro));
   },
 };

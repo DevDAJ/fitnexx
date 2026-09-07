@@ -1,6 +1,7 @@
 "use server";
 
 import { getPrisma } from "@/lib/prisma";
+import { sendNewSignupEmail } from "@/lib/email";
 
 export type InterestListState =
   | { status: "idle" | "success" }
@@ -52,6 +53,10 @@ export async function submitInterestList(
       message: "Could not save your signup. Please try again later.",
     };
   }
+
+  void sendNewSignupEmail(name, email).catch((err) => {
+    console.error("[interest-list] email", err);
+  });
 
   return { status: "success" };
 }

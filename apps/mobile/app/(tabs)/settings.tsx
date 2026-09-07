@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Alert,
   Modal,
@@ -11,10 +11,17 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { LineChart } from "../../components/shared/Sparkline";
 import { ACTIVITY_LEVELS, fmtWeight } from "../../lib/bodyMetrics";
 import { clearCache } from "../../lib/computationCache";
+import { exportData, importData } from "../../lib/export";
 import { useAppStore } from "../../lib/store";
-import type { BodyMetrics, MetricsReminder, WeightUnit } from "../../lib/types";
+import type {
+  BodyMetrics,
+  HabitReminder,
+  MetricsReminder,
+  WeightUnit,
+} from "../../lib/types";
 
 const DEFAULT_REMINDER: MetricsReminder = {
   enabled: false,
@@ -32,6 +39,82 @@ function fmtTime(hour: number, minute: number): string {
   return `${h12}:${String(minute).padStart(2, "0")} ${ampm}`;
 }
 
+function StepButton({
+  label,
+  onPress,
+}: {
+  label: string;
+  onPress: () => void;
+}) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      style={{
+        width: 40,
+        height: 40,
+        borderRadius: 10,
+        backgroundColor: "#1a1a1a",
+        alignItems: "center",
+        justifyContent: "center",
+        borderWidth: 1,
+        borderColor: "#2a2a2a",
+      }}
+    >
+      <Text style={{ color: "#fff", fontSize: 18, fontWeight: "700" }}>
+        {label}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+function TimeStepper({
+  hour,
+  minute,
+  onChange,
+}: {
+  hour: number;
+  minute: number;
+  onChange: (hour: number, minute: number) => void;
+}) {
+  return (
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+      <StepButton
+        label="-"
+        onPress={() => onChange((hour + 23) % 24, minute)}
+      />
+      <Text
+        style={{
+          color: "#fff",
+          fontSize: 22,
+          fontWeight: "700",
+          flex: 1,
+          textAlign: "center",
+        }}
+      >
+        {fmtTime(hour, minute)}
+      </Text>
+      <StepButton label="+" onPress={() => onChange((hour + 1) % 24, minute)} />
+      <View style={{ width: 2, height: 26, backgroundColor: "#222" }} />
+      <StepButton
+        label="-"
+        onPress={() => onChange(hour, (minute + 55) % 60)}
+      />
+      <Text
+        style={{
+          color: "#fff",
+          fontSize: 22,
+          fontWeight: "700",
+          flex: 1,
+          textAlign: "center",
+        }}
+      >
+        {String(minute).padStart(2, "0")}
+      </Text>
+      <StepButton label="+" onPress={() => onChange(hour, (minute + 5) % 60)} />
+    </View>
+  );
+}
+
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const weightUnit = useAppStore((s) => s.weightUnit);
@@ -40,6 +123,10 @@ export default function SettingsScreen() {
   const addBodyMetrics = useAppStore((s) => s.addBodyMetrics);
   const metricsReminder = useAppStore((s) => s.metricsReminder);
   const setMetricsReminder = useAppStore((s) => s.setMetricsReminder);
+  const habitReminders = useAppStore((s) => s.habitReminders);
+  const setHabitReminders = useAppStore((s) => s.setHabitReminders);
+  const isPro = useAppStore((s) => s.isPro);
+  const setIsPro = useAppStore((s) => s.setIsPro);
 
   const isLbs = weightUnit === "lbs";
   const latest = bodyMetrics[0] ?? null;
@@ -142,6 +229,82 @@ export default function SettingsScreen() {
         },
       ],
     );
+  };
+
+  const handleExport = async () => {
+    try {
+      await exportData();
+    } catch (err) {
+      Alert.alert(
+        "Export failed",
+        err instanceof Error ? err.message : "Could not create the export.",
+      );
+    }
+  };
+
+  const confirmImport = () => {
+    Alert.alert(
+      "Import Data",
+      "This replaces all data on this device with the contents of the backup file.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Import",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await importData();
+              Alert.alert("Done", "Data restored from backup.");
+            } catch (err) {
+              Alert.alert(
+                "Import failed",
+                err instanceof Error
+                  ? err.message
+                  : "The file could not be read.",
+              );
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const weightSeries = useMemo(
+    () =>
+      [...bodyMetrics]
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        .map((m) => m.weight),
+    [bodyMetrics],
+  );
+
+  const updateHabit = async (
+    key: "training" | "mealLog",
+    next: HabitReminder,
+    announce: boolean,
+  ) => {
+    setSaving(true);
+    try {
+      await setHabitReminders({ ...habitReminders, [key]: next });
+      if (announce) {
+        if (next.enabled) {
+          Alert.alert(
+            "Reminder set",
+            `Fitnexx will remind you to ${
+              key === "training" ? "log workouts on training days" : "log meals"
+            } at ${fmtTime(next.hour, next.minute)}.`,
+          );
+        } else {
+          Alert.alert("Reminder off", "That reminder is turned off.");
+        }
+      }
+    } catch {
+      Alert.alert(
+        "Notifications disabled",
+        "Enable notifications for Fitnexx in your system settings to use reminders.",
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -260,6 +423,16 @@ export default function SettingsScreen() {
             >
               Weight History
             </Text>
+            {weightSeries.length >= 2 && (
+              <View style={{ alignItems: "center", marginVertical: 8 }}>
+                <LineChart
+                  data={weightSeries}
+                  color="#22c55e"
+                  width={300}
+                  height={80}
+                />
+              </View>
+            )}
             {bodyMetrics.slice(0, 6).map((m, i) => (
               <View
                 key={`${m.date}-${i}`}
@@ -576,6 +749,180 @@ export default function SettingsScreen() {
         )}
       </View>
 
+      {/* Habit Reminders */}
+      <View
+        style={{
+          backgroundColor: "#161616",
+          borderRadius: 14,
+          padding: 16,
+          borderWidth: 1,
+          borderColor: "#222",
+        }}
+      >
+        <Text
+          style={{
+            color: "#888",
+            fontSize: 12,
+            fontWeight: "600",
+            textTransform: "uppercase",
+            letterSpacing: 0.5,
+            marginBottom: 12,
+          }}
+        >
+          Reminders
+        </Text>
+
+        {(["training", "mealLog"] as const).map((key, i) => {
+          const hr = habitReminders[key];
+          return (
+            <View
+              key={key}
+              style={{
+                marginBottom: i === 0 ? 14 : 0,
+                paddingBottom: i === 0 ? 14 : 0,
+                borderBottomWidth: i === 0 ? 1 : 0,
+                borderBottomColor: "#222",
+              }}
+            >
+              <TouchableOpacity
+                onPress={() =>
+                  updateHabit(key, { ...hr, enabled: !hr.enabled }, true)
+                }
+                disabled={saving}
+                style={{
+                  backgroundColor: "#1a1a1a",
+                  borderRadius: 10,
+                  padding: 14,
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  borderWidth: 1,
+                  borderColor: hr.enabled ? "#3b82f6" : "#2a2a2a",
+                }}
+              >
+                <Text
+                  style={{ color: "#e5e5e5", fontSize: 15, fontWeight: "600" }}
+                >
+                  {key === "training"
+                    ? "Training day reminder"
+                    : "Evening meal log"}
+                </Text>
+                <View
+                  style={{
+                    width: 44,
+                    height: 26,
+                    borderRadius: 13,
+                    backgroundColor: hr.enabled ? "#3b82f6" : "#333",
+                    justifyContent: "center",
+                    paddingHorizontal: 4,
+                  }}
+                >
+                  <View
+                    style={{
+                      width: 18,
+                      height: 18,
+                      borderRadius: 9,
+                      backgroundColor: "#fff",
+                      alignSelf: hr.enabled ? "flex-end" : "flex-start",
+                    }}
+                  />
+                </View>
+              </TouchableOpacity>
+
+              {hr.enabled && (
+                <>
+                  <Text
+                    style={{
+                      color: "#888",
+                      fontSize: 11,
+                      marginTop: 12,
+                      marginBottom: 6,
+                    }}
+                  >
+                    {key === "training"
+                      ? "FIRES ON YOUR SCHEDULE DAYS, OR DAILY IF NO SCHEDULE"
+                      : "TIME"}
+                  </Text>
+                  <TimeStepper
+                    hour={hr.hour}
+                    minute={hr.minute}
+                    onChange={(hour, minute) =>
+                      updateHabit(key, { ...hr, hour, minute }, false)
+                    }
+                  />
+                </>
+              )}
+            </View>
+          );
+        })}
+      </View>
+
+      {/* Pro */}
+      <View
+        style={{
+          backgroundColor: "#161616",
+          borderRadius: 14,
+          padding: 16,
+          borderWidth: 1,
+          borderColor: "#222",
+        }}
+      >
+        <Text
+          style={{
+            color: "#888",
+            fontSize: 12,
+            fontWeight: "600",
+            textTransform: "uppercase",
+            letterSpacing: 0.5,
+            marginBottom: 4,
+          }}
+        >
+          Fitnexx Pro
+        </Text>
+        <Text style={{ color: "#666", fontSize: 13, marginBottom: 12 }}>
+          {isPro
+            ? "Pro is active on this device."
+            : "Pro unlocks future analytics and storage features. Purchases open when the app launches."}
+        </Text>
+        <TouchableOpacity
+          onPress={() => setIsPro(!isPro)}
+          style={{
+            backgroundColor: "#1a1a1a",
+            borderRadius: 10,
+            padding: 14,
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            borderWidth: 1,
+            borderColor: isPro ? "#fbbf24" : "#2a2a2a",
+          }}
+        >
+          <Text style={{ color: "#e5e5e5", fontSize: 15, fontWeight: "600" }}>
+            {isPro ? "Pro active" : "Enable Pro (dev)"}
+          </Text>
+          <View
+            style={{
+              width: 44,
+              height: 26,
+              borderRadius: 13,
+              backgroundColor: isPro ? "#fbbf24" : "#333",
+              justifyContent: "center",
+              paddingHorizontal: 4,
+            }}
+          >
+            <View
+              style={{
+                width: 18,
+                height: 18,
+                borderRadius: 9,
+                backgroundColor: "#fff",
+                alignSelf: isPro ? "flex-end" : "flex-start",
+              }}
+            />
+          </View>
+        </TouchableOpacity>
+      </View>
+
       <View
         style={{
           backgroundColor: "#161616",
@@ -647,6 +994,38 @@ export default function SettingsScreen() {
         >
           Data
         </Text>
+        <TouchableOpacity
+          onPress={handleExport}
+          style={{
+            backgroundColor: "#1a1a1a",
+            borderRadius: 10,
+            padding: 14,
+            borderWidth: 1,
+            borderColor: "#2a2a2a",
+            alignItems: "center",
+            marginBottom: 8,
+          }}
+        >
+          <Text style={{ color: "#3b82f6", fontSize: 15, fontWeight: "600" }}>
+            Export Data (JSON)
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={confirmImport}
+          style={{
+            backgroundColor: "#1a1a1a",
+            borderRadius: 10,
+            padding: 14,
+            borderWidth: 1,
+            borderColor: "#2a2a2a",
+            alignItems: "center",
+            marginBottom: 12,
+          }}
+        >
+          <Text style={{ color: "#3b82f6", fontSize: 15, fontWeight: "600" }}>
+            Import Data
+          </Text>
+        </TouchableOpacity>
         <TouchableOpacity
           onPress={clearAllData}
           style={{

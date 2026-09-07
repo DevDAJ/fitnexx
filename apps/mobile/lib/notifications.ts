@@ -1,5 +1,5 @@
 import * as Notifications from "expo-notifications";
-import type { MetricsReminder } from "./types";
+import type { HabitReminders, MetricsReminder, Schedule } from "./types";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -12,50 +12,96 @@ Notifications.setNotificationHandler({
 
 export async function ensureNotificationPermission(): Promise<boolean> {
   const existing = await Notifications.getPermissionsAsync();
-  if (existing.granted) return true;
-  const result = await Notifications.requestPermissionsAsync();
-  return result.granted;
-}
-
-export async function scheduleMetricsReminder(
-  reminder: MetricsReminder,
-): Promise<void> {
-  if (!reminder.enabled) return;
-  const granted = await ensureNotificationPermission();
-  if (!granted) {
-    throw new Error("Notifications are disabled in system settings.");
+  if (existing.granted || existing.status === "granted") return true;
+  if (existing.canAskAgain) {
+    const result = await Notifications.requestPermissionsAsync();
+    return result.granted;
   }
-  await Notifications.cancelAllScheduledNotificationsAsync();
-  const trigger: Notifications.NotificationTriggerInput =
-    reminder.frequency === "weekly"
-      ? {
-          type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
-          weekday: reminder.weekday ?? 1,
-          hour: reminder.hour,
-          minute: reminder.minute,
-        }
-      : {
-          type: Notifications.SchedulableTriggerInputTypes.DAILY,
-          hour: reminder.hour,
-          minute: reminder.minute,
-        };
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: "Fitnexx",
-      body: "Time to log your body metrics. Step on the scale and track your progress.",
-    },
-    trigger,
-  });
+  return existing.granted;
 }
 
-export async function cancelMetricsReminder(): Promise<void> {
-  await Notifications.cancelAllScheduledNotificationsAsync();
+type Trigger = Notifications.NotificationTriggerInput;
+
+function dailyTrigger(hour: number, minute: number): Trigger {
+  return {
+    type: Notifications.SchedulableTriggerInputTypes.DAILY,
+    hour,
+    minute,
+  };
 }
 
-export async function rescheduleMetricsReminderIfGranted(
-  reminder: MetricsReminder,
-): Promise<void> {
+function weeklyTrigger(weekday: number, hour: number, minute: number): Trigger {
+  return {
+    type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
+    weekday,
+    hour,
+    minute,
+  };
+}
+
+export interface ReminderState {
+  metricsReminder: MetricsReminder | null;
+  habitReminders: HabitReminders;
+  schedule: Schedule | null;
+}
+
+/**
+ * Cancels every scheduled notification, then re-schedules whatever is
+ * currently enabled. Runs synchronously so the store can call it after
+ * any settings change.
+ */
+export async function rescheduleAll(state: ReminderState): Promise<void> {
   const perms = await Notifications.getPermissionsAsync();
   if (!perms.granted) return;
-  await scheduleMetricsReminder(reminder).catch(() => {});
+  await Notifications.cancelAllScheduledNotificationsAsync();
+
+  if (state.metricsReminder?.enabled) {
+    const trigger: Trigger =
+      state.metricsReminder.frequency === "weekly"
+        ? weeklyTrigger(
+            state.metricsReminder.weekday ?? 1,
+            state.metricsReminder.hour,
+            state.metricsReminder.minute,
+          )
+        : dailyTrigger(
+            state.metricsReminder.hour,
+            state.metricsReminder.minute,
+          );
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Fitnexx",
+        body: "Time to log your body metrics. Step on the scale and track your progress.",
+      },
+      trigger,
+    });
+  }
+
+  if (state.habitReminders.training.enabled) {
+    const { hour, minute } = state.habitReminders.training;
+    const days = state.schedule?.days.map((d) => d.dayOfWeek) ?? [];
+    const triggers =
+      days.length > 0
+        ? days.map((d) => weeklyTrigger(d + 1, hour, minute))
+        : [dailyTrigger(hour, minute)];
+    for (const trigger of triggers) {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "Fitnexx",
+          body: "Training day - time to log your workout.",
+        },
+        trigger,
+      });
+    }
+  }
+
+  if (state.habitReminders.mealLog.enabled) {
+    const { hour, minute } = state.habitReminders.mealLog;
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Fitnexx",
+        body: "Did you log today's meals? Finish the day strong.",
+      },
+      trigger: dailyTrigger(hour, minute),
+    });
+  }
 }

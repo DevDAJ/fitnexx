@@ -6,5 +6,5 @@
       "@/*": ["./*"]
     }
   },
-  "exclude": ["lib/*.test.ts"]
+  "exclude": ["lib/**/*.test.ts"]
 }
