@@ -39,7 +39,10 @@ bunx prisma migrate deploy
 7. Enable HMAC webhook signing. Store the signing secret as
    `REVENUECAT_WEBHOOK_SECRET` in the web deployment and set
    `REVENUECAT_PRO_ENTITLEMENT=pro`.
-8. Send a test webhook from RevenueCat after deploying.
+8. Create a RevenueCat secret API key with read access to customer information
+   and set it as `REVENUECAT_SECRET_API_KEY`. The webhook uses it to check the
+   customer's current entitlement state.
+9. Send a test webhook from RevenueCat after deploying.
 
 Use Supabase user UUIDs as RevenueCat App User IDs. The mobile integration does
 this automatically after sign-in. Real purchases need an Expo development

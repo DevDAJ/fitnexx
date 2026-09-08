@@ -123,7 +123,8 @@ function authHeaders(provider: AIProviderId, apiKey?: string): HeadersInit {
   if (provider === "anthropic") {
     return { "anthropic-version": "2023-06-01", "x-api-key": apiKey ?? "" };
   }
-  if (provider === "google" || !apiKey) return {};
+  if (provider === "google") return { "x-goog-api-key": apiKey ?? "" };
+  if (!apiKey) return {};
   return { Authorization: `Bearer ${apiKey}` };
 }
 
@@ -146,19 +147,13 @@ async function fetchJson(
   return data;
 }
 
-function keyQuery(provider: AIProviderId, apiKey?: string): string {
-  return provider === "google"
-    ? `?key=${encodeURIComponent(apiKey ?? "")}`
-    : "";
-}
-
 export async function listModels(
   options: Pick<AIRequest, "provider" | "apiKey" | "customUrl">,
   fetcher: typeof fetch = fetch,
 ): Promise<AIModel[]> {
   const { provider, apiKey, customUrl } = options;
   const data = await fetchJson(
-    `${baseUrl(provider, customUrl)}/models${keyQuery(provider, apiKey)}`,
+    `${baseUrl(provider, customUrl)}/models`,
     { headers: authHeaders(provider, apiKey) },
     fetcher,
   );
@@ -246,7 +241,7 @@ export async function chat(
       (message) => message.role === "system",
     );
     const data = await fetchJson(
-      `${baseUrl(provider)}/models/${encodeURIComponent(model.replace(/^models\//, ""))}:generateContent${keyQuery(provider, apiKey)}`,
+      `${baseUrl(provider)}/models/${encodeURIComponent(model.replace(/^models\//, ""))}:generateContent`,
       {
         method: "POST",
         headers,

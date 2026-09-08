@@ -29,18 +29,27 @@ export function verifyRevenueCatWebhook(
   return timingSafeEqual(Buffer.from(actual), Buffer.from(expected));
 }
 
-export function revenueCatProState(type: string): boolean | null {
-  if (
-    [
-      "INITIAL_PURCHASE",
-      "RENEWAL",
-      "UNCANCELLATION",
-      "SUBSCRIPTION_EXTENDED",
-      "TEMPORARY_ENTITLEMENT_GRANT",
-    ].includes(type)
-  ) {
-    return true;
+export async function getRevenueCatProState(
+  userId: string,
+  secret: string,
+  entitlement: string,
+  fetcher: typeof fetch = fetch,
+): Promise<boolean> {
+  const response = await fetcher(
+    `https://api.revenuecat.com/v1/subscribers/${encodeURIComponent(userId)}`,
+    { headers: { Authorization: `Bearer ${secret}` } },
+  );
+  if (!response.ok) {
+    throw new Error(`RevenueCat lookup failed (${response.status}).`);
   }
-  if (type === "EXPIRATION") return false;
-  return null;
+  const data = (await response.json()) as {
+    subscriber?: {
+      entitlements?: Record<string, { expires_date?: string | null }>;
+    };
+  };
+  const expires = data.subscriber?.entitlements?.[entitlement]?.expires_date;
+  return (
+    expires === null ||
+    (typeof expires === "string" && new Date(expires) > new Date())
+  );
 }

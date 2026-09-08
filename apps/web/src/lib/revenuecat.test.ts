@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { createHmac } from "node:crypto";
 
-import { revenueCatProState, verifyRevenueCatWebhook } from "./revenuecat";
+import { getRevenueCatProState, verifyRevenueCatWebhook } from "./revenuecat";
 
 test("verifies a recent RevenueCat signature", () => {
   const body = '{"event":{"type":"TEST"}}';
@@ -27,8 +27,14 @@ test("verifies a recent RevenueCat signature", () => {
   ).toBe(false);
 });
 
-test("keeps access through cancellation until expiration", () => {
-  expect(revenueCatProState("CANCELLATION")).toBeNull();
-  expect(revenueCatProState("EXPIRATION")).toBe(false);
-  expect(revenueCatProState("RENEWAL")).toBe(true);
+test("reads current entitlement state from RevenueCat", async () => {
+  const fetcher = () =>
+    Promise.resolve(
+      Response.json({
+        subscriber: { entitlements: { pro: { expires_date: null } } },
+      }),
+    );
+  expect(await getRevenueCatProState("user", "secret", "pro", fetcher)).toBe(
+    true,
+  );
 });
