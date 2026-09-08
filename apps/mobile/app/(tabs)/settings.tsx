@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AISettingsCard } from "../../components/settings/AISettingsCard";
+import { ProCard } from "../../components/settings/ProCard";
 import { UsageHistory } from "../../components/settings/UsageHistory";
 import { LineChart } from "../../components/shared/Sparkline";
 import { SyncSheet } from "../../components/sync/SyncSheet";
@@ -130,8 +131,6 @@ export default function SettingsScreen() {
   const setMetricsReminder = useAppStore((s) => s.setMetricsReminder);
   const habitReminders = useAppStore((s) => s.habitReminders);
   const setHabitReminders = useAppStore((s) => s.setHabitReminders);
-  const isPro = useAppStore((s) => s.isPro);
-  const setIsPro = useAppStore((s) => s.setIsPro);
 
   const isLbs = weightUnit === "lbs";
   const latest = bodyMetrics[0] ?? null;
@@ -910,71 +909,7 @@ export default function SettingsScreen() {
       <AISettingsCard />
       <UsageHistory />
 
-      {/* Pro */}
-      <View
-        style={{
-          backgroundColor: "#161616",
-          borderRadius: 14,
-          padding: 16,
-          borderWidth: 1,
-          borderColor: "#222",
-        }}
-      >
-        <Text
-          style={{
-            color: "#888",
-            fontSize: 12,
-            fontWeight: "600",
-            textTransform: "uppercase",
-            letterSpacing: 0.5,
-            marginBottom: 4,
-          }}
-        >
-          Fitnexx Pro
-        </Text>
-        <Text style={{ color: "#666", fontSize: 13, marginBottom: 12 }}>
-          {isPro
-            ? "Pro is active on this device."
-            : "Pro unlocks future analytics and storage features. Purchases open when the app launches."}
-        </Text>
-        <TouchableOpacity
-          onPress={() => setIsPro(!isPro)}
-          style={{
-            backgroundColor: "#1a1a1a",
-            borderRadius: 10,
-            padding: 14,
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            borderWidth: 1,
-            borderColor: isPro ? "#fbbf24" : "#2a2a2a",
-          }}
-        >
-          <Text style={{ color: "#e5e5e5", fontSize: 15, fontWeight: "600" }}>
-            {isPro ? "Pro active" : "Enable Pro (dev)"}
-          </Text>
-          <View
-            style={{
-              width: 44,
-              height: 26,
-              borderRadius: 13,
-              backgroundColor: isPro ? "#fbbf24" : "#333",
-              justifyContent: "center",
-              paddingHorizontal: 4,
-            }}
-          >
-            <View
-              style={{
-                width: 18,
-                height: 18,
-                borderRadius: 9,
-                backgroundColor: "#fff",
-                alignSelf: isPro ? "flex-end" : "flex-start",
-              }}
-            />
-          </View>
-        </TouchableOpacity>
-      </View>
+      <ProCard />
 
       <View
         style={{

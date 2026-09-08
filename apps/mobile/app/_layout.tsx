@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { AppState } from "react-native";
 import { TamaguiProvider } from "tamagui";
 import { AuthProvider } from "../components/auth/AuthProvider";
+import { ProProvider } from "../components/auth/ProProvider";
 import { ToastProvider } from "../components/shared/Toast";
 import { useAppStore } from "../lib/store";
 import { autoSyncIfPaired, getAppToken } from "../lib/sync";
@@ -34,15 +35,17 @@ export default function RootLayout() {
   return (
     <TamaguiProvider config={config} defaultTheme="dark">
       <AuthProvider>
-        <ToastProvider>
-          <StatusBar style="light" />
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: "#0a0a0a" },
-            }}
-          />
-        </ToastProvider>
+        <ProProvider>
+          <ToastProvider>
+            <StatusBar style="light" />
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: "#0a0a0a" },
+              }}
+            />
+          </ToastProvider>
+        </ProProvider>
       </AuthProvider>
     </TamaguiProvider>
   );
