@@ -23,11 +23,12 @@ model InterestListEntry {
 }
 
 model User {
-  id        String   @id
-  email     String?
-  isPro     Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String    @id
+  email        String?
+  isPro        Boolean   @default(false)
+  proUpdatedAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@map("user")
 }
