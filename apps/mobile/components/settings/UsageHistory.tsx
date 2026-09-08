@@ -1,5 +1,6 @@
 import { summarizeUsage, type UsageRecord } from "@fitnexx/ai";
-import { useEffect, useState } from "react";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 
 import { storage } from "../../lib/storage";
@@ -9,9 +10,17 @@ const number = new Intl.NumberFormat();
 export function UsageHistory() {
   const [records, setRecords] = useState<UsageRecord[]>([]);
 
-  useEffect(() => {
-    storage.getAIUsage().then(setRecords);
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      void storage.getAIUsage().then((saved) => {
+        if (active) setRecords(saved);
+      });
+      return () => {
+        active = false;
+      };
+    }, []),
+  );
 
   const summary = summarizeUsage(records);
   const clear = () =>

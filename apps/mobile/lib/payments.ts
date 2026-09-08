@@ -1,5 +1,5 @@
 import { Platform } from "react-native";
-import Purchases from "react-native-purchases";
+import Purchases, { type CustomerInfo } from "react-native-purchases";
 
 const entitlement = process.env.EXPO_PUBLIC_REVENUECAT_PRO_ENTITLEMENT ?? "pro";
 let configured = false;
@@ -32,10 +32,17 @@ export async function refreshProStatus(): Promise<boolean> {
   return Boolean(customer.entitlements.active[entitlement]);
 }
 
+export function listenForProStatus(listener: (active: boolean) => void) {
+  const handleUpdate = (customer: CustomerInfo) =>
+    listener(Boolean(customer.entitlements.active[entitlement]));
+  Purchases.addCustomerInfoUpdateListener(handleUpdate);
+  return () => Purchases.removeCustomerInfoUpdateListener(handleUpdate);
+}
+
 export async function purchasePro(): Promise<boolean> {
   if (!configured) throw new Error("Sign in before purchasing Fitnexx Pro.");
   const offering = (await Purchases.getOfferings()).current;
-  const pack = offering?.availablePackages[0];
+  const pack = offering?.monthly;
   if (!pack)
     throw new Error("The Fitnexx Pro subscription is not available yet.");
   const { customerInfo } = await Purchases.purchasePackage(pack);

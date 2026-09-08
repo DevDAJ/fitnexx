@@ -21,7 +21,11 @@ export function ExerciseSuggestions() {
   const [loadingAI, setLoadingAI] = useState(false);
 
   useEffect(() => {
-    if (workouts.length < 3) return;
+    if (workouts.length < 3) {
+      setSuggestions([]);
+      setAISuggestion("");
+      return;
+    }
     setAISuggestion("");
     let active = true;
     suggestExercises(workouts, weightUnit, currentGym?.equipment)

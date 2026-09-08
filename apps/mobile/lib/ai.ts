@@ -12,6 +12,7 @@ import * as Crypto from "expo-crypto";
 import * as SecureStore from "expo-secure-store";
 
 import { storage } from "./storage";
+import { useAppStore } from "./store";
 import { requireSupabase } from "./supabase";
 
 const keyName = (provider: AIProviderId) => `fitnexx_ai_api_key_${provider}`;
@@ -82,17 +83,18 @@ export async function callAI(
 ): Promise<AIResponse> {
   const settings = await storage.getAISettings();
   const startedAt = Date.now();
-  const response = settings.usePro
-    ? await proRequest<AIResponse>("/api/ai/chat", {
-        method: "POST",
-        body: JSON.stringify({ ...settings, ...options, messages }),
-      })
-    : await chat({
-        ...settings,
-        ...options,
-        messages,
-        apiKey: await getAIKey(settings.provider),
-      });
+  const response =
+    settings.usePro && useAppStore.getState().isPro
+      ? await proRequest<AIResponse>("/api/ai/chat", {
+          method: "POST",
+          body: JSON.stringify({ ...settings, ...options, messages }),
+        })
+      : await chat({
+          ...settings,
+          ...options,
+          messages,
+          apiKey: await getAIKey(settings.provider),
+        });
   const records = await storage.getAIUsage();
   await storage.saveAIUsage(
     [
