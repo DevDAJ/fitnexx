@@ -6,6 +6,7 @@ Monorepo for the Fitnexx fitness tracker: a marketing/web app (Next.js) and a mo
 | --------------- | --------------- | ---------------------------------------------- |
 | `apps/web`      | `fitnexx-web`   | Next.js site and `/app` dashboard              |
 | `apps/mobile`   | `fitnexx-mobile`| Expo (React Native) app                        |
+| `packages/ai` | `@fitnexx/ai` | Shared AI provider client and request types |
 | `packages/shared-ui` | `@fitnexx/ui` | Shared Tamagui components and theme config   |
 | `packages/database`  |               | Generated Prisma client                        |
 
@@ -48,6 +49,9 @@ Build once with `bun ios` / `bun android` (or EAS), then keep going with `bun
 start`.
 
 Tests live next to the code and run with `bun test` from `apps/mobile`.
+
+AI, authentication, and Pro subscription setup is documented in
+[`docs/ai-setup.md`](docs/ai-setup.md).
 
 ## Scripts
 
