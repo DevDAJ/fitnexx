@@ -119,7 +119,7 @@ export default function PricingPage() {
                   <Card
                     key={tier.name}
                     flexBasis="100%"
-                    $sm={{ flexBasis: "calc(50% - 12px)" as any }}
+                    $sm={{ flexBasis: "48%" }}
                     gap={16}
                     flexGrow={1}
                     borderColor={
