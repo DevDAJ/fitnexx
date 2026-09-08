@@ -14,12 +14,16 @@ RevenueCat, the web API, and at least one server-side AI provider key.
 4. Copy `apps/web/.env.example` to `apps/web/.env` and set `SUPABASE_URL` and
    `SUPABASE_ANON_KEY` to the same project values.
 
-Fitnexx uses Supabase only for account authentication. Pro entitlement is held
-in the existing Prisma database. Deploy its migrations from `apps/web`:
+Fitnexx stores user entitlements and interest-list signups in the Supabase
+database. Run the setup SQL before deploying:
 
-```bash
-bunx prisma migrate deploy
-```
+1. Open your Supabase project's SQL editor.
+2. Copy and paste `apps/web/supabase/init.sql`.
+3. Run it. This creates the `user` and `interest_list_entry` tables, enables
+   row-level security, and creates the `consume_ai_rate_limit` function.
+
+The server uses the `SUPABASE_SERVICE_ROLE_KEY` (service role) to bypass RLS.
+Add it to `apps/web/.env` alongside `SUPABASE_URL` and `SUPABASE_ANON_KEY`.
 
 ## RevenueCat subscription
 

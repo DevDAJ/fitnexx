@@ -1,6 +1,6 @@
-import { cookies } from "next/headers";
-import { getPrisma } from "@/lib/prisma";
 import { Card, Heading, Text, View, YStack } from "@fitnexx/ui";
+import { cookies } from "next/headers";
+import { getSupabaseAdmin } from "@/lib/supabase";
 import { AdminLogin } from "./admin-login";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +15,13 @@ export default async function AdminPage() {
         backgroundColor="$background"
       >
         <View flex={1} alignItems="center" justifyContent="center" padding={16}>
-          <Card gap={16} alignItems="center" backgroundColor="$card" paddingHorizontal={28} paddingVertical={28}>
+          <Card
+            gap={16}
+            alignItems="center"
+            backgroundColor="$card"
+            paddingHorizontal={28}
+            paddingVertical={28}
+          >
             <Heading fontSize={20} fontWeight="800" color="$color">
               Admin access
             </Heading>
@@ -29,10 +35,12 @@ export default async function AdminPage() {
     );
   }
 
-  const entries = await getPrisma().interestListEntry.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 200,
-  });
+  const { data: entries, error: findError } = await getSupabaseAdmin()
+    .from("interest_list_entry")
+    .select("*")
+    .order("createdAt", { ascending: false })
+    .limit(200);
+  if (findError) throw findError;
 
   return (
     <View
@@ -40,13 +48,20 @@ export default async function AdminPage() {
       backgroundColor="$background"
     >
       <View flex={1} paddingVertical={24} paddingHorizontal={16}>
-        <YStack maxWidth={1024} width="100%" marginLeft="auto" marginRight="auto" gap={16}>
+        <YStack
+          maxWidth={1024}
+          width="100%"
+          marginLeft="auto"
+          marginRight="auto"
+          gap={16}
+        >
           <YStack gap={4}>
             <Heading fontSize={28} fontWeight="800" color="$color">
               Interest list
             </Heading>
             <Text color="$muted" fontSize={15}>
-              {entries.length} signup{entries.length === 1 ? "" : "s"} so far.
+              {(entries ?? []).length} signup
+              {(entries ?? []).length === 1 ? "" : "s"} so far.
             </Text>
           </YStack>
 
@@ -67,17 +82,16 @@ export default async function AdminPage() {
                 </tr>
               </thead>
               <tbody>
-                {entries.map((e) => (
-                  <tr
-                    key={e.id}
-                    style={{ borderTop: "1px solid #222" }}
-                  >
+                {(entries ?? []).map((e) => (
+                  <tr key={e.id} style={{ borderTop: "1px solid #222" }}>
                     <Td>{e.name}</Td>
-                    <Td>{e.email ?? <span style={{ color: "#666" }}>—</span>}</Td>
+                    <Td>
+                      {e.email ?? <span style={{ color: "#666" }}>—</span>}
+                    </Td>
                     <Td>{new Date(e.createdAt).toLocaleString()}</Td>
                   </tr>
                 ))}
-                {entries.length === 0 && (
+                {(entries ?? []).length === 0 && (
                   <tr style={{ borderTop: "1px solid #222" }}>
                     <td colSpan={3} style={{ padding: 16, color: "#888" }}>
                       No signups yet.

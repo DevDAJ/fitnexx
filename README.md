@@ -2,13 +2,12 @@
 
 Monorepo for the Fitnexx fitness tracker: a marketing/web app (Next.js) and a mobile app (Expo).
 
-| Workspace       | Package         | Description                                    |
-| --------------- | --------------- | ---------------------------------------------- |
-| `apps/web`      | `fitnexx-web`   | Next.js site and `/app` dashboard              |
-| `apps/mobile`   | `fitnexx-mobile`| Expo (React Native) app                        |
-| `packages/ai` | `@fitnexx/ai` | Shared AI provider client and request types |
+| Workspace         | Package         | Description                                    |
+| ----------------- | --------------- | ---------------------------------------------- |
+| `apps/web`        | `fitnexx-web`   | Next.js site and `/app` dashboard              |
+| `apps/mobile`     | `fitnexx-mobile`| Expo (React Native) app                        |
+| `packages/ai`     | `@fitnexx/ai`   | Shared AI provider client and request types    |
 | `packages/shared-ui` | `@fitnexx/ui` | Shared Tamagui components and theme config   |
-| `packages/database`  |               | Generated Prisma client                        |
 
 ## Requirements
 
@@ -29,9 +28,9 @@ bun install
 bun run dev
 ```
 
-Runs the Next.js app on [http://localhost:3000](http://localhost:3000). The `build`
-script runs `prisma generate` before `next build`, so `FITNEXX_PRISMA_DATABASE_URL`
-(or `FITNEXX_POSTGRES_URL`) must be set.
+Runs the Next.js app on [http://localhost:3000](http://localhost:3000). Set
+`SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` in the
+environment.
 
 ### Mobile app
 
@@ -73,5 +72,5 @@ The web app lives in `apps/web`, so the Vercel project needs:
 - **Root Directory**: `apps/web`
 - **Include source files outside of the Root Directory**: enabled, because
   `apps/web` imports `@fitnexx/ui` from `packages/shared-ui`
-- `FITNEXX_PRISMA_DATABASE_URL` (or `FITNEXX_POSTGRES_URL`) set as an environment
-  variable
+- `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` set as
+  environment variables

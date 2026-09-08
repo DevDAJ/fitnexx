@@ -1,9 +1,9 @@
 import { BodyTooLargeError, readLimitedBody } from "@/lib/http";
-import { getPrisma } from "@/lib/prisma";
 import {
   getRevenueCatProState,
   verifyRevenueCatWebhook,
 } from "@/lib/revenuecat";
+import { getSupabaseAdmin } from "@/lib/supabase";
 
 type RevenueCatEvent = {
   app_user_id?: string;
@@ -63,11 +63,15 @@ export async function POST(request: Request) {
   ].filter((id): id is string => Boolean(id && USER_ID.test(id)));
   for (const userId of new Set(userIds)) {
     const pro = await getRevenueCatProState(userId, apiKey, entitlement);
-    await getPrisma().user.upsert({
-      where: { id: userId },
-      create: { id: userId, isPro: pro, proUpdatedAt: new Date() },
-      update: { isPro: pro, proUpdatedAt: new Date() },
-    });
+    const { error: upsertError } = await getSupabaseAdmin()
+      .from("user")
+      .upsert(
+        { id: userId, isPro: pro, proUpdatedAt: new Date().toISOString() },
+        { onConflict: "id" },
+      );
+    if (upsertError) {
+      console.error("[revenuecat] upsert", upsertError);
+    }
   }
   return Response.json({ ok: true });
 }

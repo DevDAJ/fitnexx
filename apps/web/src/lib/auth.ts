@@ -1,7 +1,6 @@
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
-import { getPrisma } from "@/lib/prisma";
-import { getSupabase } from "@/lib/supabase";
+import { getSupabase, getSupabaseAdmin } from "@/lib/supabase";
 
 export async function getAuthenticatedUser(
   request: Request,
@@ -14,10 +13,9 @@ export async function getAuthenticatedUser(
   );
   if (error || !data.user) return null;
 
-  await getPrisma().user.upsert({
-    where: { id: data.user.id },
-    create: { id: data.user.id, email: data.user.email },
-    update: { email: data.user.email },
-  });
+  const { error: upsertError } = await getSupabaseAdmin()
+    .from("user")
+    .upsert({ id: data.user.id, email: data.user.email }, { onConflict: "id" });
+  if (upsertError) throw upsertError;
   return data.user;
 }
