@@ -111,121 +111,201 @@ const SLIDES = [
   },
 ];
 
+const SHOWCASE_CSS = `
+.pf-showcase-track { height: var(--showcase-height); position: relative; }
+.pf-showcase-stage {
+  position: sticky;
+  top: 56px;
+  height: calc(100dvh - 56px);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pf-showcase-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  padding: 24px 16px;
+  width: 100%;
+  max-width: 900px;
+}
+.pf-showcase-copy { flex: 1; min-width: 280px; }
+.pf-showcase-copy-active { animation: pfShowcaseCopy 0.5s ease both; }
+.pf-showcase-phone {
+  width: min(300px, calc((100dvh - 112px) * 0.51));
+  max-width: 100%;
+  flex-shrink: 0;
+}
+.pf-showcase-scroll-hint { display: none; }
+.pf-showcase-dots {
+  position: absolute;
+  right: 32px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+@keyframes pfShowcaseCopy {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pfShowcaseFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (max-width: 800px) {
+  .pf-showcase-section { padding-block: 0; }
+  .pf-showcase-track { height: 100dvh; }
+  .pf-showcase-stage {
+    position: relative;
+    top: auto;
+    height: 100dvh;
+    overflow: hidden;
+    padding: 40px 0 48px;
+  }
+  .pf-showcase-layout {
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 16px;
+  }
+  .pf-showcase-copy {
+    flex: none;
+    width: 100%;
+    min-width: 0;
+    height: clamp(250px, calc(680px - 110vw), 328px);
+  }
+  .pf-showcase-copy-active { animation-name: pfShowcaseFade; }
+  .pf-showcase-phone { width: min(300px, calc(100vw - 64px)); }
+  .pf-showcase-phone .pf-scroll {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+  }
+  .pf-showcase-scroll-hint {
+    display: block;
+    color: #888;
+    font-size: 13px;
+    text-align: center;
+  }
+  .pf-showcase-dots { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pf-showcase-copy-active { animation: none; }
+  .pf-showcase-transition { transition: none !important; }
+}
+`;
+
 function prefersReducedMotion() {
-  return (
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  );
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
 export function AppShowcase() {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 640px)");
-    const sync = () => setIsMobile(mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
-
-  // Global scroll drives the phone: scrolling the page anywhere scrolls the
-  // active slide's inner content, and only the active slide changes once its
-  // content is fully read. Each slide owns its own full scroll range, so no
-  // slide is short-changed and there is no early slide swap.
+  const stageRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<ScrollTrigger | null>(null);
   const activeRef = useRef(0);
-  const topRef = useRef(0);
-  const stickyHRef = useRef(0);
+  const [active, setActive] = useState(0);
+  const [mobileScale, setMobileScale] = useState(1);
 
-  // Live measurement keeps the scroll math aligned with the page on mobile,
-  // where the browser toolbar collapses/expands while scrolling (fires resize
-  // + visualViewport resize) and 100dvh != a static cache.
-  const measure = useCallback(() => {
-    const wrap = wrapRef.current;
-    if (!wrap) return;
-    topRef.current = wrap.getBoundingClientRect().top + window.scrollY;
-    stickyHRef.current = window.innerHeight - 56;
+  useEffect(() => {
+    const stage = stageRef.current;
+    const content = contentRef.current;
+    if (!stage || !content) return;
+    const media = window.matchMedia("(max-width: 800px)");
+    const fit = () => {
+      setMobileScale(
+        media.matches
+          ? Math.min(1, (stage.clientHeight - 120) / content.scrollHeight)
+          : 1,
+      );
+    };
+    const observer = new ResizeObserver(fit);
+    observer.observe(stage);
+    observer.observe(content);
+    media.addEventListener("change", fit);
+    fit();
+    return () => {
+      observer.disconnect();
+      media.removeEventListener("change", fit);
+    };
   }, []);
 
   useEffect(() => {
     const wrap = wrapRef.current;
     if (!wrap) return;
-    measure();
-    const N = SLIDES.length;
+    const media = gsap.matchMedia();
 
-    const apply = () => {
-      const stickyH = stickyHRef.current;
-      const top = topRef.current;
-      const scrollable = N * stickyH;
-      const s = Math.min(Math.max(window.scrollY - top, 0), scrollable);
-      const unit = s / stickyH;
-      const nextActive = Math.min(Math.floor(unit), N - 1);
-      const localP = Math.min(Math.max(unit - nextActive, 0), 1);
-      if (nextActive !== activeRef.current) {
-        activeRef.current = nextActive;
-        setActive(nextActive);
-      }
-      const scroller = document.querySelector<HTMLElement>(".pf-scroll");
-      if (scroller) {
-        const max = scroller.scrollHeight - scroller.clientHeight;
-        scroller.scrollTop = Math.round(localP * max);
-      }
-    };
+    media.add("(min-width: 801px)", () => {
+      const apply = (progress: number) => {
+        const unit = progress * SLIDES.length;
+        const nextActive = Math.min(Math.floor(unit), SLIDES.length - 1);
+        const localProgress = Math.min(Math.max(unit - nextActive, 0), 1);
 
-    let raf = 0;
-    const onScroll = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(apply);
-    };
-    const onResize = () => {
-      measure();
-      onScroll();
-    };
-    apply();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onResize);
-    window.visualViewport?.addEventListener("resize", onResize);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onResize);
-      window.visualViewport?.removeEventListener("resize", onResize);
-    };
-  }, [measure]);
+        if (nextActive !== activeRef.current) {
+          activeRef.current = nextActive;
+          setActive(nextActive);
+        }
 
-  const scrollToIndex = useCallback((i: number) => {
-    const wrap = wrapRef.current;
-    if (!wrap) return;
-    const top = wrap.getBoundingClientRect().top + window.scrollY;
-    const step = stickyHRef.current || window.innerHeight - 56;
+        const scroller = wrap.querySelector<HTMLElement>(".pf-scroll");
+        if (scroller) {
+          scroller.scrollTop = Math.round(
+            localProgress * (scroller.scrollHeight - scroller.clientHeight),
+          );
+        }
+      };
+
+      const trigger = ScrollTrigger.create({
+        trigger: wrap,
+        start: "top top+=56",
+        end: "bottom bottom",
+        onRefresh: (self) => apply(self.progress),
+        onUpdate: (self) => apply(self.progress),
+      });
+      triggerRef.current = trigger;
+      apply(trigger.progress);
+
+      return () => {
+        trigger.kill();
+        triggerRef.current = null;
+      };
+    });
+
+    return () => media.revert();
+  }, []);
+
+  const scrollToIndex = useCallback((index: number) => {
+    const trigger = triggerRef.current;
+    if (!trigger) {
+      activeRef.current = index;
+      setActive(index);
+      return;
+    }
+
     window.scrollTo({
-      top: Math.max(0, top + step * i),
+      top:
+        trigger.start + ((trigger.end - trigger.start) / SLIDES.length) * index,
       behavior: prefersReducedMotion() ? "auto" : "smooth",
     });
   }, []);
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const wrap = wrapRef.current;
-      if (!wrap) return;
-      const top = wrap.getBoundingClientRect().top + window.scrollY;
-      const range = wrap.offsetHeight - window.innerHeight;
-      const inRange =
-        window.scrollY >= top - 80 && window.scrollY <= top + range + 80;
-      if (!inRange) return;
-      if (["ArrowRight", "ArrowDown", "PageDown"].includes(e.key)) {
-        e.preventDefault();
-        scrollToIndex(Math.min(active + 1, SLIDES.length - 1));
-      } else if (["ArrowLeft", "ArrowUp", "PageUp"].includes(e.key)) {
-        e.preventDefault();
-        scrollToIndex(Math.max(active - 1, 0));
+    const onKey = (event: KeyboardEvent) => {
+      if (!triggerRef.current?.isActive) return;
+      const current = activeRef.current;
+
+      if (["ArrowRight", "ArrowDown", "PageDown"].includes(event.key)) {
+        event.preventDefault();
+        scrollToIndex(Math.min(current + 1, SLIDES.length - 1));
+      } else if (["ArrowLeft", "ArrowUp", "PageUp"].includes(event.key)) {
+        event.preventDefault();
+        scrollToIndex(Math.max(current - 1, 0));
       }
     };
+
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [active, scrollToIndex]);
+  }, [scrollToIndex]);
 
   const slide = SLIDES[active];
   const progress = (active / (SLIDES.length - 1)) * 100;
@@ -233,16 +313,18 @@ export function AppShowcase() {
   return (
     <View
       tag="section"
+      className="pf-showcase-section"
       aria-label="App showcase"
       borderTopWidth={1}
       borderBottomWidth={1}
       borderColor="$borderColor"
       backgroundColor="rgba(59,130,246,0.03)"
-      paddingVertical={64}
+      paddingVertical={96}
       paddingHorizontal={16}
-      $sm={{ paddingVertical: 96 }}
+      $sm={{ paddingVertical: 0 }}
       style={{ overflow: "clip" }}
     >
+      <style>{SHOWCASE_CSS}</style>
       <YStack
         maxWidth={1024}
         width="100%"
@@ -251,6 +333,8 @@ export function AppShowcase() {
         gap={40}
       >
         <YStack
+          className="pf-showcase-intro"
+          $sm={{ display: "none" }}
           maxWidth={640}
           gap={12}
           marginLeft="auto"
@@ -260,11 +344,11 @@ export function AppShowcase() {
           <div data-reveal>
             <Heading
               tag="h2"
-              fontSize={30}
+              fontSize={36}
               fontWeight="800"
               color="$color"
               textAlign="center"
-              $sm={{ fontSize: 36 }}
+              $sm={{ fontSize: 30 }}
             >
               Every feature, one page.
             </Heading>
@@ -276,30 +360,22 @@ export function AppShowcase() {
               lineHeight={24}
               textAlign="center"
             >
-              Keep scrolling. Each feature is one stop. Use the arrows or your
-              keyboard to jump between them.
+              Explore each feature. Scroll on desktop, or use the controls to
+              move between them.
             </Text>
           </div>
         </YStack>
 
         <div
           ref={wrapRef}
-          style={{
-            height: `calc(${(SLIDES.length + 1) * 100}dvh - ${(SLIDES.length + 1) * 56}px)`,
-            position: "relative",
-          }}
+          className="pf-showcase-track"
+          style={
+            {
+              "--showcase-height": `calc(${(SLIDES.length + 1) * 100}dvh - ${(SLIDES.length + 1) * 56}px)`,
+            } as React.CSSProperties
+          }
         >
-          <div
-            style={{
-              position: "sticky",
-              top: 56,
-              height: "calc(100dvh - 56px)",
-              overflowY: "auto",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
+          <div ref={stageRef} className="pf-showcase-stage">
             <div
               style={{
                 position: "absolute",
@@ -325,6 +401,7 @@ export function AppShowcase() {
                 }}
               >
                 <div
+                  className="pf-showcase-transition"
                   style={{
                     width: `${progress}%`,
                     height: 4,
@@ -337,94 +414,79 @@ export function AppShowcase() {
             </div>
 
             <div
+              ref={contentRef}
+              className="pf-showcase-layout"
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexWrap: isMobile ? "wrap" : "nowrap",
-                gap: 48,
-                padding: "24px 16px",
-                width: "100%",
-                maxWidth: 900,
+                transform: `scale(${mobileScale})`,
+                transformOrigin: "center",
               }}
             >
-              <div data-reveal style={{ flex: 1, minWidth: 280 }}>
-                <div style={{ position: "relative", height: 320 }}>
-                  {SLIDES.map((s, i) => (
-                    <div
-                      key={s.title}
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        opacity: active === i ? 1 : 0,
-                        transform: `translateY(${
-                          active === i ? 0 : active < i ? 24 : -24
-                        }px)`,
-                        transition: "opacity 0.5s ease, transform 0.5s ease",
-                        pointerEvents: active === i ? "auto" : "none",
-                      }}
+              <div data-reveal className="pf-showcase-copy" aria-live="polite">
+                <div key={slide.title} className="pf-showcase-copy-active">
+                  <YStack gap={10}>
+                    <Text
+                      color={slide.accent}
+                      fontSize={13}
+                      fontWeight="700"
+                      textTransform="uppercase"
                     >
-                      <YStack gap={10}>
-                        <Text
-                          color={s.accent}
-                          fontSize={13}
-                          fontWeight="700"
-                          textTransform="uppercase"
-                        >
-                          {s.eyebrow}
-                        </Text>
-                        <Heading
-                          tag="h3"
-                          fontSize={24}
-                          fontWeight="800"
-                          color="$color"
-                          $sm={{ fontSize: 30 }}
-                        >
-                          {s.title}
-                        </Heading>
-                        <Text color="$muted" fontSize={15} lineHeight={23}>
-                          {s.copy}
-                        </Text>
-                        <YStack gap={8} marginTop={8}>
-                          {s.bullets.map((b) => (
-                            <XStack key={b} gap={10} alignItems="flex-start">
-                              <View
-                                width={6}
-                                height={6}
-                                borderRadius={999}
-                                backgroundColor={s.accent}
-                                style={{ marginTop: 8 }}
-                              />
-                              <Text color="$muted" fontSize={14}>
-                                {b}
-                              </Text>
-                            </XStack>
-                          ))}
-                        </YStack>
-                      </YStack>
-                    </div>
-                  ))}
+                      {slide.eyebrow}
+                    </Text>
+                    <Heading
+                      tag="h3"
+                      fontSize={30}
+                      fontWeight="800"
+                      color="$color"
+                      $sm={{ fontSize: 24 }}
+                    >
+                      {slide.title}
+                    </Heading>
+                    <Text
+                      className="pf-showcase-description"
+                      color="$muted"
+                      fontSize={15}
+                      lineHeight={23}
+                    >
+                      {slide.copy}
+                    </Text>
+                    <YStack
+                      className="pf-showcase-bullets"
+                      gap={8}
+                      marginTop={8}
+                    >
+                      {slide.bullets.map((bullet) => (
+                        <XStack key={bullet} gap={10} alignItems="flex-start">
+                          <View
+                            width={6}
+                            height={6}
+                            borderRadius={999}
+                            backgroundColor={slide.accent}
+                            style={{ marginTop: 8 }}
+                          />
+                          <Text color="$muted" fontSize={14}>
+                            {bullet}
+                          </Text>
+                        </XStack>
+                      ))}
+                    </YStack>
+                  </YStack>
                 </div>
+              </div>
+
+              <div className="pf-showcase-scroll-hint">
+                Scroll inside the phone to explore this screen.
               </div>
 
               <div
                 data-reveal
                 data-reveal-delay="0.1"
-                style={
-                  {
-                    width: 300,
-                    maxWidth: "100%",
-                    flexShrink: 0,
-                    color: slide.accent,
-                    "--pf-h": isMobile
-                      ? "min(420px, 52vh)"
-                      : "min(620px, 80vh)",
-                  } as React.CSSProperties
-                }
+                className="pf-showcase-phone"
+                style={{ color: slide.accent }}
               >
                 <div style={{ position: "relative" }}>
                   <div
                     aria-hidden
+                    className="pf-showcase-transition"
                     style={{
                       position: "absolute",
                       inset: -24,
@@ -441,85 +503,74 @@ export function AppShowcase() {
                       className="pf-screen"
                       style={{ minHeight: "100%" }}
                     >
-                      {SLIDES[active].screen}
+                      {slide.screen}
                     </div>
                   </PhoneFrame>
                 </div>
               </div>
             </div>
 
-            {!isMobile ? (
+            <div className="pf-showcase-dots">
               <div
                 style={{
-                  position: "absolute",
-                  right: 32,
-                  top: "50%",
-                  transform: "translateY(-50%)",
+                  position: "relative",
+                  width: 24,
+                  height: 160,
                   display: "flex",
                   flexDirection: "column",
-                  gap: 10,
                   alignItems: "center",
+                  justifyContent: "center",
+                  gap: 10,
                 }}
               >
                 <div
                   style={{
-                    position: "relative",
-                    width: 24,
-                    height: 160,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 10,
+                    position: "absolute",
+                    top: 0,
+                    bottom: 0,
+                    width: 2,
+                    background: "#222",
+                    borderRadius: 999,
                   }}
-                >
-                  <div
+                />
+                <div
+                  className="pf-showcase-transition"
+                  style={{
+                    position: "absolute",
+                    top: `${progress}%`,
+                    translate: "0 -50%",
+                    width: 2,
+                    height: 20,
+                    background: slide.accent,
+                    borderRadius: 999,
+                    transition:
+                      "top 0.5s ease, background 0.8s ease, height 0.5s ease",
+                  }}
+                />
+                {SLIDES.map((item, index) => (
+                  <button
+                    key={item.title}
+                    type="button"
+                    aria-label={`Go to: ${item.title}`}
+                    aria-current={active === index}
+                    onClick={() => scrollToIndex(index)}
+                    className="pf-showcase-transition"
                     style={{
-                      position: "absolute",
-                      top: 0,
-                      bottom: 0,
-                      width: 2,
-                      background: "#222",
+                      width: 8,
+                      height: 8,
                       borderRadius: 999,
+                      border: "none",
+                      cursor: "pointer",
+                      padding: 0,
+                      background: active === index ? "#fff" : "#374151",
+                      transform: active === index ? "scale(1.5)" : "scale(1)",
+                      transition: "all 0.3s",
+                      zIndex: 2,
                     }}
                   />
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: `${(active / (SLIDES.length - 1)) * 100}%`,
-                      translate: "0 -50%",
-                      width: 2,
-                      height: 20,
-                      background: slide.accent,
-                      borderRadius: 999,
-                      transition:
-                        "top 0.5s ease, background 0.8s ease, height 0.5s ease",
-                    }}
-                  />
-                  {SLIDES.map((s, i) => (
-                    <button
-                      key={s.title}
-                      type="button"
-                      aria-label={`Go to: ${s.title}`}
-                      aria-current={active === i}
-                      onClick={() => scrollToIndex(i)}
-                      style={{
-                        width: 8,
-                        height: 8,
-                        borderRadius: 999,
-                        border: "none",
-                        cursor: "pointer",
-                        padding: 0,
-                        background: active === i ? "#fff" : "#374151",
-                        transform: active === i ? "scale(1.5)" : "scale(1)",
-                        transition: "all 0.3s",
-                        zIndex: 2,
-                      }}
-                    />
-                  ))}
-                </div>
+                ))}
               </div>
-            ) : null}
+            </div>
 
             <div
               style={{
@@ -578,7 +629,13 @@ export function AppShowcase() {
           </div>
         </div>
 
-        <Text color="$subtle" fontSize={13} textAlign="center">
+        <Text
+          className="pf-showcase-footer"
+          $sm={{ display: "none" }}
+          color="$subtle"
+          fontSize={13}
+          textAlign="center"
+        >
           {slide.eyebrow} · tracking stays local. Cloud AI runs only when you
           choose Ask AI.
         </Text>

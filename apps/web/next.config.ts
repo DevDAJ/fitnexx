@@ -2,6 +2,15 @@ import { withTamagui } from "@tamagui/next-plugin";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "raw.githubusercontent.com",
+        pathname: "/hasaneyldrm/exercises-dataset/main/images/**",
+      },
+    ],
+  },
   transpilePackages: [
     "react-native-web",
     "@fitnexx/ai",

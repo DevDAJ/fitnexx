@@ -29,7 +29,7 @@ function InterestListFormBody() {
         backgroundColor="$card"
         borderWidth={1}
         borderColor="$borderColor"
-        borderRadius={10}
+        borderRadius={14}
         padding={16}
         textAlign="center"
         fontSize={14}
@@ -61,9 +61,12 @@ function InterestListFormBody() {
         />
 
         <YStack gap={8}>
-          <Text color="$color" fontSize={14} fontWeight="600">
+          <label
+            htmlFor="interest-name"
+            style={{ color: "#e5e5e5", fontSize: 14, fontWeight: 600 }}
+          >
             Name
-          </Text>
+          </label>
           <TextField
             id="interest-name"
             name="name"
@@ -74,9 +77,12 @@ function InterestListFormBody() {
         </YStack>
 
         <YStack gap={8}>
-          <Text color="$color" fontSize={14} fontWeight="600">
-            Email <Text color="$subtle">{"(optional)"}</Text>
-          </Text>
+          <label
+            htmlFor="interest-email"
+            style={{ color: "#e5e5e5", fontSize: 14, fontWeight: 600 }}
+          >
+            Email <span style={{ color: "#666" }}>(optional)</span>
+          </label>
           <TextField
             id="interest-email"
             name="email"
@@ -105,7 +111,7 @@ export function InterestListSignup() {
   return (
     <>
       <Button size="lg" onPress={() => setOpen(true)}>
-        Add my name to the interest list
+        Join interest list
       </Button>
 
       {open ? (
@@ -127,6 +133,7 @@ export function InterestListSignup() {
             maxWidth={420}
             gap={12}
             onPress={(e) => e.stopPropagation()}
+            style={{ maxHeight: "calc(100dvh - 32px)", overflowY: "auto" }}
           >
             <View
               flexDirection="row"
@@ -134,7 +141,7 @@ export function InterestListSignup() {
               justifyContent="space-between"
               gap={8}
             >
-              <YStack gap={4}>
+              <YStack gap={4} flex={1} minWidth={0}>
                 <Text color="$color" fontSize={18} fontWeight="700">
                   Interest list
                 </Text>

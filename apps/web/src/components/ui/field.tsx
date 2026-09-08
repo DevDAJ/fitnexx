@@ -10,7 +10,7 @@ export const SubmitButton = TButton as unknown as React.FC<SubmitButtonProps>;
 const baseFieldStyle: React.CSSProperties = {
   backgroundColor: "#111111",
   border: "1px solid #222222",
-  borderRadius: 10,
+  borderRadius: 14,
   color: "#e5e5e5",
   fontSize: 15,
   fontFamily: "inherit",

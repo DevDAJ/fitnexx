@@ -67,12 +67,13 @@ export default function PricingPage() {
 
         <View flex={1} tag="main">
           <View
+            className="route-hero"
             borderBottomWidth={1}
             borderColor="$borderColor"
             backgroundColor="$surface"
-            paddingVertical={48}
+            paddingVertical={64}
             paddingHorizontal={16}
-            $sm={{ paddingVertical: 64 }}
+            $sm={{ paddingVertical: 48 }}
           >
             <YStack
               maxWidth={1024}
@@ -82,10 +83,10 @@ export default function PricingPage() {
               gap={12}
             >
               <Heading
-                fontSize={36}
+                fontSize={44}
                 fontWeight="800"
                 color="$color"
-                $sm={{ fontSize: 44 }}
+                $sm={{ fontSize: 36 }}
               >
                 Pricing
               </Heading>
@@ -98,9 +99,9 @@ export default function PricingPage() {
           </View>
 
           <View
-            paddingVertical={48}
+            paddingVertical={64}
             paddingHorizontal={16}
-            $sm={{ paddingVertical: 64 }}
+            $sm={{ paddingVertical: 48 }}
           >
             <YStack
               maxWidth={1024}
@@ -118,14 +119,18 @@ export default function PricingPage() {
                 {tiers.map((tier) => (
                   <Card
                     key={tier.name}
-                    flexBasis="100%"
-                    $sm={{ flexBasis: "48%" }}
+                    className="route-card"
+                    flexBasis="48%"
+                    $sm={{ flexBasis: "100%" }}
                     gap={16}
                     flexGrow={1}
                     borderColor={
                       tier.highlight ? "rgba(59,130,246,0.5)" : "$borderColor"
                     }
                     borderWidth={tier.highlight ? 2 : 1}
+                    backgroundColor={
+                      tier.highlight ? "rgba(59,130,246,0.06)" : "$card"
+                    }
                   >
                     <YStack gap={8}>
                       <XStackRow>
@@ -176,7 +181,7 @@ export default function PricingPage() {
                       borderColor="$borderColor"
                       paddingTop={16}
                     >
-                      <YStack gap={8}>
+                      <YStack gap={6}>
                         {tier.bullets.map((line) => (
                           <Text
                             key={line}
@@ -204,17 +209,31 @@ export default function PricingPage() {
                 ))}
               </View>
 
-              <Text color="$subtle" fontSize={13} textAlign="center">
-                Prices in USD before tax, where applicable. Pro is a monthly
-                subscription purchased in the app and requires an account.
-              </Text>
+              <YStack
+                tag="aside"
+                gap={4}
+                borderWidth={1}
+                borderColor="rgba(245,158,11,0.35)"
+                backgroundColor="rgba(245,158,11,0.07)"
+                borderRadius={14}
+                padding={20}
+              >
+                <Text color="$color" fontSize={15} fontWeight="700">
+                  Purchases are available in the Fitnexx app.
+                </Text>
+                <Text color="$muted" fontSize={14} lineHeight={22}>
+                  Pro is a monthly subscription purchased in the app and
+                  requires an account. Prices are in USD before tax, where
+                  applicable.
+                </Text>
+              </YStack>
             </YStack>
           </View>
 
           <View
             paddingHorizontal={16}
-            paddingBottom={64}
-            $sm={{ paddingBottom: 96 }}
+            paddingBottom={96}
+            $sm={{ paddingBottom: 64 }}
           >
             <View
               maxWidth={1024}
@@ -235,9 +254,9 @@ export default function PricingPage() {
               <YStack gap={4} flex={1} minWidth={240}>
                 <Text
                   color="$color"
-                  fontSize={20}
+                  fontSize={22}
                   fontWeight="700"
-                  $sm={{ fontSize: 22 }}
+                  $sm={{ fontSize: 20 }}
                 >
                   Questions about plans?
                 </Text>

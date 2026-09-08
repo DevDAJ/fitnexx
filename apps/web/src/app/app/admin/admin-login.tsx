@@ -13,15 +13,22 @@ export function AdminLogin() {
         display: "flex",
         flexDirection: "column",
         gap: 12,
+        width: "100%",
         maxWidth: 320,
       }}
     >
+      <label
+        htmlFor="admin-password"
+        style={{ color: "#e5e5e5", fontSize: 14, fontWeight: 600 }}
+      >
+        Password
+      </label>
       <input
+        id="admin-password"
         type="password"
         name="password"
         placeholder="Admin password"
         required
-        autoFocus
         style={{
           padding: "12px 14px",
           borderRadius: 10,
@@ -47,7 +54,8 @@ export function AdminLogin() {
           color: "#fff",
           fontSize: 15,
           fontWeight: 700,
-          cursor: "pointer",
+          cursor: pending ? "not-allowed" : "pointer",
+          opacity: pending ? 0.65 : 1,
         }}
       >
         {pending ? "Signing in..." : "Sign in"}

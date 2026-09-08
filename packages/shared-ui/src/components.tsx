@@ -149,15 +149,13 @@ export function Badge({
   const s = badgeColors[variant];
   return (
     <View
-      style={{
-        backgroundColor: s.bg,
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-        borderRadius: 6,
-        alignSelf: "flex-start",
-      }}
+      backgroundColor={s.bg}
+      paddingHorizontal={10}
+      paddingVertical={5}
+      borderRadius={999}
+      alignSelf="flex-start"
     >
-      <Text style={{ color: s.text, fontSize: 11, fontWeight: "700" }}>
+      <Text color={s.text} fontSize={11} lineHeight={14} fontWeight="700">
         {label}
       </Text>
     </View>
