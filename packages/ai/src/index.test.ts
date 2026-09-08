@@ -7,10 +7,14 @@ function jsonResponse(value: unknown): Promise<Response> {
 
 describe("AI providers", () => {
   test("normalizes Google model names", async () => {
+    let requestedUrl = "";
+    let requestedHeaders: HeadersInit | undefined;
     const models = await listModels(
       { provider: "google", apiKey: "test" },
-      () =>
-        jsonResponse({
+      (url, init) => {
+        requestedUrl = String(url);
+        requestedHeaders = init?.headers;
+        return jsonResponse({
           models: [
             {
               name: "models/gemini-test",
@@ -22,9 +26,12 @@ describe("AI providers", () => {
               supportedGenerationMethods: ["embedContent"],
             },
           ],
-        }),
+        });
+      },
     );
     expect(models).toEqual([{ id: "gemini-test", name: "Gemini Test" }]);
+    expect(requestedUrl).not.toContain("test");
+    expect(new Headers(requestedHeaders).get("x-goog-api-key")).toBe("test");
   });
 
   test("normalizes Anthropic responses and usage", async () => {

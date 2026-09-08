@@ -1,21 +1,39 @@
+import { BodyTooLargeError, readLimitedBody } from "@/lib/http";
 import { getPrisma } from "@/lib/prisma";
-import { revenueCatProState, verifyRevenueCatWebhook } from "@/lib/revenuecat";
+import {
+  getRevenueCatProState,
+  verifyRevenueCatWebhook,
+} from "@/lib/revenuecat";
 
 type RevenueCatEvent = {
-  type?: string;
   app_user_id?: string;
-  entitlement_ids?: string[] | null;
-  event_timestamp_ms?: number;
+  aliases?: string[];
+  original_app_user_id?: string;
+  transferred_from?: string[];
+  transferred_to?: string[];
 };
 
+const USER_ID =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export async function POST(request: Request) {
-  const secret = process.env.REVENUECAT_WEBHOOK_SECRET ?? "";
-  const body = await request.text();
+  let body: string;
+  try {
+    body = await readLimitedBody(request, 100_000);
+  } catch (error) {
+    const tooLarge = error instanceof BodyTooLargeError;
+    return Response.json(
+      { error: tooLarge ? "Request is too large." : "Invalid request." },
+      { status: tooLarge ? 413 : 400 },
+    );
+  }
+
+  const signingSecret = process.env.REVENUECAT_WEBHOOK_SECRET ?? "";
   if (
     !verifyRevenueCatWebhook(
       body,
       request.headers.get("x-revenuecat-webhook-signature"),
-      secret,
+      signingSecret,
     )
   ) {
     return Response.json({ error: "Invalid signature." }, { status: 401 });
@@ -27,26 +45,28 @@ export async function POST(request: Request) {
   } catch {
     return Response.json({ error: "Invalid JSON." }, { status: 400 });
   }
-  const pro = revenueCatProState(event.type ?? "");
-  const entitlement = process.env.REVENUECAT_PRO_ENTITLEMENT ?? "pro";
-  if (
-    pro === null ||
-    !event.app_user_id ||
-    !event.entitlement_ids?.includes(entitlement) ||
-    !event.event_timestamp_ms
-  ) {
-    return Response.json({ ok: true });
-  }
 
-  const occurredAt = new Date(event.event_timestamp_ms);
-  const existing = await getPrisma().user.findUnique({
-    where: { id: event.app_user_id },
-  });
-  if (!existing?.proUpdatedAt || existing.proUpdatedAt < occurredAt) {
+  const apiKey = process.env.REVENUECAT_SECRET_API_KEY;
+  if (!apiKey) {
+    return Response.json(
+      { error: "RevenueCat API is not configured." },
+      { status: 500 },
+    );
+  }
+  const entitlement = process.env.REVENUECAT_PRO_ENTITLEMENT ?? "pro";
+  const userIds = [
+    event.app_user_id,
+    event.original_app_user_id,
+    ...(event.aliases ?? []),
+    ...(event.transferred_from ?? []),
+    ...(event.transferred_to ?? []),
+  ].filter((id): id is string => Boolean(id && USER_ID.test(id)));
+  for (const userId of new Set(userIds)) {
+    const pro = await getRevenueCatProState(userId, apiKey, entitlement);
     await getPrisma().user.upsert({
-      where: { id: event.app_user_id },
-      create: { id: event.app_user_id, isPro: pro, proUpdatedAt: occurredAt },
-      update: { isPro: pro, proUpdatedAt: occurredAt },
+      where: { id: userId },
+      create: { id: userId, isPro: pro, proUpdatedAt: new Date() },
+      update: { isPro: pro, proUpdatedAt: new Date() },
     });
   }
   return Response.json({ ok: true });

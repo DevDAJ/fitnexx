@@ -1,6 +1,7 @@
 import { chat } from "@fitnexx/ai";
-import { parseServerAIRequest } from "@/lib/ai-request";
+import { consumeAIRateLimit, parseServerAIRequest } from "@/lib/ai-request";
 import { getAuthenticatedUser } from "@/lib/auth";
+import { BodyTooLargeError, readLimitedBody } from "@/lib/http";
 import { getPrisma } from "@/lib/prisma";
 
 const NO_STORE = { "Cache-Control": "no-store" };
@@ -20,18 +21,24 @@ export async function POST(request: Request) {
       { status: 403, headers: NO_STORE },
     );
   }
-
-  const raw = await request.text();
-  if (raw.length > 200_000) {
+  if (!(await consumeAIRateLimit(user.id))) {
     return Response.json(
-      { error: "Request is too large." },
-      { status: 413, headers: NO_STORE },
+      { error: "Too many AI requests. Try again in a minute." },
+      { status: 429, headers: NO_STORE },
     );
   }
+
   try {
+    const raw = await readLimitedBody(request, 200_000);
     const result = await chat(parseServerAIRequest(JSON.parse(raw)));
     return Response.json(result, { headers: NO_STORE });
   } catch (error) {
+    if (error instanceof BodyTooLargeError) {
+      return Response.json(
+        { error: "Request is too large." },
+        { status: 413, headers: NO_STORE },
+      );
+    }
     const message =
       error instanceof Error ? error.message : "AI request failed.";
     return Response.json(

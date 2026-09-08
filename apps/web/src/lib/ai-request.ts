@@ -4,6 +4,7 @@ import {
   type AIProviderId,
   type AIRequest,
 } from "@fitnexx/ai";
+import { getPrisma } from "@/lib/prisma";
 
 const SERVER_PROVIDERS = [
   "openai",
@@ -107,4 +108,30 @@ export function parseServerAIRequest(
     maxTokens,
     temperature,
   };
+}
+
+export async function consumeAIRateLimit(userId: string): Promise<boolean> {
+  const now = new Date();
+  const cutoff = new Date(now.getTime() - 60_000);
+  const rows = await getPrisma().$queryRaw<Array<{ id: string }>>`
+    UPDATE "user"
+    SET
+      "aiRequestCount" = CASE
+        WHEN "aiWindowAt" IS NULL OR "aiWindowAt" < ${cutoff} THEN 1
+        ELSE "aiRequestCount" + 1
+      END,
+      "aiWindowAt" = CASE
+        WHEN "aiWindowAt" IS NULL OR "aiWindowAt" < ${cutoff} THEN ${now}
+        ELSE "aiWindowAt"
+      END
+    WHERE "id" = ${userId}
+      AND "isPro" = true
+      AND (
+        "aiWindowAt" IS NULL
+        OR "aiWindowAt" < ${cutoff}
+        OR "aiRequestCount" < 20
+      )
+    RETURNING "id"
+  `;
+  return rows.length === 1;
 }
