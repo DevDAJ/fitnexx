@@ -4,6 +4,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   transpilePackages: [
     "react-native-web",
+    "@fitnexx/ai",
     "@fitnexx/ui",
     "tamagui",
     "@tamagui/core",
