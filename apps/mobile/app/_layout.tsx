@@ -3,6 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { AppState } from "react-native";
 import { TamaguiProvider } from "tamagui";
+import { AuthProvider } from "../components/auth/AuthProvider";
 import { ToastProvider } from "../components/shared/Toast";
 import { useAppStore } from "../lib/store";
 import { autoSyncIfPaired, getAppToken } from "../lib/sync";
@@ -32,15 +33,17 @@ export default function RootLayout() {
 
   return (
     <TamaguiProvider config={config} defaultTheme="dark">
-      <ToastProvider>
-        <StatusBar style="light" />
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: "#0a0a0a" },
-          }}
-        />
-      </ToastProvider>
+      <AuthProvider>
+        <ToastProvider>
+          <StatusBar style="light" />
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: "#0a0a0a" },
+            }}
+          />
+        </ToastProvider>
+      </AuthProvider>
     </TamaguiProvider>
   );
 }
