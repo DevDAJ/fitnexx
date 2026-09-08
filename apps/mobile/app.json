@@ -38,7 +38,8 @@
         {
           "cameraPermission": "Fitnexx uses your camera to take food photos and scan barcodes or sync codes."
         }
-      ]
+      ],
+      "expo-secure-store"
     ]
   }
 }

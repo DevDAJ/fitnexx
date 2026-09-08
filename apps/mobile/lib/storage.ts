@@ -1,3 +1,4 @@
+import type { AISettings, UsageRecord } from "@fitnexx/ai";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { KEYS } from "./backupSchema";
 import {
@@ -242,6 +243,26 @@ export const storage = {
 
   async setPro(pro: boolean): Promise<void> {
     await AsyncStorage.setItem(KEYS.PRO, String(pro));
+  },
+
+  async getAISettings(): Promise<AISettings> {
+    const raw = await AsyncStorage.getItem(KEYS.AI_SETTINGS);
+    return raw
+      ? JSON.parse(raw)
+      : { provider: "openai", model: "gpt-4.1-mini" };
+  },
+
+  async saveAISettings(settings: AISettings): Promise<void> {
+    await AsyncStorage.setItem(KEYS.AI_SETTINGS, JSON.stringify(settings));
+  },
+
+  async getAIUsage(): Promise<UsageRecord[]> {
+    const raw = await AsyncStorage.getItem(KEYS.AI_USAGE);
+    return raw ? JSON.parse(raw) : [];
+  },
+
+  async saveAIUsage(records: UsageRecord[]): Promise<void> {
+    await AsyncStorage.setItem(KEYS.AI_USAGE, JSON.stringify(records));
   },
 
   async getSyncTombstones() {

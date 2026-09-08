@@ -12,6 +12,8 @@ export const KEYS = {
   WATER: "fitnexx_water",
   REMINDERS: "fitnexx_habit_reminders",
   PRO: "fitnexx_pro",
+  AI_SETTINGS: "fitnexx_ai_settings",
+  AI_USAGE: "fitnexx_ai_usage",
   SYNC_TOKEN: "fitnexx_sync_token",
   SYNC_PEER: "fitnexx_sync_peer",
   SYNC_TOMBSTONES: "fitnexx_sync_tombstones",
