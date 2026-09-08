@@ -6,10 +6,12 @@
     "orientation": "portrait",
     "scheme": "fitnexx",
     "userInterfaceStyle": "dark",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.fitnexx.app"
+      "bundleIdentifier": "com.fitnexx.app",
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "Fitnexx uses your local network to sync directly with your other Fitnexx apps."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -34,7 +36,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Fitnexx uses your camera to take food photos and scan barcodes."
+          "cameraPermission": "Fitnexx uses your camera to take food photos and scan barcodes or sync codes."
         }
       ]
     ]

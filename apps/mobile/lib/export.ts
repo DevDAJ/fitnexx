@@ -5,6 +5,7 @@ import * as Sharing from "expo-sharing";
 import { KEYS, parseImport } from "./backupSchema";
 import { clearCache } from "./computationCache";
 import { useAppStore } from "./store";
+import { createEmptySyncTombstones } from "./syncProtocol";
 
 interface FitnexxBackup {
   version: 1;
@@ -54,6 +55,10 @@ export async function importData(): Promise<void> {
   const entries: [string, string][] = Object.entries(data).map(([k, v]) => [
     k,
     JSON.stringify(v),
+  ]);
+  entries.push([
+    KEYS.SYNC_TOMBSTONES,
+    JSON.stringify(createEmptySyncTombstones()),
   ]);
   await AsyncStorage.multiSet(entries);
   clearCache();

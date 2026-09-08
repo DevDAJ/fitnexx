@@ -12,6 +12,10 @@ export const KEYS = {
   WATER: "fitnexx_water",
   REMINDERS: "fitnexx_habit_reminders",
   PRO: "fitnexx_pro",
+  SYNC_TOKEN: "fitnexx_sync_token",
+  SYNC_PEER: "fitnexx_sync_peer",
+  SYNC_TOMBSTONES: "fitnexx_sync_tombstones",
+  INITIALIZED: "fitnexx_initialized",
 } as const;
 
 const SCHEMA: Record<string, (v: unknown) => boolean> = {

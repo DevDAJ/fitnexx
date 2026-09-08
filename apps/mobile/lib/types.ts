@@ -199,7 +199,15 @@ export interface Schedule {
 export interface ExerciseSuggestion {
   muscle: string;
   reason: string;
-  exercises: { name: string; primaryMuscle: string }[];
+  score: number;
+  weeklySets: number;
+  scoreLabel: string;
+  plateau?: PlateauInfo;
+  exercises: {
+    name: string;
+    primaryMuscle: string;
+    equipment?: string;
+  }[];
 }
 
 export interface Meal {

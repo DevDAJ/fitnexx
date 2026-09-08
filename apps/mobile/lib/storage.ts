@@ -1,5 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { KEYS } from "./backupSchema";
+import {
+  createEmptySyncTombstones,
+  parseSyncTombstones,
+  type TombstoneKey,
+} from "./syncProtocol";
 import type {
   BodyMetrics,
   Gym,
@@ -12,6 +17,44 @@ import type {
   Workout,
   WorkoutTemplate,
 } from "./types";
+
+async function deleteWithTombstone(
+  key: TombstoneKey,
+  id?: string,
+): Promise<void> {
+  const operation = deletionQueue.then(async () => {
+    const [[, rawValue], [, rawTombstones]] = await AsyncStorage.multiGet([
+      key,
+      KEYS.SYNC_TOMBSTONES,
+    ]);
+    const value = rawValue
+      ? JSON.parse(rawValue)
+      : key === KEYS.SCHEDULE
+        ? null
+        : [];
+    const deletedId = id ?? value?.id;
+    if (!deletedId) return;
+    const tombstones = rawTombstones
+      ? parseSyncTombstones(JSON.parse(rawTombstones))
+      : createEmptySyncTombstones();
+    tombstones[key] = [...new Set([...tombstones[key], deletedId])];
+    await AsyncStorage.multiSet([
+      [
+        key,
+        JSON.stringify(
+          key === KEYS.SCHEDULE
+            ? null
+            : value.filter((item: { id: string }) => item.id !== deletedId),
+        ),
+      ],
+      [KEYS.SYNC_TOMBSTONES, JSON.stringify(tombstones)],
+    ]);
+  });
+  deletionQueue = operation.catch(() => undefined);
+  return operation;
+}
+
+let deletionQueue: Promise<void> = Promise.resolve();
 
 export const storage = {
   async getWorkouts(): Promise<Workout[]> {
@@ -29,11 +72,7 @@ export const storage = {
   },
 
   async deleteWorkout(id: string): Promise<void> {
-    const workouts = await this.getWorkouts();
-    await AsyncStorage.setItem(
-      KEYS.WORKOUTS,
-      JSON.stringify(workouts.filter((w) => w.id !== id)),
-    );
+    await deleteWithTombstone(KEYS.WORKOUTS, id);
   },
 
   async getTemplates(): Promise<WorkoutTemplate[]> {
@@ -53,11 +92,7 @@ export const storage = {
   },
 
   async deleteTemplate(id: string): Promise<void> {
-    const templates = await this.getTemplates();
-    await AsyncStorage.setItem(
-      KEYS.TEMPLATES,
-      JSON.stringify(templates.filter((t) => t.id !== id)),
-    );
+    await deleteWithTombstone(KEYS.TEMPLATES, id);
   },
 
   async getWeightUnit(): Promise<WeightUnit> {
@@ -79,7 +114,7 @@ export const storage = {
   },
 
   async deleteSchedule(): Promise<void> {
-    await AsyncStorage.removeItem(KEYS.SCHEDULE);
+    await deleteWithTombstone(KEYS.SCHEDULE);
   },
 
   async getMeals(): Promise<Meal[]> {
@@ -97,11 +132,7 @@ export const storage = {
   },
 
   async deleteMeal(id: string): Promise<void> {
-    const meals = await this.getMeals();
-    await AsyncStorage.setItem(
-      KEYS.MEALS,
-      JSON.stringify(meals.filter((m) => m.id !== id)),
-    );
+    await deleteWithTombstone(KEYS.MEALS, id);
   },
 
   async updateMeal(id: string, updates: Partial<Meal>): Promise<void> {
@@ -129,11 +160,7 @@ export const storage = {
   },
 
   async deleteMealTemplate(id: string): Promise<void> {
-    const templates = await this.getMealTemplates();
-    await AsyncStorage.setItem(
-      KEYS.MEAL_TEMPLATES,
-      JSON.stringify(templates.filter((t) => t.id !== id)),
-    );
+    await deleteWithTombstone(KEYS.MEAL_TEMPLATES, id);
   },
 
   async getBodyMetrics(): Promise<BodyMetrics[]> {
@@ -165,11 +192,7 @@ export const storage = {
   },
 
   async deleteGym(id: string): Promise<void> {
-    const gyms = await this.getGyms();
-    await AsyncStorage.setItem(
-      KEYS.GYMS,
-      JSON.stringify(gyms.filter((g) => g.id !== id)),
-    );
+    await deleteWithTombstone(KEYS.GYMS, id);
   },
 
   async getMetricsReminder(): Promise<MetricsReminder | null> {
@@ -219,5 +242,20 @@ export const storage = {
 
   async setPro(pro: boolean): Promise<void> {
     await AsyncStorage.setItem(KEYS.PRO, String(pro));
+  },
+
+  async getSyncTombstones() {
+    const raw = await AsyncStorage.getItem(KEYS.SYNC_TOMBSTONES);
+    return raw
+      ? parseSyncTombstones(JSON.parse(raw))
+      : createEmptySyncTombstones();
+  },
+
+  async isInitialized(): Promise<boolean> {
+    return (await AsyncStorage.getItem(KEYS.INITIALIZED)) === "true";
+  },
+
+  async markInitialized(): Promise<void> {
+    await AsyncStorage.setItem(KEYS.INITIALIZED, "true");
   },
 };

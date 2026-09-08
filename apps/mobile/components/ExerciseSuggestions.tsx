@@ -1,38 +1,32 @@
 import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
+import { getScoreColor } from "../lib/analysis/hypertrophyScore";
 import { suggestExercises } from "../lib/analysis/suggestions";
-import { isExerciseAvailable } from "../lib/gyms";
 import { useAppStore } from "../lib/store";
-import type { ExerciseAsset, ExerciseSuggestion } from "../lib/types";
-import { useExerciseEquipment } from "../lib/useExerciseEquipment";
+import type { ExerciseSuggestion } from "../lib/types";
 
 export function ExerciseSuggestions() {
   const workouts = useAppStore((s) => s.workouts);
   const currentGym = useAppStore((s) => s.currentGym);
   const weightUnit = useAppStore((s) => s.weightUnit);
-  const { equipment } = useExerciseEquipment();
   const [suggestions, setSuggestions] = useState<ExerciseSuggestion[]>([]);
 
   useEffect(() => {
     if (workouts.length < 3) return;
-    suggestExercises(workouts, weightUnit).then(setSuggestions);
-  }, [workouts, weightUnit]);
+    let active = true;
+    suggestExercises(workouts, weightUnit, currentGym?.equipment)
+      .then((result) => {
+        if (active) setSuggestions(result);
+      })
+      .catch(() => {
+        if (active) setSuggestions([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, [workouts, weightUnit, currentGym]);
 
   if (suggestions.length === 0) return null;
-
-  const missingEquipment = (name: string): string | null => {
-    if (!currentGym) return null;
-    const eq = equipment[name.toLowerCase()];
-    if (!eq) return null;
-    const asset = {
-      name,
-      primaryMuscle: "",
-      secondaryMuscles: [],
-      category: "compound",
-      equipment: eq,
-    } as ExerciseAsset;
-    return isExerciseAvailable(asset, currentGym.equipment) ? null : eq;
-  };
 
   return (
     <View
@@ -52,7 +46,7 @@ export function ExerciseSuggestions() {
           marginBottom: 8,
         }}
       >
-        Suggestions
+        {currentGym ? `Suggestions at ${currentGym.name}` : "Suggestions"}
       </Text>
       {suggestions.map((s) => (
         <View key={s.muscle} style={{ marginBottom: 10 }}>
@@ -62,21 +56,31 @@ export function ExerciseSuggestions() {
               -- {s.reason}
             </Text>
           </Text>
+          <Text style={{ color: "#888", fontSize: 12, marginTop: 2 }}>
+            <Text style={{ color: getScoreColor(s.score), fontWeight: "600" }}>
+              {s.scoreLabel} {s.score}/100
+            </Text>
+            {` | ${s.weeklySets} sets/week`}
+          </Text>
+          {s.plateau && (
+            <Text style={{ color: "#f59e0b", fontSize: 12, marginTop: 2 }}>
+              Plateau: {s.plateau.exerciseName} for{" "}
+              {s.plateau.sessionsSinceProgress} sessions
+            </Text>
+          )}
           <Text style={{ color: "#3b82f6", fontSize: 13, marginTop: 2 }}>
             Try:{" "}
-            {s.exercises.map((e, i) => {
-              const missing = missingEquipment(e.name);
-              return (
-                <Text
-                  key={e.name}
-                  style={missing ? { color: "#f59e0b" } : undefined}
-                >
-                  {e.name}
-                  {missing ? ` (needs ${missing})` : ""}
-                  {i < s.exercises.length - 1 ? ", " : ""}
-                </Text>
-              );
-            })}
+            {s.exercises.map((e, i) => (
+              <Text key={e.name}>
+                {e.name}
+                {["body only", "bodyweight", "body weight"].includes(
+                  e.equipment?.trim().toLowerCase() ?? "",
+                )
+                  ? " (bodyweight)"
+                  : ""}
+                {i < s.exercises.length - 1 ? ", " : ""}
+              </Text>
+            ))}
           </Text>
         </View>
       ))}

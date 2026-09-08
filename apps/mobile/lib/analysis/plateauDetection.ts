@@ -1,4 +1,4 @@
-import type { Workout, PlateauInfo } from "../types";
+import type { ExerciseAsset, PlateauInfo, Workout } from "../types";
 import { analyzeExerciseTrend } from "./exerciseTrend";
 
 export function detectPlateaus(workouts: Workout[]): PlateauInfo[] {
@@ -30,11 +30,31 @@ export function detectPlateaus(workouts: Workout[]): PlateauInfo[] {
     });
   }
 
-  return plateaus.sort((a, b) => b.sessionsSinceProgress - a.sessionsSinceProgress);
+  return plateaus.sort(
+    (a, b) => b.sessionsSinceProgress - a.sessionsSinceProgress,
+  );
+}
+
+export function findMusclePlateau(
+  muscle: string,
+  plateaus: PlateauInfo[],
+  exercisesByName: Record<string, ExerciseAsset>,
+): PlateauInfo | undefined {
+  const matches = plateaus.map((plateau) => ({
+    plateau,
+    exercise: exercisesByName[plateau.exerciseName.toLowerCase()],
+  }));
+
+  return (
+    matches.find(({ exercise }) => exercise?.primaryMuscle === muscle)
+      ?.plateau ??
+    matches.find(({ exercise }) => exercise?.secondaryMuscles.includes(muscle))
+      ?.plateau
+  );
 }
 
 function checkStaticPlateau(
-  sessions: { maxWeight: number; maxReps: number }[]
+  sessions: { maxWeight: number; maxReps: number }[],
 ): boolean {
   const recent = sessions.slice(-4);
   if (recent.length < 3) return false;
@@ -42,9 +62,7 @@ function checkStaticPlateau(
   const weights = recent.map((s) => s.maxWeight);
   const reps = recent.map((s) => s.maxReps);
 
-  const isWeightStatic = weights.every(
-    (w) => Math.abs(w - weights[0]) < 0.5
-  );
+  const isWeightStatic = weights.every((w) => Math.abs(w - weights[0]) < 0.5);
   const isRepStatic = Math.max(...reps) - Math.min(...reps) <= 1;
 
   return isWeightStatic && isRepStatic;
@@ -52,10 +70,10 @@ function checkStaticPlateau(
 
 function getExerciseSessions(
   name: string,
-  workouts: Workout[]
+  workouts: Workout[],
 ): { maxWeight: number; maxReps: number }[] {
   const sorted = [...workouts].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   );
 
   return sorted

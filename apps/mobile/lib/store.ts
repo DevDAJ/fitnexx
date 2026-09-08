@@ -97,6 +97,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       waterLog,
       habitReminders,
       isPro,
+      initialized,
     ] = await Promise.all([
       storage.getWorkouts(),
       storage.getTemplates(),
@@ -111,6 +112,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       storage.getWaterLog(),
       storage.getHabitReminders(),
       storage.getPro(),
+      storage.isInitialized(),
     ]);
 
     habitReminders = {
@@ -128,15 +130,18 @@ export const useAppStore = create<AppState>((set, get) => ({
       },
     };
 
-    if (workouts.length === 0) {
-      workouts = MOCK_WORKOUTS;
-      templates = MOCK_TEMPLATES;
-      schedule = MOCK_SCHEDULE;
-      await Promise.all([
-        ...workouts.map((w) => storage.saveWorkout(w)),
-        ...templates.map((t) => storage.saveTemplate(t)),
-        storage.saveSchedule(MOCK_SCHEDULE),
-      ]);
+    if (!initialized) {
+      if (workouts.length === 0) {
+        workouts = MOCK_WORKOUTS;
+        templates = MOCK_TEMPLATES;
+        schedule = MOCK_SCHEDULE;
+        await Promise.all([
+          ...workouts.map((w) => storage.saveWorkout(w)),
+          ...templates.map((t) => storage.saveTemplate(t)),
+          storage.saveSchedule(MOCK_SCHEDULE),
+        ]);
+      }
+      await storage.markInitialized();
     }
 
     const detectedId = await getDetectedGymId();
