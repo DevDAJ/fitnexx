@@ -1,6 +1,6 @@
 import { AI_PROVIDERS, type AIProviderId, type AISettings } from "@fitnexx/ai";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -35,6 +35,8 @@ export function AISettingsCard() {
   const [busy, setBusy] = useState(false);
   const [showKey, setShowKey] = useState(false);
   const usingPro = isPro && Boolean(settings.usePro);
+  const keyRequest = useRef(0);
+  const modelRequest = useRef(0);
 
   useEffect(() => {
     storage.getAISettings().then(async (saved) => {
@@ -44,6 +46,8 @@ export function AISettingsCard() {
   }, []);
 
   const chooseProvider = (provider: string) => {
+    const request = ++keyRequest.current;
+    modelRequest.current += 1;
     const selected = AI_PROVIDERS.find((item) => item.id === provider);
     setModels([]);
     setSettings({
@@ -52,16 +56,20 @@ export function AISettingsCard() {
       customUrl: provider === "custom" ? settings.customUrl : undefined,
       usePro: settings.usePro,
     });
-    void getAIKey(provider as AIProviderId).then(setApiKey);
+    void getAIKey(provider as AIProviderId).then((key) => {
+      if (request === keyRequest.current) setApiKey(key);
+    });
   };
 
   const loadModels = async () => {
+    const request = ++modelRequest.current;
     setBusy(true);
     try {
       const available = await getAIModels(
         { ...settings, usePro: usingPro },
         apiKey.trim(),
       );
+      if (request !== modelRequest.current) return;
       setModels(
         available.map((model) => ({ label: model.name, value: model.id })),
       );
@@ -72,12 +80,13 @@ export function AISettingsCard() {
           : "The API returned no models.",
       );
     } catch (error) {
+      if (request !== modelRequest.current) return;
       Alert.alert(
         "Connection failed",
         error instanceof Error ? error.message : "Try again.",
       );
     } finally {
-      setBusy(false);
+      if (request === modelRequest.current) setBusy(false);
     }
   };
 
