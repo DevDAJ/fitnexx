@@ -8,6 +8,7 @@ import {
   chat,
   listModels,
 } from "@fitnexx/ai";
+import * as Crypto from "expo-crypto";
 import * as SecureStore from "expo-secure-store";
 
 import { storage } from "./storage";
@@ -51,5 +52,21 @@ export async function callAIByok(
 ): Promise<AIResponse> {
   const settings = await storage.getAISettings();
   const apiKey = await getAIKey(settings.provider);
-  return chat({ ...settings, ...options, messages, apiKey });
+  const startedAt = Date.now();
+  const response = await chat({ ...settings, ...options, messages, apiKey });
+  const records = await storage.getAIUsage();
+  await storage.saveAIUsage(
+    [
+      {
+        id: Crypto.randomUUID(),
+        timestamp: new Date().toISOString(),
+        provider: settings.provider,
+        model: settings.model,
+        durationMs: Date.now() - startedAt,
+        ...response.usage,
+      },
+      ...records,
+    ].slice(0, 500),
+  );
+  return response;
 }
