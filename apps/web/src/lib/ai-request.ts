@@ -17,7 +17,7 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function isServerProvider(value: unknown): value is ServerProvider {
+export function isServerProvider(value: unknown): value is ServerProvider {
   return SERVER_PROVIDERS.includes(value as ServerProvider);
 }
 
@@ -44,7 +44,9 @@ function parseMessages(value: unknown): AIMessage[] {
   });
 }
 
-function allowedModels(env: NodeJS.ProcessEnv): Set<string> {
+export function allowedModels(
+  env: NodeJS.ProcessEnv = process.env,
+): Set<string> {
   if (env.FITNEXX_AI_MODELS) {
     return new Set(
       env.FITNEXX_AI_MODELS.split(",")
@@ -59,7 +61,10 @@ function allowedModels(env: NodeJS.ProcessEnv): Set<string> {
   );
 }
 
-function providerKey(provider: ServerProvider, env: NodeJS.ProcessEnv): string {
+export function providerKey(
+  provider: ServerProvider,
+  env: NodeJS.ProcessEnv = process.env,
+): string {
   const keys: Record<ServerProvider, string | undefined> = {
     openai: env.OPENAI_API_KEY,
     anthropic: env.ANTHROPIC_API_KEY,

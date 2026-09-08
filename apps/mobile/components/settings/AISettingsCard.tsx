@@ -12,6 +12,7 @@ import {
 
 import { getAIKey, getAIModels, saveAIConfiguration } from "../../lib/ai";
 import { storage } from "../../lib/storage";
+import { useAppStore } from "../../lib/store";
 import { useAuth } from "../auth/AuthProvider";
 import { Autocomplete } from "./Autocomplete";
 
@@ -22,6 +23,7 @@ const PROVIDERS = AI_PROVIDERS.filter(
 export function AISettingsCard() {
   const router = useRouter();
   const { configured, user, signOut } = useAuth();
+  const isPro = useAppStore((state) => state.isPro);
   const [settings, setSettings] = useState<AISettings>({
     provider: "openai",
     model: "gpt-4.1-mini",
@@ -32,6 +34,7 @@ export function AISettingsCard() {
   );
   const [busy, setBusy] = useState(false);
   const [showKey, setShowKey] = useState(false);
+  const usingPro = isPro && Boolean(settings.usePro);
 
   useEffect(() => {
     storage.getAISettings().then(async (saved) => {
@@ -47,6 +50,7 @@ export function AISettingsCard() {
       provider: provider as AIProviderId,
       model: selected?.defaultModel ?? "",
       customUrl: provider === "custom" ? settings.customUrl : undefined,
+      usePro: settings.usePro,
     });
     void getAIKey(provider as AIProviderId).then(setApiKey);
   };
@@ -54,7 +58,10 @@ export function AISettingsCard() {
   const loadModels = async () => {
     setBusy(true);
     try {
-      const available = await getAIModels(settings, apiKey.trim());
+      const available = await getAIModels(
+        { ...settings, usePro: usingPro },
+        apiKey.trim(),
+      );
       setModels(
         available.map((model) => ({ label: model.name, value: model.id })),
       );
@@ -76,7 +83,10 @@ export function AISettingsCard() {
 
   const save = async () => {
     try {
-      await saveAIConfiguration(settings, apiKey.trim());
+      await saveAIConfiguration(
+        { ...settings, usePro: usingPro },
+        apiKey.trim(),
+      );
       Alert.alert(
         "Saved",
         "Your API key stays in secure storage on this device.",
@@ -173,34 +183,80 @@ export function AISettingsCard() {
               AI PROVIDER
             </Text>
             <Text style={{ color: "#666", fontSize: 13, marginTop: 4 }}>
-              Use your own key without an account.
+              {usingPro
+                ? "Use Fitnexx-managed models."
+                : "Use your own key without an account."}
             </Text>
           </View>
-          <TouchableOpacity
-            accessibilityRole="button"
-            onPress={() =>
-              chooseProvider(
-                settings.provider === "custom" ? "openai" : "custom",
-              )
-            }
-            style={{
-              backgroundColor:
-                settings.provider === "custom" ? "#3b82f6" : "#1a1a1a",
-              borderColor:
-                settings.provider === "custom" ? "#3b82f6" : "#2a2a2a",
-              borderRadius: 8,
-              borderWidth: 1,
-              paddingHorizontal: 10,
-              paddingVertical: 7,
-            }}
-          >
-            <Text style={{ color: "#fff", fontSize: 11, fontWeight: "700" }}>
-              {settings.provider === "custom" ? "Providers" : "Custom URL"}
-            </Text>
-          </TouchableOpacity>
+          {!usingPro ? (
+            <TouchableOpacity
+              accessibilityRole="button"
+              onPress={() =>
+                chooseProvider(
+                  settings.provider === "custom" ? "openai" : "custom",
+                )
+              }
+              style={{
+                backgroundColor:
+                  settings.provider === "custom" ? "#3b82f6" : "#1a1a1a",
+                borderColor:
+                  settings.provider === "custom" ? "#3b82f6" : "#2a2a2a",
+                borderRadius: 8,
+                borderWidth: 1,
+                paddingHorizontal: 10,
+                paddingVertical: 7,
+              }}
+            >
+              <Text style={{ color: "#fff", fontSize: 11, fontWeight: "700" }}>
+                {settings.provider === "custom" ? "Providers" : "Custom URL"}
+              </Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
 
-        {settings.provider === "custom" ? (
+        {isPro ? (
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            {[
+              { label: "Fitnexx Pro", value: true },
+              { label: "My API key", value: false },
+            ].map((mode) => (
+              <TouchableOpacity
+                accessibilityRole="button"
+                key={mode.label}
+                onPress={() => {
+                  const defaultProvider = AI_PROVIDERS[0];
+                  setSettings({
+                    ...settings,
+                    ...(mode.value && settings.provider === "custom"
+                      ? {
+                          provider: defaultProvider.id,
+                          model: defaultProvider.defaultModel,
+                          customUrl: undefined,
+                        }
+                      : {}),
+                    usePro: mode.value,
+                  });
+                }}
+                style={{
+                  alignItems: "center",
+                  backgroundColor:
+                    usingPro === mode.value ? "#3b82f6" : "#101010",
+                  borderRadius: 9,
+                  flex: 1,
+                  padding: 10,
+                }}
+              >
+                <Text
+                  style={{ color: "#fff", fontSize: 12, fontWeight: "700" }}
+                >
+                  {mode.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        ) : null}
+
+        {settings.provider === "custom" && !usingPro ? (
           <View style={{ gap: 6 }}>
             <Text style={{ color: "#888", fontSize: 12 }}>
               OpenAI-compatible base URL
@@ -235,47 +291,49 @@ export function AISettingsCard() {
           />
         )}
 
-        <View style={{ gap: 6 }}>
-          <Text style={{ color: "#888", fontSize: 12 }}>API key</Text>
-          <View style={{ flexDirection: "row", gap: 8 }}>
-            <TextInput
-              autoCapitalize="none"
-              autoCorrect={false}
-              onChangeText={setApiKey}
-              placeholder={
-                settings.provider === "custom" ? "Optional" : "Required"
-              }
-              placeholderTextColor="#666"
-              secureTextEntry={!showKey}
-              style={{
-                backgroundColor: "#101010",
-                borderColor: "#2a2a2a",
-                borderRadius: 10,
-                borderWidth: 1,
-                color: "#fff",
-                flex: 1,
-                padding: 12,
-              }}
-              value={apiKey}
-            />
-            <TouchableOpacity
-              accessibilityLabel={showKey ? "Hide API key" : "Show API key"}
-              accessibilityRole="button"
-              onPress={() => setShowKey(!showKey)}
-              style={{
-                alignItems: "center",
-                backgroundColor: "#1a1a1a",
-                borderRadius: 10,
-                justifyContent: "center",
-                paddingHorizontal: 12,
-              }}
-            >
-              <Text style={{ color: "#888", fontSize: 12 }}>
-                {showKey ? "Hide" : "Show"}
-              </Text>
-            </TouchableOpacity>
+        {!usingPro ? (
+          <View style={{ gap: 6 }}>
+            <Text style={{ color: "#888", fontSize: 12 }}>API key</Text>
+            <View style={{ flexDirection: "row", gap: 8 }}>
+              <TextInput
+                autoCapitalize="none"
+                autoCorrect={false}
+                onChangeText={setApiKey}
+                placeholder={
+                  settings.provider === "custom" ? "Optional" : "Required"
+                }
+                placeholderTextColor="#666"
+                secureTextEntry={!showKey}
+                style={{
+                  backgroundColor: "#101010",
+                  borderColor: "#2a2a2a",
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  color: "#fff",
+                  flex: 1,
+                  padding: 12,
+                }}
+                value={apiKey}
+              />
+              <TouchableOpacity
+                accessibilityLabel={showKey ? "Hide API key" : "Show API key"}
+                accessibilityRole="button"
+                onPress={() => setShowKey(!showKey)}
+                style={{
+                  alignItems: "center",
+                  backgroundColor: "#1a1a1a",
+                  borderRadius: 10,
+                  justifyContent: "center",
+                  paddingHorizontal: 12,
+                }}
+              >
+                <Text style={{ color: "#888", fontSize: 12 }}>
+                  {showKey ? "Hide" : "Show"}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        ) : null}
 
         <Autocomplete
           label="Model"
