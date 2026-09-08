@@ -1,7 +1,7 @@
 "use server";
 
-import { getPrisma } from "@/lib/prisma";
 import { sendNewSignupEmail } from "@/lib/email";
+import { getSupabaseAdmin } from "@/lib/supabase";
 
 export type InterestListState =
   | { status: "idle" | "success" }
@@ -12,7 +12,7 @@ function isValidEmail(email: string) {
 }
 
 /**
- * Records interest-list signups in Postgres via Prisma.
+ * Records interest-list signups in Supabase.
  */
 export async function submitInterestList(
   _prev: InterestListState,
@@ -40,12 +40,10 @@ export async function submitInterestList(
   }
 
   try {
-    await getPrisma().interestListEntry.create({
-      data: {
-        name,
-        email: email.length > 0 ? email : null,
-      },
-    });
+    const { error } = await getSupabaseAdmin()
+      .from("interest_list_entry")
+      .insert({ name, email: email.length > 0 ? email : null });
+    if (error) throw error;
   } catch (err) {
     console.error("[interest-list]", err);
     return {

@@ -1,7 +1,7 @@
 import { listModels } from "@fitnexx/ai";
 import { allowedModels, isServerProvider, providerKey } from "@/lib/ai-request";
 import { getAuthenticatedUser } from "@/lib/auth";
-import { getPrisma } from "@/lib/prisma";
+import { getSupabaseAdmin } from "@/lib/supabase";
 
 export async function GET(request: Request) {
   const user = await getAuthenticatedUser(request);
@@ -11,10 +11,12 @@ export async function GET(request: Request) {
       { status: 401 },
     );
   }
-  const account = await getPrisma().user.findUnique({
-    where: { id: user.id },
-  });
-  if (!account?.isPro) {
+  const { data: account, error: findError } = await getSupabaseAdmin()
+    .from("user")
+    .select("isPro")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (findError || !account?.isPro) {
     return Response.json(
       { error: "Fitnexx Pro is required." },
       { status: 403 },

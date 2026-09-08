@@ -2,7 +2,7 @@ import { chat } from "@fitnexx/ai";
 import { consumeAIRateLimit, parseServerAIRequest } from "@/lib/ai-request";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { BodyTooLargeError, readLimitedBody } from "@/lib/http";
-import { getPrisma } from "@/lib/prisma";
+import { getSupabaseAdmin } from "@/lib/supabase";
 
 const NO_STORE = { "Cache-Control": "no-store" };
 
@@ -14,8 +14,12 @@ export async function POST(request: Request) {
       { status: 401, headers: NO_STORE },
     );
   }
-  const account = await getPrisma().user.findUnique({ where: { id: user.id } });
-  if (!account?.isPro) {
+  const { data: account, error: findError } = await getSupabaseAdmin()
+    .from("user")
+    .select("isPro")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (findError || !account?.isPro) {
     return Response.json(
       { error: "Fitnexx Pro is required." },
       { status: 403, headers: NO_STORE },

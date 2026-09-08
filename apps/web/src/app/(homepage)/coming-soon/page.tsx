@@ -5,8 +5,8 @@ import { HomepageNavbar } from "@/components/homepage-navbar";
 import { InterestListSignup } from "@/components/interest-list-signup";
 import { SiteFooter } from "@/components/site-footer";
 import { LinkButton } from "@/components/ui/link";
-import { getPrisma } from "@/lib/prisma";
 import { createMetadata } from "@/lib/site";
+import { getSupabaseAdmin } from "@/lib/supabase";
 
 export const metadata: Metadata = createMetadata({
   title: "Coming soon",
@@ -20,7 +20,11 @@ export const dynamic = "force-dynamic";
 export default async function ComingSoonPage() {
   let totalInterests: number | null = null;
   try {
-    totalInterests = await getPrisma().interestListEntry.count();
+    const { count, error } = await getSupabaseAdmin()
+      .from("interest_list_entry")
+      .select("id", { count: "exact", head: true });
+    if (error) throw error;
+    totalInterests = count;
   } catch {
     totalInterests = null;
   }
