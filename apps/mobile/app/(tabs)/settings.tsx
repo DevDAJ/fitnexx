@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AISettingsCard } from "../../components/settings/AISettingsCard";
+import { UsageHistory } from "../../components/settings/UsageHistory";
 import { LineChart } from "../../components/shared/Sparkline";
 import { SyncSheet } from "../../components/sync/SyncSheet";
 import { clearAIKeys } from "../../lib/ai";
@@ -907,6 +908,7 @@ export default function SettingsScreen() {
       </View>
 
       <AISettingsCard />
+      <UsageHistory />
 
       {/* Pro */}
       <View
