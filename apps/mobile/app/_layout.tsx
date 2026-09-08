@@ -5,6 +5,7 @@ import { AppState } from "react-native";
 import { TamaguiProvider } from "tamagui";
 import { ToastProvider } from "../components/shared/Toast";
 import { useAppStore } from "../lib/store";
+import { autoSyncIfPaired, getAppToken } from "../lib/sync";
 import config from "../tamagui.config";
 
 export default function RootLayout() {
@@ -12,12 +13,19 @@ export default function RootLayout() {
   const refreshCurrentGym = useAppStore((s) => s.refreshCurrentGym);
 
   useEffect(() => {
-    loadAll().then(() => refreshCurrentGym());
+    loadAll().then(() => {
+      void refreshCurrentGym();
+      void getAppToken().catch(() => undefined);
+      void autoSyncIfPaired().catch(() => undefined);
+    });
   }, [loadAll, refreshCurrentGym]);
 
   useEffect(() => {
     const sub = AppState.addEventListener("change", (state) => {
-      if (state === "active") refreshCurrentGym();
+      if (state === "active") {
+        void refreshCurrentGym();
+        void autoSyncIfPaired().catch(() => undefined);
+      }
     });
     return () => sub.remove();
   }, [refreshCurrentGym]);

@@ -12,10 +12,12 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LineChart } from "../../components/shared/Sparkline";
+import { SyncSheet } from "../../components/sync/SyncSheet";
 import { ACTIVITY_LEVELS, fmtWeight } from "../../lib/bodyMetrics";
 import { clearCache } from "../../lib/computationCache";
 import { exportData, importData } from "../../lib/export";
 import { useAppStore } from "../../lib/store";
+import { createNewSyncGroup } from "../../lib/sync";
 import type {
   BodyMetrics,
   HabitReminder,
@@ -141,6 +143,7 @@ export default function SettingsScreen() {
     useState<BodyMetrics["activityLevel"]>("moderate");
   const [mTarget, setMTarget] = useState("");
   const [saving, setSaving] = useState(false);
+  const [showSync, setShowSync] = useState(false);
 
   const reminder = metricsReminder ?? DEFAULT_REMINDER;
 
@@ -222,6 +225,7 @@ export default function SettingsScreen() {
           style: "destructive",
           onPress: async () => {
             await AsyncStorage.clear();
+            await createNewSyncGroup();
             clearCache();
             useAppStore.getState().loadAll();
             Alert.alert("Done", "All data cleared.");
@@ -857,6 +861,47 @@ export default function SettingsScreen() {
         })}
       </View>
 
+      <View
+        style={{
+          backgroundColor: "#161616",
+          borderRadius: 14,
+          padding: 16,
+          borderWidth: 1,
+          borderColor: "#222",
+        }}
+      >
+        <Text
+          style={{
+            color: "#888",
+            fontSize: 12,
+            fontWeight: "600",
+            textTransform: "uppercase",
+            letterSpacing: 0.5,
+            marginBottom: 4,
+          }}
+        >
+          Local Sync
+        </Text>
+        <Text style={{ color: "#666", fontSize: 13, marginBottom: 12 }}>
+          Sync directly with Fitnexx apps using the same token on your Wi-Fi.
+        </Text>
+        <TouchableOpacity
+          onPress={() => setShowSync(true)}
+          style={{
+            backgroundColor: "#1a1a1a",
+            borderRadius: 10,
+            padding: 14,
+            borderWidth: 1,
+            borderColor: "#3b82f6",
+            alignItems: "center",
+          }}
+        >
+          <Text style={{ color: "#3b82f6", fontSize: 15, fontWeight: "700" }}>
+            Pair or sync apps
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Pro */}
       <View
         style={{
@@ -1325,6 +1370,7 @@ export default function SettingsScreen() {
           </View>
         </View>
       </Modal>
+      <SyncSheet visible={showSync} onClose={() => setShowSync(false)} />
     </ScrollView>
   );
 }

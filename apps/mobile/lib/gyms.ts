@@ -37,6 +37,12 @@ export function isExerciseAvailable(
 ): boolean {
   if (!exercise.equipment) return true;
   const eq = exercise.equipment.trim().toLowerCase();
-  if (eq === "" || eq === "body only" || eq === "bodyweight") return true;
+  if (
+    eq === "" ||
+    eq === "body only" ||
+    eq === "bodyweight" ||
+    eq === "body weight"
+  )
+    return true;
   return gymEquipment.some((g) => g.trim().toLowerCase() === eq);
 }

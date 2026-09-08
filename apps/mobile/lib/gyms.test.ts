@@ -61,6 +61,9 @@ describe("gyms", () => {
     expect(isExerciseAvailable(exercise("Body Only"), gym({}).equipment)).toBe(
       true,
     );
+    expect(
+      isExerciseAvailable(exercise("body weight"), gym({}).equipment),
+    ).toBe(true);
     expect(isExerciseAvailable(exercise(undefined), gym({}).equipment)).toBe(
       true,
     );
