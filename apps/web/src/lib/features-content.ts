@@ -7,13 +7,12 @@ import {
   MapPin,
   Repeat,
   Ruler,
+  Sparkles,
 } from "lucide-react";
 
 // TODO(user): build these before advertising them (see also /pricing):
 // - OCR food scanning (labels/meals) with daily caps
 // - Daily meal AI overview (Pro)
-// - AI-guided gym workout suggestions (Pro)
-// - In-app purchase for the Pro analytics unlock in the Expo app
 
 export type FeatureItem = {
   icon: LucideIcon;
@@ -55,6 +54,14 @@ export const features: FeatureItem[] = [
       "Per-muscle volume and milestones, from first sets to lifetime tiers.",
     details:
       "Muscle-specific weekly sets and a milestone track for each group keep lagging or leading body parts obvious. Training leans on evidence instead of guesses.",
+  },
+  {
+    icon: Sparkles,
+    title: "Optional AI exercise suggestions",
+    description:
+      "Tap Ask AI when you want another view. Fitnexx sends only the workout context you choose at that moment.",
+    details:
+      "Free users can bring an OpenAI, Anthropic, Google Gemini, OpenRouter, or OpenAI-compatible custom URL with or without an account. Keys stay in secure device storage and requests go straight to the provider. Pro uses Fitnexx-managed keys through the server.",
   },
   {
     icon: Camera,

@@ -10,7 +10,7 @@ import { createMetadata } from "@/lib/site";
 export const metadata: Metadata = createMetadata({
   title: "Features",
   description:
-    "Workout logging and templates, meal tracking, body measurements, gym equipment on file, and on-device analytics.",
+    "Workout logging, meal and body tracking, gym equipment, local analytics, and optional AI exercise suggestions.",
   path: "/features",
 });
 
@@ -48,8 +48,9 @@ export default function FeaturesPage() {
               </Heading>
               <Text color="$muted" fontSize={16} lineHeight={24} maxWidth={640}>
                 Workout logging, templates, meal tracking, body measurements,
-                gym equipment on file, and deep analytics computed locally from
-                your own data. Everything runs on your device.
+                gym equipment on file, and analytics computed from your own
+                data. Tracking stays local. Cloud AI runs only when you tap Ask
+                AI.
               </Text>
             </YStack>
           </View>

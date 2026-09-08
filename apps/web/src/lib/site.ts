@@ -3,7 +3,7 @@ export const siteConfig = {
   // ponytail: set NEXT_PUBLIC_SITE_URL in production; default is a placeholder.
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://fitnexx.app",
   description:
-    "Fitnexx is a privacy-first fitness app for gym performance and macro tracking. Train smarter, eat with intention, and own your data.",
+    "Fitnexx is a local-first fitness app for workout, meal, and body tracking, with optional AI exercise suggestions when you ask for them.",
   tagline: "Train smarter. Eat with intention. Own your data.",
   twitter: "@fitnexx",
 } as const;

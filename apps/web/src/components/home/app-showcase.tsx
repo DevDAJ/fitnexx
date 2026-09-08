@@ -25,7 +25,7 @@ const SLIDES = [
     bullets: [
       "Add sets between lifts, reuse exercises you log often",
       "Weight, reps, and optional RPE on every set",
-      "Personal records flagged automatically",
+      "Rule-based suggestions, with optional AI when you tap Ask AI",
     ],
     screen: <LoggingScreen />,
     accent: "#3b82f6",
@@ -47,7 +47,7 @@ const SLIDES = [
   {
     eyebrow: "Analytics",
     title: "Trends, not vanity metrics.",
-    copy: "PRs, volume, and weekly sets per muscle, computed from what you already log.",
+    copy: "See PRs, volume, and weekly sets per muscle, computed from what you already log.",
     bullets: [
       "Automatic personal records and volume",
       "Weekly sets per muscle, updated as you train",
@@ -579,8 +579,8 @@ export function AppShowcase() {
         </div>
 
         <Text color="$subtle" fontSize={13} textAlign="center">
-          {slide.eyebrow} · everything stays on your device, no account, no
-          cloud.
+          {slide.eyebrow} · tracking stays local. Cloud AI runs only when you
+          choose Ask AI.
         </Text>
       </YStack>
     </View>
