@@ -19,18 +19,36 @@ export function LegalDocumentPage({
       style={{ display: "flex", minHeight: "100vh", flexDirection: "column" }}
     >
       <HomepageNavbar />
-      <View flex={1} tag="main" paddingVertical={40} paddingHorizontal={16}>
+      <View
+        className="route-hero"
+        flex={1}
+        tag="main"
+        paddingVertical={56}
+        paddingHorizontal={16}
+        $sm={{ paddingVertical: 40 }}
+      >
         <YStack
           className="legal"
           tag="article"
-          maxWidth={768}
+          maxWidth={680}
           width="100%"
           marginLeft="auto"
           marginRight="auto"
-          gap={20}
+          gap={16}
         >
-          <YStack gap={8}>
-            <Heading tag="h1" fontSize={28} fontWeight="800" color="$color">
+          <YStack
+            gap={8}
+            borderLeftWidth={2}
+            borderColor="rgba(59,130,246,0.4)"
+            paddingLeft={20}
+          >
+            <Heading
+              tag="h1"
+              fontSize={32}
+              fontWeight="800"
+              color="$color"
+              $sm={{ fontSize: 28 }}
+            >
               {title}
             </Heading>
             <Text color="$subtle" fontSize={12} fontStyle="normal">

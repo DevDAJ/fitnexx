@@ -1,4 +1,4 @@
-import { Heading, Text, View, YStack } from "@fitnexx/ui";
+import { Card, Heading, Text, View, YStack } from "@fitnexx/ui";
 import type { Metadata } from "next";
 import { ContactForm } from "@/components/contact-form";
 import { PageIntro } from "@/components/home/motion";
@@ -21,25 +21,29 @@ export default function ContactPage() {
       >
         <HomepageNavbar />
         <View
+          className="route-hero"
           flex={1}
           tag="main"
-          paddingVertical={40}
+          paddingVertical={56}
           paddingHorizontal={16}
-          $sm={{ paddingVertical: 56 }}
+          $sm={{ paddingVertical: 40 }}
         >
           <YStack
-            maxWidth={560}
+            maxWidth={960}
             width="100%"
             marginLeft="auto"
             marginRight="auto"
-            gap={24}
+            gap={48}
+            flexDirection="row"
+            alignItems="center"
+            $sm={{ flexDirection: "column", alignItems: "stretch", gap: 24 }}
           >
-            <YStack gap={8}>
+            <YStack gap={12} flex={1}>
               <Heading
-                fontSize={28}
+                fontSize={32}
                 fontWeight="800"
                 color="$color"
-                $sm={{ fontSize: 32 }}
+                $sm={{ fontSize: 28 }}
               >
                 Contact
               </Heading>
@@ -49,7 +53,16 @@ export default function ContactPage() {
                 verify your identity, subject to validation.
               </Text>
             </YStack>
-            <ContactForm />
+            <Card
+              className="route-card"
+              padding={28}
+              flex={1}
+              width="100%"
+              maxWidth={520}
+              $sm={{ padding: 20, maxWidth: "100%" }}
+            >
+              <ContactForm />
+            </Card>
           </YStack>
         </View>
         <SiteFooter />

@@ -40,6 +40,13 @@
         }
       ],
       "expo-secure-store"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3a0372cd-6e21-4d38-bfdb-1cb34cb11e39"
+      }
+    },
+    "owner": "devdaj"
   }
 }

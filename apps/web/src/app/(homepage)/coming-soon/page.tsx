@@ -1,11 +1,11 @@
-import { Heading, Text, View, YStack } from "@fitnexx/ui";
+import { Badge, Card, Heading, Text, View } from "@fitnexx/ui";
 import type { Metadata } from "next";
 import { PageIntro } from "@/components/home/motion";
 import { HomepageNavbar } from "@/components/homepage-navbar";
 import { InterestListSignup } from "@/components/interest-list-signup";
 import { SiteFooter } from "@/components/site-footer";
 import { LinkButton } from "@/components/ui/link";
-import { createMetadata } from "@/lib/site";
+import { createMetadata, siteConfig } from "@/lib/site";
 import { getSupabaseAdmin } from "@/lib/supabase";
 
 export const metadata: Metadata = createMetadata({
@@ -37,6 +37,7 @@ export default async function ComingSoonPage() {
         <HomepageNavbar />
 
         <View
+          className="route-hero"
           flex={1}
           tag="main"
           alignItems="center"
@@ -44,12 +45,21 @@ export default async function ComingSoonPage() {
           paddingVertical={64}
           paddingHorizontal={16}
         >
-          <YStack maxWidth={560} width="100%" gap={24} alignItems="center">
+          <Card
+            className="route-card"
+            maxWidth={600}
+            width="100%"
+            gap={24}
+            alignItems="center"
+            padding={40}
+            $sm={{ padding: 24 }}
+          >
+            <Badge label="Early access" variant="primary" />
             <Heading
-              fontSize={36}
+              fontSize={44}
               fontWeight="800"
               color="$color"
-              $sm={{ fontSize: 44 }}
+              $sm={{ fontSize: 36 }}
               textAlign="center"
             >
               Coming soon
@@ -60,9 +70,9 @@ export default async function ComingSoonPage() {
               lineHeight={26}
               textAlign="center"
             >
-              We&apos;re not quite ready for new signups. Leave your name (and
-              optionally your email) and we&apos;ll let you know when you can
-              jump in.
+              The Android app is available for early access as a direct APK.
+              Google Play is coming soon, and an iOS release will depend on
+              demand. Join the interest list for release updates.
             </Text>
             {totalInterests !== null ? (
               <Text color="$subtle" fontSize={14} textAlign="center">
@@ -74,12 +84,15 @@ export default async function ComingSoonPage() {
               </Text>
             ) : null}
             <XStackWrap>
+              <LinkButton href={siteConfig.apkDownloadUrl}>
+                Download Android APK
+              </LinkButton>
               <InterestListSignup />
               <LinkButton href="/" variant="outline">
                 Back to home
               </LinkButton>
             </XStackWrap>
-          </YStack>
+          </Card>
         </View>
 
         <SiteFooter />

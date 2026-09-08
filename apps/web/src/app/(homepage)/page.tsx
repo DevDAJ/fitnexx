@@ -49,10 +49,10 @@ function SectionHero() {
       aria-label="Introduction"
       borderBottomWidth={1}
       borderColor="$borderColor"
-      paddingVertical={64}
+      paddingVertical={96}
       paddingHorizontal={16}
       style={{ position: "relative", overflow: "hidden" }}
-      $sm={{ paddingVertical: 96 }}
+      $sm={{ paddingVertical: 64 }}
     >
       <div
         className="pf-drift"
@@ -102,11 +102,12 @@ function SectionHero() {
           <div data-hero-heading>
             <Heading
               tag="h1"
-              fontSize={40}
-              lineHeight={44}
+              fontSize={52}
+              lineHeight={56}
               fontWeight="800"
               color="$color"
-              $sm={{ fontSize: 52, lineHeight: 56 }}
+              $sm={{ fontSize: 40, lineHeight: 44 }}
+              $xxs={{ fontSize: 34, lineHeight: 38 }}
             >
               Train smarter. Eat with intention. Own your data.
             </Heading>
@@ -165,9 +166,9 @@ function SectionPrivacy() {
       borderTopWidth={1}
       borderColor="$borderColor"
       backgroundColor="$surface"
-      paddingVertical={64}
+      paddingVertical={80}
       paddingHorizontal={16}
-      $sm={{ paddingVertical: 80 }}
+      $sm={{ paddingVertical: 64 }}
     >
       <YStack
         maxWidth={1024}
@@ -175,16 +176,25 @@ function SectionPrivacy() {
         marginLeft="auto"
         marginRight="auto"
         gap={32}
-        $sm={{ flexDirection: "row", alignItems: "center" }}
+        flexDirection="row"
+        alignItems="center"
+        $sm={{ flexDirection: "column", alignItems: "stretch" }}
       >
-        <YStack flex={1} gap={12}>
+        <YStack
+          flexBasis={0}
+          flexGrow={2}
+          flexShrink={1}
+          gap={12}
+          minWidth={0}
+          $sm={{ flexBasis: "auto" }}
+        >
           <div data-reveal>
             <Heading
               tag="h2"
-              fontSize={30}
+              fontSize={36}
               fontWeight="800"
               color="$color"
-              $sm={{ fontSize: 36 }}
+              $sm={{ fontSize: 30 }}
             >
               Privacy isn&apos;t a feature. It&apos;s the default.
             </Heading>
@@ -197,7 +207,15 @@ function SectionPrivacy() {
           </div>
         </YStack>
 
-        <div data-reveal data-reveal-delay="0.12" style={{ flex: 1 }}>
+        <YStack
+          data-reveal
+          data-reveal-delay="0.12"
+          flexBasis={0}
+          flexGrow={3}
+          flexShrink={1}
+          minWidth={0}
+          $sm={{ flexBasis: "auto" }}
+        >
           <SpringCard>
             <Card flex={1} gap={16}>
               {items.map(({ icon: Icon, title, body }) => (
@@ -207,7 +225,7 @@ function SectionPrivacy() {
                     color="#3b82f6"
                     style={{ marginTop: 2, flexShrink: 0 }}
                   />
-                  <YStack gap={2}>
+                  <YStack flex={1} minWidth={0} gap={2}>
                     <Text color="$color" fontSize={15} fontWeight="600">
                       {title}
                     </Text>
@@ -219,7 +237,7 @@ function SectionPrivacy() {
               ))}
             </Card>
           </SpringCard>
-        </div>
+        </YStack>
       </YStack>
     </View>
   );

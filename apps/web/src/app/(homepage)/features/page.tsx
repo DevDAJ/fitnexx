@@ -24,12 +24,13 @@ export default function FeaturesPage() {
 
         <View flex={1} tag="main">
           <View
+            className="route-hero"
             borderBottomWidth={1}
             borderColor="$borderColor"
             backgroundColor="$surface"
-            paddingVertical={48}
+            paddingVertical={64}
             paddingHorizontal={16}
-            $sm={{ paddingVertical: 64 }}
+            $sm={{ paddingVertical: 48 }}
           >
             <YStack
               maxWidth={1024}
@@ -39,10 +40,10 @@ export default function FeaturesPage() {
               gap={12}
             >
               <Heading
-                fontSize={36}
+                fontSize={44}
                 fontWeight="800"
                 color="$color"
-                $sm={{ fontSize: 44 }}
+                $sm={{ fontSize: 36 }}
               >
                 Features
               </Heading>
@@ -56,23 +57,19 @@ export default function FeaturesPage() {
           </View>
 
           <View
-            paddingVertical={48}
+            paddingVertical={64}
             paddingHorizontal={16}
-            $sm={{ paddingVertical: 64 }}
+            $sm={{ paddingVertical: 48 }}
           >
-            <YStack
-              maxWidth={1024}
-              width="100%"
-              marginLeft="auto"
-              marginRight="auto"
-              gap={40}
-            >
+            <div className="feature-grid">
               {features.map(({ icon: Icon, title, description, details }) => (
                 <Card
                   key={title}
+                  className="route-card"
                   gap={16}
                   flexDirection="row"
                   alignItems="flex-start"
+                  $xs={{ flexDirection: "column" }}
                 >
                   <View
                     width={48}
@@ -88,9 +85,9 @@ export default function FeaturesPage() {
                   <YStack gap={8} flex={1}>
                     <Text
                       color="$color"
-                      fontSize={20}
+                      fontSize={22}
                       fontWeight="700"
-                      $sm={{ fontSize: 22 }}
+                      $sm={{ fontSize: 20 }}
                     >
                       {title}
                     </Text>
@@ -111,13 +108,13 @@ export default function FeaturesPage() {
                   </YStack>
                 </Card>
               ))}
-            </YStack>
+            </div>
           </View>
 
           <View
             paddingHorizontal={16}
-            paddingBottom={64}
-            $sm={{ paddingBottom: 96 }}
+            paddingBottom={96}
+            $sm={{ paddingBottom: 64 }}
           >
             <View
               maxWidth={1024}
@@ -138,9 +135,9 @@ export default function FeaturesPage() {
               <YStack gap={4} flex={1} minWidth={240}>
                 <Text
                   color="$color"
-                  fontSize={20}
+                  fontSize={22}
                   fontWeight="700"
-                  $sm={{ fontSize: 22 }}
+                  $sm={{ fontSize: 20 }}
                 >
                   Ready to try Fitnexx?
                 </Text>

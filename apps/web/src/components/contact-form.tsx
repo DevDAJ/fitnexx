@@ -20,7 +20,7 @@ export function ContactForm() {
         backgroundColor="$card"
         borderWidth={1}
         borderColor="$borderColor"
-        borderRadius={10}
+        borderRadius={14}
         padding={24}
         textAlign="center"
         fontSize={14}
@@ -55,9 +55,12 @@ export function ContactForm() {
         />
 
         <YStack gap={8}>
-          <Text color="$color" fontSize={14} fontWeight="600">
+          <label
+            htmlFor="contact-name"
+            style={{ color: "#e5e5e5", fontSize: 14, fontWeight: 600 }}
+          >
             Name
-          </Text>
+          </label>
           <TextField
             id="contact-name"
             name="name"
@@ -68,9 +71,12 @@ export function ContactForm() {
         </YStack>
 
         <YStack gap={8}>
-          <Text color="$color" fontSize={14} fontWeight="600">
+          <label
+            htmlFor="contact-email"
+            style={{ color: "#e5e5e5", fontSize: 14, fontWeight: 600 }}
+          >
             Email
-          </Text>
+          </label>
           <TextField
             id="contact-email"
             name="email"
@@ -81,9 +87,12 @@ export function ContactForm() {
         </YStack>
 
         <YStack gap={8}>
-          <Text color="$color" fontSize={14} fontWeight="600">
+          <label
+            htmlFor="contact-message"
+            style={{ color: "#e5e5e5", fontSize: 14, fontWeight: 600 }}
+          >
             Message
-          </Text>
+          </label>
           <TextAreaField
             id="contact-message"
             name="message"

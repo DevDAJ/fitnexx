@@ -6,6 +6,8 @@ export const siteConfig = {
     "Fitnexx is a local-first fitness app for workout, meal, and body tracking, with optional AI exercise suggestions when you ask for them.",
   tagline: "Train smarter. Eat with intention. Own your data.",
   twitter: "@fitnexx",
+  apkDownloadUrl:
+    "https://github.com/DevDAJ/fitnexx/releases/latest/download/fitnexx.apk",
 } as const;
 
 type PageMetadata = {

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 
 const PHONE_CSS = `
 .pf-app { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
@@ -11,7 +12,7 @@ const PHONE_CSS = `
   margin: 0;
 }
 .pf-app button:focus { outline: none; }
-.pf-scroll { scrollbar-width: none; -ms-overflow-style: none; }
+.pf-scroll { overflow: hidden; scrollbar-width: none; -ms-overflow-style: none; }
 .pf-scroll::-webkit-scrollbar { display: none; }
 .pf-float { animation: pfFloat 3.2s ease-in-out infinite alternate; }
 @keyframes pfFloat { from { transform: translateY(-6px); } to { transform: translateY(6px); } }
@@ -234,71 +235,103 @@ export function PhoneFrame({
   className?: string;
   tab?: number;
 }) {
+  const frameRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setScale(entry.contentRect.width / 300);
+    });
+    observer.observe(frame);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className={className} style={{ width: 300, maxWidth: "100%" }}>
+    <div
+      ref={frameRef}
+      className={className}
+      style={{
+        position: "relative",
+        width: "100%",
+        maxWidth: 300,
+        aspectRatio: "300 / 588",
+      }}
+    >
       <style>{PHONE_CSS}</style>
-      <div className="pf-float" style={{ willChange: "transform" }}>
-        <div
-          style={{
-            borderRadius: 46,
-            border: "6px solid #1c1c1e",
-            background: "#050505",
-            padding: 8,
-            boxShadow:
-              "0 46px 90px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)",
-          }}
-        >
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: 300,
+          transform: `scale(${scale})`,
+          transformOrigin: "top left",
+        }}
+      >
+        <div className="pf-float" style={{ willChange: "transform" }}>
           <div
             style={{
-              position: "relative",
-              height: "var(--pf-h, 560px)",
-              borderRadius: 40,
-              overflow: "hidden",
-              background: "#0a0a0a",
+              borderRadius: 46,
+              border: "6px solid #1c1c1e",
+              background: "#050505",
+              padding: 8,
+              boxShadow:
+                "0 46px 90px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)",
             }}
           >
             <div
               style={{
-                position: "absolute",
-                top: 8,
-                left: "50%",
-                transform: "translateX(-50%)",
-                width: 92,
-                height: 22,
-                borderRadius: 999,
-                background: "#141416",
-                zIndex: 20,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-end",
-                paddingRight: 8,
+                position: "relative",
+                aspectRatio: "272 / 560",
+                borderRadius: 40,
+                overflow: "hidden",
+                background: "#0a0a0a",
               }}
             >
               <div
                 style={{
-                  width: 10,
-                  height: 10,
+                  position: "absolute",
+                  top: 8,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  width: 92,
+                  height: 22,
                   borderRadius: 999,
-                  background: "#3b82f6",
-                  opacity: 0.8,
+                  background: "#141416",
+                  zIndex: 20,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                  paddingRight: 8,
                 }}
-              />
+              >
+                <div
+                  style={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: 999,
+                    background: "#3b82f6",
+                    opacity: 0.8,
+                  }}
+                />
+              </div>
+              <div
+                className="pf-scroll"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  paddingTop: 48,
+                  paddingLeft: 16,
+                  paddingRight: 16,
+                  paddingBottom: tab !== undefined ? 80 : 16,
+                }}
+              >
+                {children}
+              </div>
+              {tab !== undefined ? <TabBar active={tab} /> : null}
             </div>
-            <div
-              className="pf-scroll"
-              style={{
-                position: "absolute",
-                inset: 0,
-                paddingTop: 48,
-                paddingLeft: 16,
-                paddingRight: 16,
-                paddingBottom: tab !== undefined ? 80 : 16,
-                overflow: "hidden",
-              }}
-            >
-              {children}
-            </div>
-            {tab !== undefined ? <TabBar active={tab} /> : null}
           </div>
         </div>
       </div>
@@ -334,7 +367,7 @@ function KpiCard({
   sparkData?: number[];
 }) {
   return (
-    <div style={{ ...CARD, flex: 1, minWidth: 140 }}>
+    <div style={{ ...CARD, flex: 1, minWidth: 0 }}>
       <div style={LABEL}>{title}</div>
       <div
         style={{ color: "#fff", fontSize: 28, fontWeight: 800, marginTop: 6 }}
@@ -600,8 +633,12 @@ function MuscleTrendCard() {
             const x = pad + (i / (weeks.length - 1)) * (W - pad * 2);
             let base = 0;
             for (let k = 0; k < li; k++)
-              base += weeks[i].sets[allKeys[k] as keyof (typeof weeks)[number]["sets"]] || 0;
-            const val = weeks[i].sets[key as keyof (typeof weeks)[number]["sets"]] || 0;
+              base +=
+                weeks[i].sets[
+                  allKeys[k] as keyof (typeof weeks)[number]["sets"]
+                ] || 0;
+            const val =
+              weeks[i].sets[key as keyof (typeof weeks)[number]["sets"]] || 0;
             const bot = H - pad - (base / maxTotal) * (H - pad * 2);
             const top = H - pad - ((base + val) / maxTotal) * (H - pad * 2);
             tops.push(`${x},${top}`);
@@ -1302,7 +1339,7 @@ function ActivityHeatmap() {
 export function DashboardScreen() {
   return (
     <div className="pf-app" style={SCREEN_ROOT}>
-      <div style={{ color: "#fff", fontSize: 28, fontWeight: 800 }}>
+      <div style={{ color: "#fff", fontSize: 24, fontWeight: 800 }}>
         Dashboard
       </div>
       <div style={{ display: "flex", gap: 10 }}>
@@ -1394,7 +1431,7 @@ function MealFieldRow() {
 export function MealsScreen() {
   return (
     <div className="pf-app" style={SCREEN_ROOT}>
-      <div style={{ color: "#fff", fontSize: 28, fontWeight: 800 }}>Meals</div>
+      <div style={{ color: "#fff", fontSize: 24, fontWeight: 800 }}>Meals</div>
       <SegmentedControl options={["Log", "History"]} />
       <div style={{ ...CARD, padding: "14px 16px" }}>
         <div
@@ -1525,11 +1562,14 @@ export function MealsScreen() {
             flex: 2,
             background: "#22c55e",
             borderRadius: 14,
-            padding: "15px 0",
+            minHeight: 46,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             textAlign: "center",
           }}
         >
-          <span style={{ color: "#fff", fontSize: 16, fontWeight: 800 }}>
+          <span style={{ color: "#fff", fontSize: 14, fontWeight: 800 }}>
             Save Meal
           </span>
         </div>
@@ -1538,7 +1578,11 @@ export function MealsScreen() {
             flex: 1,
             background: "#161616",
             borderRadius: 14,
-            padding: "15px 0",
+            minHeight: 46,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "0 6px",
             textAlign: "center",
             borderWidth: 1,
 
@@ -2124,7 +2168,7 @@ export function MusclesScreen() {
   const selData = selected ? MUSCLE_STATS[selected] : null;
   return (
     <div className="pf-app" style={SCREEN_ROOT}>
-      <div style={{ color: "#fff", fontSize: 28, fontWeight: 800 }}>
+      <div style={{ color: "#fff", fontSize: 24, fontWeight: 800 }}>
         Muscles
       </div>
       <BodyMap
@@ -2132,9 +2176,9 @@ export function MusclesScreen() {
         selected={selected}
         onSelect={(m) => setSelected(m === selected ? null : m)}
       />
-      {selData && (
+      {selected && selData && (
         <MuscleDetailCard
-          muscle={selected!}
+          muscle={selected}
           sets={selData.sets}
           score={selData.score}
         />
@@ -2207,13 +2251,16 @@ const setInput: React.CSSProperties = {
   borderRadius: 8,
   padding: "8px 0",
   color: "#fff",
-  fontSize: 14,
+  fontSize: 12,
   textAlign: "center",
   borderWidth: 1,
 
   borderStyle: "solid",
   borderColor: "#2a2a2a",
 };
+
+const SET_GRID_COLUMNS =
+  "24px minmax(0, 1fr) minmax(0, 0.85fr) minmax(0, 0.75fr) 28px";
 
 function SetRowMock({
   index,
@@ -2231,9 +2278,10 @@ function SetRowMock({
   return (
     <div
       style={{
-        display: "flex",
+        display: "grid",
+        gridTemplateColumns: SET_GRID_COLUMNS,
         alignItems: "center",
-        gap: 8,
+        gap: 6,
         paddingTop: 6,
         paddingBottom: 6,
       }}
@@ -2243,11 +2291,10 @@ function SetRowMock({
       >
         {index}
       </span>
-      <span style={{ ...setInput, width: 65 }}>{weight}</span>
-      <span style={{ ...setInput, width: 55 }}>{reps}</span>
-      <span style={{ ...setInput, width: 50 }}>{rpe}</span>
-      <span style={{ flex: 1 }} />
-      {isPr && (
+      <span style={setInput}>{weight}</span>
+      <span style={setInput}>{reps}</span>
+      <span style={setInput}>{rpe}</span>
+      {isPr ? (
         <span
           style={{
             background: "#fbbf24",
@@ -2260,8 +2307,45 @@ function SetRowMock({
         >
           PR
         </span>
+      ) : (
+        <span />
       )}
     </div>
+  );
+}
+
+const EXERCISE_IMAGES: Record<string, string> = {
+  "Bench Press":
+    "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/images/0025-EIeI8Vf.jpg",
+  Squat:
+    "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/images/0043-qXTaZnJ.jpg",
+  Deadlift:
+    "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/images/0032-ila4NZS.jpg",
+  "Incline DB Press":
+    "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/images/0314-ns0SIbU.jpg",
+  "Pull Ups":
+    "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/images/0652-lBDjFxJ.jpg",
+};
+
+function ExerciseThumbnail({ name, size }: { name: string; size: number }) {
+  return (
+    <Image
+      src={EXERCISE_IMAGES[name]}
+      alt={`${name} exercise illustration`}
+      title={`${name} exercise illustration, © Gym Visual`}
+      width={size}
+      height={size}
+      loading="lazy"
+      draggable={false}
+      style={{
+        width: size,
+        height: size,
+        borderRadius: 8,
+        background: "#f4f4f5",
+        objectFit: "cover",
+        flexShrink: 0,
+      }}
+    />
   );
 }
 
@@ -2281,19 +2365,7 @@ function ExerciseBlock({ name = "Bench Press" }: { name?: string }) {
           marginBottom: 10,
         }}
       >
-        <div
-          style={{
-            width: 46,
-            height: 46,
-            borderRadius: 8,
-            background: "#1a1a1a",
-            alignItems: "center",
-            justifyContent: "center",
-            display: "flex",
-          }}
-        >
-          <span style={{ color: "#666", fontSize: 10 }}>IMG</span>
-        </div>
+        <ExerciseThumbnail name={name} size={46} />
         <span
           style={{ color: "#e5e5e5", fontSize: 15, fontWeight: 700, flex: 1 }}
         >
@@ -2303,16 +2375,17 @@ function ExerciseBlock({ name = "Bench Press" }: { name?: string }) {
       </div>
       <div
         style={{
-          display: "flex",
-          gap: 8,
+          display: "grid",
+          gridTemplateColumns: SET_GRID_COLUMNS,
+          gap: 6,
           marginBottom: 4,
-          paddingLeft: 32,
-          paddingRight: 32,
         }}
       >
-        <span style={{ ...statHead, width: 65 }}>KG</span>
-        <span style={{ ...statHead, width: 55 }}>REPS</span>
-        <span style={{ ...statHead, width: 50 }}>RPE</span>
+        <span />
+        <span style={statHead}>KG</span>
+        <span style={statHead}>REPS</span>
+        <span style={statHead}>RPE</span>
+        <span />
       </div>
       <SetRowMock index={1} weight="100" reps="10" rpe="7" />
       <SetRowMock index={2} weight="100" reps="8" rpe="8" />
@@ -2340,7 +2413,7 @@ function ExerciseBlock({ name = "Bench Press" }: { name?: string }) {
 export function LoggingScreen() {
   return (
     <div className="pf-app" style={SCREEN_ROOT}>
-      <div style={{ color: "#fff", fontSize: 28, fontWeight: 800 }}>
+      <div style={{ color: "#fff", fontSize: 24, fontWeight: 800 }}>
         Workouts
       </div>
       <SegmentedControl options={["Log", "History"]} />
@@ -2422,38 +2495,64 @@ export function LoggingScreen() {
       >
         Workout title (optional)
       </div>
-      <div style={{ display: "flex", gap: 8 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+          gap: 8,
+        }}
+      >
         <div
           style={{
-            flex: 1,
             background: "#161616",
             borderRadius: 10,
-            padding: "13px 0",
+            minHeight: 44,
+            padding: "6px",
             textAlign: "center",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             borderWidth: 1,
 
             borderStyle: "solid",
             borderColor: "#2a2a2a",
           }}
         >
-          <span style={{ color: "#8b5cf6", fontSize: 14, fontWeight: 600 }}>
+          <span
+            style={{
+              color: "#8b5cf6",
+              fontSize: 12,
+              lineHeight: "16px",
+              fontWeight: 600,
+            }}
+          >
             Load Template
           </span>
         </div>
         <div
           style={{
-            flex: 1,
             background: "#161616",
             borderRadius: 10,
-            padding: "13px 0",
+            minHeight: 44,
+            padding: "6px",
             textAlign: "center",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             borderWidth: 1,
 
             borderStyle: "solid",
             borderColor: "#2a2a2a",
           }}
         >
-          <span style={{ color: "#f59e0b", fontSize: 14, fontWeight: 600 }}>
+          <span
+            style={{
+              color: "#f59e0b",
+              fontSize: 12,
+              lineHeight: "16px",
+              fontWeight: 600,
+            }}
+          >
             Save as Template
           </span>
         </div>
@@ -2489,20 +2588,27 @@ export function LoggingScreen() {
         >
           Rest Timer
         </div>
-        <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+            gap: 6,
+          }}
+        >
           {[60, 90, 120, 180].map((p) => (
             <span
               key={p}
               style={{
                 background: p === 90 ? "#3b82f6" : "#1a1a1a",
                 borderRadius: 8,
-                padding: "8px 14px",
+                padding: "8px 2px",
                 borderWidth: 1,
 
                 borderStyle: "solid",
                 borderColor: p === 90 ? "#3b82f6" : "#2a2a2a",
                 color: p === 90 ? "#fff" : "#888",
-                fontSize: 13,
+                fontSize: 11,
+                textAlign: "center",
                 fontWeight: 600,
               }}
             >
@@ -2553,27 +2659,30 @@ export function LoggingScreen() {
           Suggestions
         </div>
         <div style={{ marginBottom: 10 }}>
-          <div style={{ color: "#fff", fontSize: 14, fontWeight: 600 }}>
-            Chest{" "}
-            <span style={{ color: "#888", fontWeight: 400 }}>
-              -- lagging, hit it mid-week
-            </span>
+          <div style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>
+            Chest
           </div>
-          <div style={{ color: "#3b82f6", fontSize: 13, marginTop: 2 }}>
+          <div style={{ color: "#888", fontSize: 11, marginTop: 2 }}>
+            Lagging, hit it mid-week
+          </div>
+          <div style={{ color: "#3b82f6", fontSize: 11, marginTop: 3 }}>
             Try: Incline DB Press, Cable Fly
           </div>
         </div>
         <div>
-          <div style={{ color: "#fff", fontSize: 14, fontWeight: 600 }}>
-            Back{" "}
-            <span style={{ color: "#888", fontWeight: 400 }}>
-              -- volume down last month
-            </span>
+          <div style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>
+            Back
           </div>
-          <div style={{ color: "#3b82f6", fontSize: 13, marginTop: 2 }}>
+          <div style={{ color: "#888", fontSize: 11, marginTop: 2 }}>
+            Volume down last month
+          </div>
+          <div style={{ color: "#3b82f6", fontSize: 11, marginTop: 3 }}>
             Try: Pull Ups, Seated Row
           </div>
         </div>
+      </div>
+      <div style={{ color: "#555", fontSize: 9, textAlign: "center" }}>
+        Exercise images © Gym Visual
       </div>
     </div>
   );
@@ -2658,7 +2767,7 @@ export function MeasurementsScreen() {
   const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   return (
     <div className="pf-app" style={SCREEN_ROOT}>
-      <div style={{ color: "#fff", fontSize: 28, fontWeight: 800 }}>
+      <div style={{ color: "#fff", fontSize: 24, fontWeight: 800 }}>
         Settings
       </div>
       <div style={CARD}>
@@ -2784,22 +2893,27 @@ export function MeasurementsScreen() {
         >
           FREQUENCY
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+            gap: 8,
+          }}
+        >
           {["daily", "weekly"].map((f) => (
             <span
               key={f}
               style={{
-                flex: 1,
                 background: f === "weekly" ? "#3b82f6" : "#1a1a1a",
                 borderRadius: 10,
-                padding: 12,
+                padding: "10px 4px",
                 textAlign: "center",
                 borderWidth: 1,
 
                 borderStyle: "solid",
                 borderColor: f === "weekly" ? "#3b82f6" : "#2a2a2a",
                 color: f === "weekly" ? "#fff" : "#888",
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: 600,
                 textTransform: "capitalize",
               }}
@@ -2818,14 +2932,20 @@ export function MeasurementsScreen() {
         >
           DAY
         </div>
-        <div style={{ display: "flex", gap: 6 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+            gap: 4,
+          }}
+        >
           {weekdays.map((label, i) => {
             const on = i === 1;
             return (
               <span
                 key={label}
                 style={{
-                  flex: 1,
+                  minWidth: 0,
                   background: on ? "#3b82f6" : "#1a1a1a",
                   borderRadius: 8,
                   paddingTop: 8,
@@ -2836,7 +2956,7 @@ export function MeasurementsScreen() {
                   borderStyle: "solid",
                   borderColor: on ? "#3b82f6" : "#2a2a2a",
                   color: on ? "#fff" : "#888",
-                  fontSize: 12,
+                  fontSize: 10,
                   fontWeight: 600,
                 }}
               >
@@ -3023,7 +3143,7 @@ export function GymsScreen() {
   ];
   return (
     <div className="pf-app" style={SCREEN_ROOT}>
-      <div style={{ color: "#fff", fontSize: 28, fontWeight: 800 }}>
+      <div style={{ color: "#fff", fontSize: 24, fontWeight: 800 }}>
         Exercises
       </div>
       <div style={{ ...CARD, padding: 14 }}>
@@ -3120,22 +3240,7 @@ export function GymsScreen() {
             gap: 12,
           }}
         >
-          <div
-            style={{
-              width: 52,
-              height: 52,
-              borderRadius: 8,
-              background: "#1a1a1a",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#666",
-              fontSize: 11,
-              flexShrink: 0,
-            }}
-          >
-            IMG
-          </div>
+          <ExerciseThumbnail name={ex.name} size={52} />
           <span style={{ flex: 1 }}>
             <span
               style={{
@@ -3175,6 +3280,9 @@ export function GymsScreen() {
           </span>
         </div>
       ))}
+      <div style={{ color: "#555", fontSize: 9, textAlign: "center" }}>
+        Exercise images © Gym Visual
+      </div>
     </div>
   );
 }

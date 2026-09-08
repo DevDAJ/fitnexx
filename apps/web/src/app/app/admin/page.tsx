@@ -16,6 +16,9 @@ export default async function AdminPage() {
       >
         <View flex={1} alignItems="center" justifyContent="center" padding={16}>
           <Card
+            className="route-card"
+            width="100%"
+            maxWidth={400}
             gap={16}
             alignItems="center"
             backgroundColor="$card"
@@ -47,7 +50,12 @@ export default async function AdminPage() {
       style={{ display: "flex", minHeight: "100vh", flexDirection: "column" }}
       backgroundColor="$background"
     >
-      <View flex={1} paddingVertical={24} paddingHorizontal={16}>
+      <View
+        flex={1}
+        paddingVertical={40}
+        paddingHorizontal={16}
+        $sm={{ paddingVertical: 24 }}
+      >
         <YStack
           maxWidth={1024}
           width="100%"
@@ -66,40 +74,43 @@ export default async function AdminPage() {
           </YStack>
 
           <Card gap={8} backgroundColor="$card" padding={0} overflow="hidden">
-            <table
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                fontSize: 14,
-                color: "#e5e5e5",
-              }}
-            >
-              <thead>
-                <tr>
-                  <Th>Name</Th>
-                  <Th>Email</Th>
-                  <Th>Signed up</Th>
-                </tr>
-              </thead>
-              <tbody>
-                {(entries ?? []).map((e) => (
-                  <tr key={e.id} style={{ borderTop: "1px solid #222" }}>
-                    <Td>{e.name}</Td>
-                    <Td>
-                      {e.email ?? <span style={{ color: "#666" }}>—</span>}
-                    </Td>
-                    <Td>{new Date(e.createdAt).toLocaleString()}</Td>
+            <div style={{ overflowX: "auto" }}>
+              <table
+                style={{
+                  width: "100%",
+                  minWidth: 640,
+                  borderCollapse: "collapse",
+                  fontSize: 14,
+                  color: "#e5e5e5",
+                }}
+              >
+                <thead>
+                  <tr>
+                    <Th>Name</Th>
+                    <Th>Email</Th>
+                    <Th>Signed up</Th>
                   </tr>
-                ))}
-                {(entries ?? []).length === 0 && (
-                  <tr style={{ borderTop: "1px solid #222" }}>
-                    <td colSpan={3} style={{ padding: 16, color: "#888" }}>
-                      No signups yet.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {(entries ?? []).map((e) => (
+                    <tr key={e.id} style={{ borderTop: "1px solid #222" }}>
+                      <Td>{e.name}</Td>
+                      <Td>
+                        {e.email ?? <span style={{ color: "#666" }}>—</span>}
+                      </Td>
+                      <Td>{new Date(e.createdAt).toLocaleString()}</Td>
+                    </tr>
+                  ))}
+                  {(entries ?? []).length === 0 && (
+                    <tr style={{ borderTop: "1px solid #222" }}>
+                      <td colSpan={3} style={{ padding: 16, color: "#888" }}>
+                        No signups yet.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </Card>
         </YStack>
       </View>

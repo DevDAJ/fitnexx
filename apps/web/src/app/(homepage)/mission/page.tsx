@@ -23,12 +23,13 @@ export default function MissionPage() {
 
         <View flex={1} tag="main">
           <View
+            className="route-hero"
             borderBottomWidth={1}
             borderColor="$borderColor"
             backgroundColor="$surface"
-            paddingVertical={48}
+            paddingVertical={64}
             paddingHorizontal={16}
-            $sm={{ paddingVertical: 64 }}
+            $sm={{ paddingVertical: 48 }}
           >
             <YStack
               maxWidth={768}
@@ -38,10 +39,10 @@ export default function MissionPage() {
               gap={12}
             >
               <Heading
-                fontSize={36}
+                fontSize={44}
                 fontWeight="800"
                 color="$color"
-                $sm={{ fontSize: 44 }}
+                $sm={{ fontSize: 36 }}
               >
                 Mission &amp; vision
               </Heading>
@@ -103,6 +104,7 @@ export default function MissionPage() {
             </Text>
 
             <Card
+              className="route-card"
               marginTop={16}
               gap={16}
               borderWidth={1}
@@ -127,8 +129,8 @@ export default function MissionPage() {
                 <LinkButton href="/pricing" variant="secondary">
                   Pricing
                 </LinkButton>
+                <LinkButton href="/coming-soon">Get started</LinkButton>
               </View>
-              <LinkButton href="/coming-soon">Get started</LinkButton>
             </Card>
           </MissionSection>
         </View>
@@ -153,9 +155,9 @@ function MissionSection({
       id={id}
       borderBottomWidth={1}
       borderColor="$borderColor"
-      paddingVertical={48}
+      paddingVertical={64}
       paddingHorizontal={16}
-      $sm={{ paddingVertical: 64 }}
+      $sm={{ paddingVertical: 48 }}
       style={{ scrollMarginTop: 80 }}
     >
       <YStack
@@ -164,12 +166,16 @@ function MissionSection({
         marginLeft="auto"
         marginRight="auto"
         gap={16}
+        borderLeftWidth={2}
+        borderColor="rgba(59,130,246,0.35)"
+        paddingLeft={24}
+        $sm={{ paddingLeft: 16 }}
       >
         <Heading
-          fontSize={24}
+          fontSize={28}
           fontWeight="700"
           color="$color"
-          $sm={{ fontSize: 28 }}
+          $sm={{ fontSize: 24 }}
         >
           {title}
         </Heading>
