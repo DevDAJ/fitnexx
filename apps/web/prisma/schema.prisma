@@ -21,3 +21,13 @@ model InterestListEntry {
   @@index([createdAt])
   @@map("interest_list_entry")
 }
+
+model User {
+  id        String   @id
+  email     String?
+  isPro     Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user")
+}
