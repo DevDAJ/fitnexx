@@ -38,6 +38,7 @@
     "onnxruntime-react-native": "1.24.3",
     "react": "19.2.4",
     "react-native": "0.86.2",
+    "react-native-purchases": "^10.9.0",
     "react-native-qrcode-svg": "^6.3.23",
     "react-native-reanimated": "4.5.1",
     "react-native-safe-area-context": "~5.7.0",
