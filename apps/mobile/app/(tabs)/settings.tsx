@@ -11,8 +11,10 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { AISettingsCard } from "../../components/settings/AISettingsCard";
 import { LineChart } from "../../components/shared/Sparkline";
 import { SyncSheet } from "../../components/sync/SyncSheet";
+import { clearAIKeys } from "../../lib/ai";
 import { ACTIVITY_LEVELS, fmtWeight } from "../../lib/bodyMetrics";
 import { clearCache } from "../../lib/computationCache";
 import { exportData, importData } from "../../lib/export";
@@ -225,6 +227,7 @@ export default function SettingsScreen() {
           style: "destructive",
           onPress: async () => {
             await AsyncStorage.clear();
+            await clearAIKeys();
             await createNewSyncGroup();
             clearCache();
             useAppStore.getState().loadAll();
@@ -313,6 +316,7 @@ export default function SettingsScreen() {
 
   return (
     <ScrollView
+      keyboardShouldPersistTaps="handled"
       style={{ flex: 1, backgroundColor: "#0a0a0a" }}
       contentContainerStyle={{
         paddingTop: insets.top + 16,
@@ -902,6 +906,8 @@ export default function SettingsScreen() {
         </TouchableOpacity>
       </View>
 
+      <AISettingsCard />
+
       {/* Pro */}
       <View
         style={{
@@ -1116,8 +1122,8 @@ export default function SettingsScreen() {
           Privacy-first gym performance tracker.
         </Text>
         <Text style={{ color: "#555", fontSize: 12, marginTop: 8 }}>
-          All data is stored locally on your device. Nothing is sent to any
-          server.
+          Fitness data stays local. AI sends only the context you choose to your
+          selected provider.
         </Text>
       </View>
 
