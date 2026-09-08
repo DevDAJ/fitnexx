@@ -11,6 +11,9 @@
 !.yarn/versions
 /.tamagui
 
+# android build output
+*.apk
+
 # testing
 /coverage
 
