@@ -34,5 +34,12 @@
     "../../packages/shared-ui/src/**/*.ts",
     "../../packages/shared-ui/src/**/*.tsx"
   ],
-  "exclude": ["node_modules", "apps/mobile", "dist", "build", ".next"]
+  "exclude": [
+    "node_modules",
+    "apps/mobile",
+    "dist",
+    "build",
+    ".next",
+    "src/**/*.test.ts"
+  ]
 }
