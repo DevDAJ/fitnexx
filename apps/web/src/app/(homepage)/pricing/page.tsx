@@ -9,7 +9,7 @@ import { createMetadata } from "@/lib/site";
 export const metadata: Metadata = createMetadata({
   title: "Pricing",
   description:
-    "Free workout, meal, and body tracking. One-time Pro unlock for the full analytics dashboard. No subscription required.",
+    "Free tracking, analytics, rule-based suggestions, and BYOK AI. Fitnexx Pro is $3.99 per month with unlimited server-powered AI.",
   path: "/pricing",
 });
 
@@ -25,7 +25,7 @@ const tiers: {
   {
     name: "Free",
     description:
-      "Everything you need to train: logging, meal tracking, body measurements, and gym equipment on file.",
+      "Core tracking, rule-based suggestions, and optional AI with your own provider key. No account required.",
     highlight: false,
     price: "Free",
     bullets: [
@@ -35,23 +35,24 @@ const tiers: {
       "Body measurements: weight, circumference, activity level, entry reminders (kg or lbs)",
       "Gym detection and equipment availability checks while you log",
       "Rule-based exercise suggestions that respect your gym's equipment",
+      "Full local analytics dashboard with PR, volume, muscle, and consistency trends",
+      "BYOK AI suggestions with OpenAI, Anthropic, Google Gemini, OpenRouter, or a custom OpenAI-compatible URL",
+      "Keys stay in secure device storage; BYOK requests go directly to your provider",
+      "Token usage metadata stays on your device without prompts or responses",
     ],
   },
   {
     name: "Pro",
     description:
-      "A one-time unlock of the analytics engine. Everything computes on your device from data you already log.",
+      "Unlimited AI suggestions through Fitnexx-managed provider keys, without managing your own API account.",
     highlight: true,
-    badge: "Analytics unlock",
-    price: "$4.99",
-    priceNote: "One-time payment · no subscription · no account",
+    badge: "Managed AI",
+    price: "$3.99",
+    priceNote: "Account required · billed monthly",
     bullets: [
       "Everything in Free",
-      "Full analytics dashboard: PR trends, volume density, muscle balance",
-      "Muscle trends and per-muscle achievements",
-      "Intensity evolution, weekly rhythm, and top exercises",
-      "Plateau detection, injury-risk scoring, and training timeline tiers",
-      "Activity heatmap of consistency",
+      "Unlimited server-proxied AI exercise suggestions with server-managed keys",
+      "No provider account or personal API key required",
     ],
   },
 ];
@@ -89,9 +90,9 @@ export default function PricingPage() {
                 Pricing
               </Heading>
               <Text color="$muted" fontSize={16} lineHeight={24} maxWidth={640}>
-                Two ways to use Fitnexx. Free covers logging, meals, body
-                measurements, and gym equipment. Pro adds the advanced analytics
-                dashboard as a one-time unlock, still on your device.
+                Free covers core tracking, rule-based suggestions, and optional
+                AI with your own key. Pro adds unlimited server-powered AI for
+                $3.99 per month.
               </Text>
             </YStack>
           </View>
@@ -147,7 +148,7 @@ export default function PricingPage() {
                             {tier.price}
                             <Text color="$muted" fontSize={15} fontWeight="400">
                               {tier.priceNote && tier.name !== "Free"
-                                ? " once"
+                                ? "/month"
                                 : ""}
                             </Text>
                           </Text>
@@ -204,9 +205,8 @@ export default function PricingPage() {
               </View>
 
               <Text color="$subtle" fontSize={13} textAlign="center">
-                Prices in USD before tax, where applicable. Pro is a one-time
-                unlock purchased in the app; no subscription, no account
-                required.
+                Prices in USD before tax, where applicable. Pro is a monthly
+                subscription purchased in the app and requires an account.
               </Text>
             </YStack>
           </View>

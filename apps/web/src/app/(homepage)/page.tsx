@@ -113,10 +113,10 @@ function SectionHero() {
           </div>
           <div data-hero-copy>
             <Text color="$muted" fontSize={17} lineHeight={26}>
-              Fitnexx logs workouts, sets, PRs, meals, and body measurements,
-              then turns your training history into insights: PR trends,
-              plateaus, injury risk, muscle milestones. Everything is
-              local-first on your device.
+              Fitnexx logs workouts, sets, PRs, meals, and body measurements.
+              Fitnexx turns your training history into deeper insights: PR
+              trends, plateaus, injury risk, and muscle milestones. Your data
+              stays local by default, with optional AI suggestions when you ask.
             </Text>
           </div>
           <div data-hero-ctas>
@@ -153,8 +153,8 @@ function SectionPrivacy() {
     },
     {
       icon: HardDrive,
-      title: "Local-first, no account",
-      body: "Workouts, meals, and measurements stay on your device. No account, no cloud, no behavior tracking.",
+      title: "Local by default",
+      body: "Workouts, meals, and measurements stay on your device. Cloud AI receives only the context you submit by tapping Ask AI.",
     },
   ];
 

@@ -91,17 +91,15 @@ export default function MissionPage() {
               <Text color="$color" fontWeight="600">
                 control
               </Text>
-              : clear settings and documents instead of dark patterns. And for
-              OCR, it means we don&apos;t save personal information to “improve
-              the model” in ways that turn your photos into someone else&apos;s
-              ad graph.
+              : clear settings and documents instead of dark patterns.
             </Text>
             <Text color="$muted" fontSize={15} lineHeight={24}>
-              When we add AI (gym suggestions, meal overviews) the goal is
-              utility on your terms, with tiering and disclosures you see on
-              Pricing, not hidden profiling. Laws and platforms change; our
-              baseline is that trust has to compound like volume: slowly,
-              deliberately, visibly.
+              AI exercise suggestions are optional and run only after you tap
+              Ask AI. Workouts, meals, and measurements remain local. The cloud
+              receives only the context you submit. With your own key, calls go
+              directly to your chosen provider and the key stays in secure
+              device storage. The local usage ledger records token metadata,
+              never prompts or responses.
             </Text>
 
             <Card
