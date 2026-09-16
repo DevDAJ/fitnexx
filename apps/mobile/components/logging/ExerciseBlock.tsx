@@ -1,10 +1,7 @@
-import { View, Text, TouchableOpacity, Image } from "react-native";
-import type {
-  ExerciseEntry,
-  WorkoutSet,
-  SetType,
-  ExerciseAsset,
-} from "../../lib/types";
+import { Image, Text, TouchableOpacity, View } from "react-native";
+import { colors } from "../../lib/theme";
+import type { ExerciseAsset, ExerciseEntry, WorkoutSet } from "../../lib/types";
+import { Card } from "../shared/ui";
 import { SetRow } from "./SetRow";
 
 export function ExerciseBlock({
@@ -41,17 +38,16 @@ export function ExerciseBlock({
       rpe: undefined,
       setType: "normal",
     };
-    onUpdateExercise(exerciseIndex, { ...entry, sets: [...entry.sets, newSet] });
+    onUpdateExercise(exerciseIndex, {
+      ...entry,
+      sets: [...entry.sets, newSet],
+    });
   };
 
   return (
-    <View
+    <Card
       style={{
-        backgroundColor: "#161616",
-        borderRadius: 14,
         padding: 14,
-        borderWidth: 1,
-        borderColor: "#222",
       }}
     >
       <View
@@ -63,14 +59,17 @@ export function ExerciseBlock({
         }}
       >
         {asset && (asset.imageUrl || asset.gifUrl) && onShowInfo ? (
-          <TouchableOpacity onPress={() => onShowInfo(asset)} activeOpacity={0.8}>
+          <TouchableOpacity
+            onPress={() => onShowInfo(asset)}
+            activeOpacity={0.8}
+          >
             <Image
               source={{ uri: asset.gifUrl ?? asset.imageUrl }}
               style={{
                 width: 46,
                 height: 46,
                 borderRadius: 8,
-                backgroundColor: "#1a1a1a",
+                backgroundColor: colors.surfaceRaised,
               }}
             />
           </TouchableOpacity>
@@ -80,17 +79,17 @@ export function ExerciseBlock({
               width: 46,
               height: 46,
               borderRadius: 8,
-              backgroundColor: "#1a1a1a",
+              backgroundColor: colors.surfaceRaised,
               alignItems: "center",
               justifyContent: "center",
             }}
           >
-            <Text style={{ color: "#666", fontSize: 10 }}>IMG</Text>
+            <Text style={{ color: colors.textMuted, fontSize: 10 }}>IMG</Text>
           </View>
         )}
         <Text
           style={{
-            color: "#e5e5e5",
+            color: colors.text,
             fontSize: 15,
             fontWeight: "700",
             flex: 1,
@@ -99,18 +98,53 @@ export function ExerciseBlock({
           {entry.exerciseName}
         </Text>
         <TouchableOpacity onPress={() => onRemoveExercise(exerciseIndex)}>
-          <Text style={{ color: "#ef4444", fontSize: 13 }}>Remove</Text>
+          <Text style={{ color: colors.danger, fontSize: 13 }}>Remove</Text>
         </TouchableOpacity>
       </View>
 
-      <View style={{ flexDirection: "row", gap: 8, marginBottom: 6, paddingHorizontal: 32 }}>
-        <Text style={{ color: "#555", fontSize: 11, width: 65, textAlign: "center" }}>KG</Text>
-        <Text style={{ color: "#555", fontSize: 11, width: 55, textAlign: "center" }}>REPS</Text>
-        <Text style={{ color: "#555", fontSize: 11, width: 50, textAlign: "center" }}>RPE</Text>
+      <View
+        style={{
+          flexDirection: "row",
+          gap: 8,
+          marginBottom: 6,
+          paddingHorizontal: 32,
+        }}
+      >
+        <Text
+          style={{
+            color: colors.textMuted,
+            fontSize: 11,
+            width: 65,
+            textAlign: "center",
+          }}
+        >
+          KG
+        </Text>
+        <Text
+          style={{
+            color: colors.textMuted,
+            fontSize: 11,
+            width: 55,
+            textAlign: "center",
+          }}
+        >
+          REPS
+        </Text>
+        <Text
+          style={{
+            color: colors.textMuted,
+            fontSize: 11,
+            width: 50,
+            textAlign: "center",
+          }}
+        >
+          RPE
+        </Text>
       </View>
 
       {entry.sets.map((set, i) => (
         <SetRow
+          // biome-ignore lint/suspicious/noArrayIndexKey: set order is its identity until sets gain persisted IDs.
           key={i}
           set={set}
           index={i}
@@ -127,13 +161,15 @@ export function ExerciseBlock({
           paddingVertical: 10,
           borderRadius: 8,
           borderWidth: 1,
-          borderColor: "#2a2a2a",
+          borderColor: colors.borderStrong,
           borderStyle: "dashed",
           alignItems: "center",
         }}
       >
-        <Text style={{ color: "#3b82f6", fontSize: 14, fontWeight: "600" }}>+ Add Set</Text>
+        <Text style={{ color: colors.brand, fontSize: 14, fontWeight: "600" }}>
+          + Add Set
+        </Text>
       </TouchableOpacity>
-    </View>
+    </Card>
   );
 }

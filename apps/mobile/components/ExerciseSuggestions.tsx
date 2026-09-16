@@ -1,16 +1,12 @@
 import { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ActivityIndicator, Alert, Text, View } from "react-native";
 import { callAI } from "../lib/ai";
 import { getScoreColor } from "../lib/analysis/hypertrophyScore";
 import { suggestExercises } from "../lib/analysis/suggestions";
 import { useAppStore } from "../lib/store";
+import { colors, fontSizes, radii, spacing } from "../lib/theme";
 import type { ExerciseSuggestion } from "../lib/types";
+import { AppButton, Card, SectionLabel } from "./shared/ui";
 
 export function ExerciseSuggestions() {
   const workouts = useAppStore((s) => s.workouts);
@@ -83,46 +79,49 @@ export function ExerciseSuggestions() {
   if (suggestions.length === 0) return null;
 
   return (
-    <View
-      style={{
-        backgroundColor: "#161616",
-        borderRadius: 14,
-        padding: 16,
-        borderWidth: 1,
-        borderColor: "#222",
-      }}
-    >
-      <Text
-        style={{
-          color: "#f59e0b",
-          fontSize: 14,
-          fontWeight: "700",
-          marginBottom: 8,
-        }}
-      >
+    <Card>
+      <SectionLabel style={{ color: colors.warning, marginBottom: spacing.sm }}>
         {currentGym ? `Suggestions at ${currentGym.name}` : "Suggestions"}
-      </Text>
+      </SectionLabel>
       {suggestions.map((s) => (
         <View key={s.muscle} style={{ marginBottom: 10 }}>
-          <Text style={{ color: "#fff", fontSize: 14, fontWeight: "600" }}>
+          <Text
+            style={{
+              color: colors.text,
+              fontSize: fontSizes.sm,
+              fontWeight: "600",
+            }}
+          >
             {s.muscle}{" "}
-            <Text style={{ color: "#888", fontWeight: "400" }}>
-              -- {s.reason}
+            <Text style={{ color: colors.textSecondary, fontWeight: "400" }}>
+              {` · ${s.reason}`}
             </Text>
           </Text>
-          <Text style={{ color: "#888", fontSize: 12, marginTop: 2 }}>
+          <Text
+            style={{
+              color: colors.textSecondary,
+              fontSize: fontSizes.xs,
+              marginTop: 2,
+            }}
+          >
             <Text style={{ color: getScoreColor(s.score), fontWeight: "600" }}>
               {s.scoreLabel} {s.score}/100
             </Text>
             {` | ${s.weeklySets} sets/week`}
           </Text>
           {s.plateau && (
-            <Text style={{ color: "#f59e0b", fontSize: 12, marginTop: 2 }}>
+            <Text
+              style={{
+                color: colors.warning,
+                fontSize: fontSizes.xs,
+                marginTop: 2,
+              }}
+            >
               Plateau: {s.plateau.exerciseName} for{" "}
               {s.plateau.sessionsSinceProgress} sessions
             </Text>
           )}
-          <Text style={{ color: "#3b82f6", fontSize: 13, marginTop: 2 }}>
+          <Text style={{ color: colors.brand, fontSize: 13, marginTop: 2 }}>
             Try:{" "}
             {s.exercises.map((e, i) => (
               <Text key={e.name}>
@@ -141,17 +140,17 @@ export function ExerciseSuggestions() {
       {aiSuggestion ? (
         <View
           style={{
-            backgroundColor: "#101010",
-            borderColor: "#2a2a2a",
-            borderRadius: 10,
+            backgroundColor: colors.surfaceRaised,
+            borderColor: colors.borderStrong,
+            borderRadius: radii.md,
             borderWidth: 1,
             marginTop: 4,
-            padding: 12,
+            padding: spacing.md,
           }}
         >
           <Text
             style={{
-              color: "#60a5fa",
+              color: colors.brand,
               fontSize: 12,
               fontWeight: "700",
               marginBottom: 6,
@@ -159,37 +158,42 @@ export function ExerciseSuggestions() {
           >
             AI SUGGESTION
           </Text>
-          <Text style={{ color: "#d4d4d4", fontSize: 13, lineHeight: 19 }}>
+          <Text
+            style={{
+              color: colors.textSecondary,
+              fontSize: 13,
+              lineHeight: 19,
+            }}
+          >
             {aiSuggestion}
           </Text>
-          <Text style={{ color: "#555", fontSize: 10, marginTop: 8 }}>
+          <Text
+            style={{
+              color: colors.textMuted,
+              fontSize: 10,
+              marginTop: spacing.sm,
+            }}
+          >
             General training guidance, not medical advice.
           </Text>
         </View>
       ) : null}
-      <TouchableOpacity
-        accessibilityRole="button"
+      <AppButton
+        variant="secondary"
         disabled={loadingAI}
         onPress={askAI}
-        style={{
-          alignItems: "center",
-          backgroundColor: "#1a1a1a",
-          borderColor: "#3b82f6",
-          borderRadius: 10,
-          borderWidth: 1,
-          marginTop: 6,
-          opacity: loadingAI ? 0.6 : 1,
-          padding: 11,
-        }}
+        style={{ borderColor: colors.brand, marginTop: spacing.sm }}
       >
         {loadingAI ? (
-          <ActivityIndicator color="#60a5fa" />
+          <ActivityIndicator color={colors.brand} />
         ) : (
-          <Text style={{ color: "#60a5fa", fontSize: 13, fontWeight: "700" }}>
+          <Text
+            style={{ color: colors.brand, fontSize: 13, fontWeight: "700" }}
+          >
             Ask AI for smarter suggestions
           </Text>
         )}
-      </TouchableOpacity>
-    </View>
+      </AppButton>
+    </Card>
   );
 }

@@ -1,16 +1,16 @@
 import * as Location from "expo-location";
 import { useEffect, useState } from "react";
-import {
-  Modal,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { getEquipmentOptions } from "../../lib/exerciseDatabase";
+import { colors, spacing } from "../../lib/theme";
 import type { Gym } from "../../lib/types";
 import { Toggle } from "../shared/Toggle";
+import {
+  AppButton,
+  AppTextInput,
+  ScreenTitle,
+  SectionLabel,
+} from "../shared/ui";
 
 export function AddGymModal({
   visible,
@@ -98,11 +98,11 @@ export function AddGymModal({
       animationType="slide"
       presentationStyle="pageSheet"
     >
-      <View style={{ flex: 1, backgroundColor: "#0a0a0a" }}>
+      <View style={{ flex: 1, backgroundColor: colors.background }}>
         <ScrollView
           contentContainerStyle={{
             paddingTop: 60,
-            paddingHorizontal: 16,
+            paddingHorizontal: spacing.screen,
             paddingBottom: 40,
           }}
         >
@@ -114,65 +114,57 @@ export function AddGymModal({
               marginBottom: 16,
             }}
           >
-            <Text style={{ color: "#fff", fontSize: 20, fontWeight: "700" }}>
+            <ScreenTitle style={{ fontSize: 20 }}>
               {initial ? "Edit Gym" : "Add Gym"}
-            </Text>
+            </ScreenTitle>
             <TouchableOpacity onPress={onClose}>
-              <Text style={{ color: "#3b82f6", fontSize: 16 }}>Cancel</Text>
+              <Text style={{ color: colors.brand, fontSize: 16 }}>Cancel</Text>
             </TouchableOpacity>
           </View>
 
-          <TextInput
+          <AppTextInput
             placeholder="Gym name"
-            placeholderTextColor="#666"
             value={name}
             onChangeText={setName}
             style={inputStyle}
           />
 
-          <Text style={labelStyle}>DETECTION RADIUS (METERS)</Text>
-          <TextInput
+          <SectionLabel style={labelStyle}>
+            Detection radius (meters)
+          </SectionLabel>
+          <AppTextInput
             placeholder="150"
-            placeholderTextColor="#666"
             value={radius}
             onChangeText={setRadius}
             keyboardType="number-pad"
             style={inputStyle}
           />
 
-          <Text style={labelStyle}>LOCATION</Text>
-          <TouchableOpacity
+          <SectionLabel style={labelStyle}>Location</SectionLabel>
+          <AppButton
             onPress={captureLocation}
             disabled={capturing}
-            style={{
-              backgroundColor: "#3b82f6",
-              borderRadius: 10,
-              padding: 14,
-              alignItems: "center",
-              marginBottom: 8,
-            }}
+            style={{ marginBottom: 8 }}
           >
-            <Text style={{ color: "#fff", fontSize: 15, fontWeight: "700" }}>
-              {capturing ? "Locating..." : "Save My Current Location"}
-            </Text>
-          </TouchableOpacity>
+            {capturing ? "Locating..." : "Save My Current Location"}
+          </AppButton>
           {locError && (
-            <Text style={{ color: "#ef4444", fontSize: 12, marginBottom: 8 }}>
+            <Text
+              style={{ color: colors.danger, fontSize: 12, marginBottom: 8 }}
+            >
               {locError}
             </Text>
           )}
           <View style={{ flexDirection: "row", gap: 8 }}>
-            <TextInput
+            <AppTextInput
               placeholder="Latitude"
-              placeholderTextColor="#666"
               value={latitude}
               onChangeText={setLatitude}
               keyboardType="numbers-and-punctuation"
               style={{ ...inputStyle, flex: 1 }}
             />
-            <TextInput
+            <AppTextInput
               placeholder="Longitude"
-              placeholderTextColor="#666"
               value={longitude}
               onChangeText={setLongitude}
               keyboardType="numbers-and-punctuation"
@@ -180,10 +172,9 @@ export function AddGymModal({
             />
           </View>
 
-          <Text style={labelStyle}>EQUIPMENT AVAILABLE</Text>
-          <TextInput
+          <SectionLabel style={labelStyle}>Equipment available</SectionLabel>
+          <AppTextInput
             placeholder="Filter equipment..."
-            placeholderTextColor="#666"
             value={equipQuery}
             onChangeText={setEquipQuery}
             style={inputStyle}
@@ -205,27 +196,13 @@ export function AddGymModal({
             );
           })}
 
-          <TouchableOpacity
+          <AppButton
             onPress={save}
             disabled={!canSave}
-            style={{
-              backgroundColor: canSave ? "#3b82f6" : "#222",
-              borderRadius: 10,
-              padding: 16,
-              alignItems: "center",
-              marginTop: 20,
-            }}
+            style={{ marginTop: 20 }}
           >
-            <Text
-              style={{
-                color: canSave ? "#fff" : "#666",
-                fontSize: 16,
-                fontWeight: "700",
-              }}
-            >
-              Save Gym
-            </Text>
-          </TouchableOpacity>
+            Save Gym
+          </AppButton>
         </ScrollView>
       </View>
     </Modal>
@@ -233,22 +210,17 @@ export function AddGymModal({
 }
 
 const inputStyle = {
-  backgroundColor: "#161616",
+  backgroundColor: colors.surface,
   borderRadius: 10,
   padding: 12,
-  color: "#fff",
+  color: colors.text,
   fontSize: 15,
   borderWidth: 1,
-  borderColor: "#2a2a2a",
+  borderColor: colors.border,
   marginBottom: 12,
 };
 
 const labelStyle = {
-  color: "#888",
-  fontSize: 12,
-  fontWeight: "600" as const,
-  textTransform: "uppercase" as const,
-  letterSpacing: 0.5,
   marginBottom: 8,
   marginTop: 8,
 };

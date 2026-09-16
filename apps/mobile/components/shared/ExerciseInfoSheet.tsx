@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import {
   Image,
   Modal,
@@ -7,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { colors, radii, spacing } from "../../lib/theme";
 import type { ExerciseAsset } from "../../lib/types";
 
 export function ExerciseInfoSheet({
@@ -27,17 +28,17 @@ export function ExerciseInfoSheet({
       <Pressable
         style={{
           flex: 1,
-          backgroundColor: "rgba(0,0,0,0.6)",
+          backgroundColor: colors.overlay,
           justifyContent: "flex-end",
         }}
         onPress={onClose}
       >
         <Pressable
           style={{
-            backgroundColor: "#111",
-            borderTopLeftRadius: 18,
-            borderTopRightRadius: 18,
-            paddingHorizontal: 16,
+            backgroundColor: colors.surfaceRaised,
+            borderTopLeftRadius: radii.lg,
+            borderTopRightRadius: radii.lg,
+            paddingHorizontal: spacing.lg,
             paddingBottom: 40,
             maxHeight: "80%",
           }}
@@ -55,7 +56,7 @@ export function ExerciseInfoSheet({
               >
                 <Text
                   style={{
-                    color: "#fff",
+                    color: colors.text,
                     fontSize: 20,
                     fontWeight: "800",
                     flex: 1,
@@ -64,10 +65,14 @@ export function ExerciseInfoSheet({
                   {item.name}
                 </Text>
                 <TouchableOpacity onPress={onClose} hitSlop={8}>
-                  <Ionicons name="close" size={22} color="#999" />
+                  <Ionicons
+                    name="close"
+                    size={22}
+                    color={colors.textSecondary}
+                  />
                 </TouchableOpacity>
               </View>
-              <Text style={{ color: "#888", fontSize: 13 }}>
+              <Text style={{ color: colors.textMuted, fontSize: 13 }}>
                 {item.primaryMuscle}
                 {item.secondaryMuscles.length > 0
                   ? ` + ${item.secondaryMuscles.join(", ")}`
@@ -80,15 +85,21 @@ export function ExerciseInfoSheet({
                   style={{
                     width: "100%",
                     height: 220,
-                    borderRadius: 12,
-                    marginTop: 14,
-                    backgroundColor: "#1a1a1a",
+                    borderRadius: radii.md,
+                    marginTop: spacing.lg,
+                    backgroundColor: colors.surfacePressed,
                     resizeMode: "contain",
                   }}
                 />
               )}
               <Text style={infoSectionLabel}>HOW TO DO IT</Text>
-              <Text style={{ color: "#ccc", fontSize: 14, lineHeight: 21 }}>
+              <Text
+                style={{
+                  color: colors.textSecondary,
+                  fontSize: 14,
+                  lineHeight: 21,
+                }}
+              >
                 {item.instructions ||
                   "No instructions available for this exercise yet."}
               </Text>
@@ -101,7 +112,7 @@ export function ExerciseInfoSheet({
 }
 
 const infoSectionLabel = {
-  color: "#888",
+  color: colors.textMuted,
   fontSize: 12,
   fontWeight: "600" as const,
   textTransform: "uppercase" as const,

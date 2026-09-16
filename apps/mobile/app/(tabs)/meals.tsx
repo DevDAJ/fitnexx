@@ -20,10 +20,12 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SegmentedControl } from "../../components/shared/SegmentedControl";
+import { ScreenTitle } from "../../components/shared/ui";
 import { calcTDEE, fmtWeight } from "../../lib/bodyMetrics";
 import { macrosForServing } from "../../lib/foodDb";
 import { classifyFood } from "../../lib/foodScan";
 import { useAppStore } from "../../lib/store";
+import { colors, spacing } from "../../lib/theme";
 import type { BodyMetrics, Meal, MealTemplate } from "../../lib/types";
 
 function estimateTimeToTarget(
@@ -145,7 +147,7 @@ function SwipeableRow({
           bottom: 0,
           left: 0,
           right: 0,
-          backgroundColor: "#ef4444",
+          backgroundColor: colors.dangerSolid,
         }}
       >
         <TouchableOpacity
@@ -161,10 +163,10 @@ function SwipeableRow({
             justifyContent: "center",
           }}
         >
-          <Ionicons name="trash" size={22} color="#fff" />
+          <Ionicons name="trash" size={22} color={colors.text} />
           <Text
             style={{
-              color: "#fff",
+              color: colors.text,
               fontSize: 11,
               fontWeight: "600",
               marginTop: 2,
@@ -544,25 +546,23 @@ export default function MealsScreen() {
     : 0;
   const barColor =
     !dailyCalorieGoal || todayCals <= dailyCalorieGoal
-      ? "#22c55e"
+      ? colors.success
       : todayCals <= dailyCalorieGoal * 1.1
-        ? "#f59e0b"
-        : "#ef4444";
+        ? colors.warning
+        : colors.danger;
 
   return (
     <>
       <ScrollView
-        style={{ flex: 1, backgroundColor: "#0a0a0a" }}
+        style={{ flex: 1, backgroundColor: colors.background }}
         contentContainerStyle={{
           paddingTop: insets.top + 16,
-          paddingHorizontal: 16,
+          paddingHorizontal: spacing.screen,
           paddingBottom: 100,
           gap: 12,
         }}
       >
-        <Text style={{ color: "#fff", fontSize: 28, fontWeight: "800" }}>
-          Meals
-        </Text>
+        <ScreenTitle>Meals</ScreenTitle>
 
         <SegmentedControl
           options={[
@@ -578,11 +578,11 @@ export default function MealsScreen() {
             {/* Today's progress */}
             <View
               style={{
-                backgroundColor: "#161616",
+                backgroundColor: colors.surface,
                 borderRadius: 14,
                 padding: 16,
                 borderWidth: 1,
-                borderColor: "#222",
+                borderColor: colors.border,
               }}
             >
               <View
@@ -593,11 +593,19 @@ export default function MealsScreen() {
                 }}
               >
                 <Text
-                  style={{ color: "#fff", fontSize: 18, fontWeight: "700" }}
+                  style={{
+                    color: colors.text,
+                    fontSize: 18,
+                    fontWeight: "700",
+                  }}
                 >
                   {todayCals}
                   <Text
-                    style={{ color: "#888", fontSize: 14, fontWeight: "500" }}
+                    style={{
+                      color: colors.textSecondary,
+                      fontSize: 14,
+                      fontWeight: "500",
+                    }}
                   >
                     {" "}
                     / {dailyCalorieGoal ?? "–"} kcal
@@ -617,24 +625,24 @@ export default function MealsScreen() {
                       keyboardType="numeric"
                       autoFocus
                       placeholder={tdee != null ? `e.g. ${tdee}` : "e.g. 2500"}
-                      placeholderTextColor="#444"
+                      placeholderTextColor={colors.textMuted}
                       style={{
-                        backgroundColor: "#1a1a1a",
+                        backgroundColor: colors.surfaceRaised,
                         borderRadius: 8,
                         paddingHorizontal: 10,
                         paddingVertical: 6,
-                        color: "#fff",
+                        color: colors.text,
                         fontSize: 14,
                         minWidth: 90,
                         borderWidth: 1,
-                        borderColor: "#2a2a2a",
+                        borderColor: colors.border,
                         textAlign: "center",
                       }}
                     />
                     <TouchableOpacity onPress={saveGoal}>
                       <Text
                         style={{
-                          color: "#3b82f6",
+                          color: colors.brand,
                           fontSize: 13,
                           fontWeight: "700",
                         }}
@@ -654,7 +662,7 @@ export default function MealsScreen() {
                   >
                     <Text
                       style={{
-                        color: "#3b82f6",
+                        color: colors.brand,
                         fontSize: 13,
                         fontWeight: "700",
                       }}
@@ -670,7 +678,7 @@ export default function MealsScreen() {
                     style={{
                       height: 8,
                       borderRadius: 4,
-                      backgroundColor: "#222",
+                      backgroundColor: colors.surfacePressed,
                       marginTop: 12,
                       overflow: "hidden",
                     }}
@@ -684,12 +692,24 @@ export default function MealsScreen() {
                       }}
                     />
                   </View>
-                  <Text style={{ color: "#666", fontSize: 12, marginTop: 6 }}>
+                  <Text
+                    style={{
+                      color: colors.textSecondary,
+                      fontSize: 12,
+                      marginTop: 6,
+                    }}
+                  >
                     Today: P{todayMacros.p}g C{todayMacros.c}g F{todayMacros.f}g
                   </Text>
                 </>
               ) : (
-                <Text style={{ color: "#666", fontSize: 12, marginTop: 8 }}>
+                <Text
+                  style={{
+                    color: colors.textSecondary,
+                    fontSize: 12,
+                    marginTop: 8,
+                  }}
+                >
                   Set a daily calorie goal to track today's progress.
                 </Text>
               )}
@@ -699,11 +719,11 @@ export default function MealsScreen() {
             {latestMetrics ? (
               <View
                 style={{
-                  backgroundColor: "#161616",
+                  backgroundColor: colors.surface,
                   borderRadius: 14,
                   padding: 16,
                   borderWidth: 1,
-                  borderColor: "#222",
+                  borderColor: colors.border,
                 }}
               >
                 <View
@@ -713,21 +733,27 @@ export default function MealsScreen() {
                   }}
                 >
                   <View>
-                    <Text style={{ color: "#888", fontSize: 12 }}>Current</Text>
+                    <Text style={{ color: colors.textMuted, fontSize: 12 }}>
+                      Current
+                    </Text>
                     <Text
-                      style={{ color: "#fff", fontSize: 20, fontWeight: "700" }}
+                      style={{
+                        color: colors.text,
+                        fontSize: 20,
+                        fontWeight: "700",
+                      }}
                     >
                       {fmtWeight(latestMetrics.weight, isLbs)}
                     </Text>
                   </View>
                   {latestMetrics.targetWeight != null && (
                     <View style={{ alignItems: "center" }}>
-                      <Text style={{ color: "#888", fontSize: 12 }}>
+                      <Text style={{ color: colors.textMuted, fontSize: 12 }}>
                         Target
                       </Text>
                       <Text
                         style={{
-                          color: "#22c55e",
+                          color: colors.success,
                           fontSize: 20,
                           fontWeight: "700",
                         }}
@@ -737,9 +763,15 @@ export default function MealsScreen() {
                     </View>
                   )}
                   <View style={{ alignItems: "flex-end" }}>
-                    <Text style={{ color: "#888", fontSize: 12 }}>TDEE</Text>
+                    <Text style={{ color: colors.textMuted, fontSize: 12 }}>
+                      TDEE
+                    </Text>
                     <Text
-                      style={{ color: "#fff", fontSize: 20, fontWeight: "700" }}
+                      style={{
+                        color: colors.text,
+                        fontSize: 20,
+                        fontWeight: "700",
+                      }}
                     >
                       {tdee}
                     </Text>
@@ -748,7 +780,7 @@ export default function MealsScreen() {
                 {timeEstimate && (
                   <Text
                     style={{
-                      color: "#3b82f6",
+                      color: colors.brand,
                       fontSize: 13,
                       fontWeight: "600",
                       marginTop: 8,
@@ -764,7 +796,7 @@ export default function MealsScreen() {
                 >
                   <Text
                     style={{
-                      color: "#3b82f6",
+                      color: colors.brand,
                       fontSize: 13,
                       fontWeight: "600",
                     }}
@@ -777,16 +809,20 @@ export default function MealsScreen() {
               <TouchableOpacity
                 onPress={() => router.navigate("/settings")}
                 style={{
-                  backgroundColor: "#161616",
+                  backgroundColor: colors.surface,
                   borderRadius: 14,
                   padding: 16,
                   borderWidth: 1,
-                  borderColor: "#3b82f6",
+                  borderColor: colors.brand,
                   alignItems: "center",
                 }}
               >
                 <Text
-                  style={{ color: "#3b82f6", fontSize: 15, fontWeight: "700" }}
+                  style={{
+                    color: colors.brand,
+                    fontSize: 15,
+                    fontWeight: "700",
+                  }}
                 >
                   Set up body metrics for calorie estimates
                 </Text>
@@ -796,7 +832,7 @@ export default function MealsScreen() {
             {/* Meal form */}
             <Text
               style={{
-                color: "#888",
+                color: colors.textMuted,
                 fontSize: 12,
                 fontWeight: "600",
                 textTransform: "uppercase",
@@ -808,17 +844,17 @@ export default function MealsScreen() {
 
             <TextInput
               placeholder="Meal name (optional)"
-              placeholderTextColor="#555"
+              placeholderTextColor={colors.textMuted}
               value={name}
               onChangeText={setName}
               style={{
-                backgroundColor: "#161616",
+                backgroundColor: colors.surface,
                 borderRadius: 10,
                 padding: 14,
-                color: "#fff",
+                color: colors.text,
                 fontSize: 16,
                 borderWidth: 1,
-                borderColor: "#2a2a2a",
+                borderColor: colors.border,
               }}
             />
 
@@ -826,28 +862,32 @@ export default function MealsScreen() {
               <View
                 style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
               >
-                <Text style={{ color: "#666", fontSize: 13, flex: 1 }}>
+                <Text
+                  style={{ color: colors.textSecondary, fontSize: 13, flex: 1 }}
+                >
                   Serving
                 </Text>
                 <TextInput
                   keyboardType="decimal-pad"
                   placeholder="0"
-                  placeholderTextColor="#444"
+                  placeholderTextColor={colors.textMuted}
                   value={servingG}
                   onChangeText={handleServingChange}
                   style={{
-                    backgroundColor: "#161616",
+                    backgroundColor: colors.surface,
                     borderRadius: 10,
                     padding: 10,
-                    color: "#fff",
+                    color: colors.text,
                     fontSize: 15,
                     borderWidth: 1,
-                    borderColor: "#2a2a2a",
+                    borderColor: colors.border,
                     width: 72,
                     textAlign: "center",
                   }}
                 />
-                <Text style={{ color: "#666", fontSize: 13 }}>g</Text>
+                <Text style={{ color: colors.textSecondary, fontSize: 13 }}>
+                  g
+                </Text>
               </View>
             )}
 
@@ -881,7 +921,7 @@ export default function MealsScreen() {
                 <View key={f.label} style={{ flex: 1 }}>
                   <Text
                     style={{
-                      color: "#666",
+                      color: colors.textMuted,
                       fontSize: 11,
                       marginBottom: 4,
                       textAlign: "center",
@@ -891,18 +931,18 @@ export default function MealsScreen() {
                   </Text>
                   <TextInput
                     placeholder={f.placeholder}
-                    placeholderTextColor="#444"
+                    placeholderTextColor={colors.textMuted}
                     keyboardType="numeric"
                     value={f.value}
                     onChangeText={f.set}
                     style={{
-                      backgroundColor: "#161616",
+                      backgroundColor: colors.surface,
                       borderRadius: 10,
                       padding: 12,
-                      color: "#fff",
+                      color: colors.text,
                       fontSize: 16,
                       borderWidth: 1,
-                      borderColor: "#2a2a2a",
+                      borderColor: colors.border,
                       textAlign: "center",
                     }}
                   />
@@ -915,16 +955,20 @@ export default function MealsScreen() {
                 onPress={() => takePhotoInto(setImageUri, scanAndFill)}
                 style={{
                   flex: 1,
-                  backgroundColor: "#161616",
+                  backgroundColor: colors.surface,
                   borderRadius: 10,
                   padding: 14,
                   borderWidth: 1,
-                  borderColor: "#2a2a2a",
+                  borderColor: colors.border,
                   alignItems: "center",
                 }}
               >
                 <Text
-                  style={{ color: "#8b5cf6", fontSize: 14, fontWeight: "600" }}
+                  style={{
+                    color: colors.brand,
+                    fontSize: 14,
+                    fontWeight: "600",
+                  }}
                 >
                   {imageUri ? "Retake Photo" : "Take Photo"}
                 </Text>
@@ -933,16 +977,20 @@ export default function MealsScreen() {
                 onPress={() => pickImageInto(setImageUri, scanAndFill)}
                 style={{
                   flex: 1,
-                  backgroundColor: "#161616",
+                  backgroundColor: colors.surface,
                   borderRadius: 10,
                   padding: 14,
                   borderWidth: 1,
-                  borderColor: "#2a2a2a",
+                  borderColor: colors.border,
                   alignItems: "center",
                 }}
               >
                 <Text
-                  style={{ color: "#8b5cf6", fontSize: 14, fontWeight: "600" }}
+                  style={{
+                    color: colors.brand,
+                    fontSize: 14,
+                    fontWeight: "600",
+                  }}
                 >
                   {imageUri ? "Change Photo" : "Pick from Gallery"}
                 </Text>
@@ -952,16 +1000,20 @@ export default function MealsScreen() {
             <TouchableOpacity
               onPress={() => setShowBarcodeScan(true)}
               style={{
-                backgroundColor: "#161616",
+                backgroundColor: colors.surface,
                 borderRadius: 10,
                 padding: 14,
                 borderWidth: 1,
-                borderColor: "#2a2a2a",
+                borderColor: colors.border,
                 alignItems: "center",
               }}
             >
               <Text
-                style={{ color: "#22c55e", fontSize: 14, fontWeight: "600" }}
+                style={{
+                  color: colors.success,
+                  fontSize: 14,
+                  fontWeight: "600",
+                }}
               >
                 Scan Barcode (Open Food Facts)
               </Text>
@@ -969,7 +1021,11 @@ export default function MealsScreen() {
 
             {isScanning && (
               <Text
-                style={{ color: "#8b5cf6", fontSize: 13, textAlign: "center" }}
+                style={{
+                  color: colors.brand,
+                  fontSize: 13,
+                  textAlign: "center",
+                }}
               >
                 Scanning... this happens on your device.
               </Text>
@@ -988,14 +1044,18 @@ export default function MealsScreen() {
                 onPress={saveMealEntry}
                 style={{
                   flex: 2,
-                  backgroundColor: "#22c55e",
+                  backgroundColor: colors.success,
                   borderRadius: 14,
                   padding: 16,
                   alignItems: "center",
                 }}
               >
                 <Text
-                  style={{ color: "#fff", fontSize: 16, fontWeight: "800" }}
+                  style={{
+                    color: colors.onBrand,
+                    fontSize: 16,
+                    fontWeight: "800",
+                  }}
                 >
                   Save Meal
                 </Text>
@@ -1004,16 +1064,20 @@ export default function MealsScreen() {
                 onPress={saveAsTemplate}
                 style={{
                   flex: 1,
-                  backgroundColor: "#161616",
+                  backgroundColor: colors.surface,
                   borderRadius: 14,
                   padding: 16,
                   borderWidth: 1,
-                  borderColor: "#f59e0b",
+                  borderColor: colors.warning,
                   alignItems: "center",
                 }}
               >
                 <Text
-                  style={{ color: "#f59e0b", fontSize: 14, fontWeight: "700" }}
+                  style={{
+                    color: colors.warning,
+                    fontSize: 14,
+                    fontWeight: "700",
+                  }}
                 >
                   Save for later
                 </Text>
@@ -1025,7 +1089,7 @@ export default function MealsScreen() {
               <>
                 <Text
                   style={{
-                    color: "#888",
+                    color: colors.textMuted,
                     fontSize: 12,
                     fontWeight: "600",
                     textTransform: "uppercase",
@@ -1037,7 +1101,7 @@ export default function MealsScreen() {
                 </Text>
                 <Text
                   style={{
-                    color: "#666",
+                    color: colors.textSecondary,
                     fontSize: 12,
                     marginBottom: 6,
                   }}
@@ -1050,11 +1114,11 @@ export default function MealsScreen() {
                     onDelete={() => confirmDeleteTemplate(t)}
                     onPress={() => loadTemplate(t)}
                     style={{
-                      backgroundColor: "#161616",
+                      backgroundColor: colors.surface,
                       borderRadius: 10,
                       padding: 14,
                       borderWidth: 1,
-                      borderColor: "#2a2a2a",
+                      borderColor: colors.border,
                       flexDirection: "row",
                       justifyContent: "space-between",
                       alignItems: "center",
@@ -1063,7 +1127,7 @@ export default function MealsScreen() {
                     <View>
                       <Text
                         style={{
-                          color: "#e5e5e5",
+                          color: colors.text,
                           fontSize: 15,
                           fontWeight: "600",
                         }}
@@ -1072,7 +1136,7 @@ export default function MealsScreen() {
                       </Text>
                       <Text
                         style={{
-                          color: "#666",
+                          color: colors.textSecondary,
                           fontSize: 12,
                           marginTop: 2,
                         }}
@@ -1080,7 +1144,9 @@ export default function MealsScreen() {
                         {t.calories} cal | P{t.protein} C{t.carbs} F{t.fat}
                       </Text>
                     </View>
-                    <Text style={{ color: "#3b82f6", fontSize: 12 }}>Use</Text>
+                    <Text style={{ color: colors.brand, fontSize: 12 }}>
+                      Use
+                    </Text>
                   </SwipeableRow>
                 ))}
               </>
@@ -1093,7 +1159,7 @@ export default function MealsScreen() {
             <>
               <Text
                 style={{
-                  color: "#888",
+                  color: colors.textMuted,
                   fontSize: 12,
                   fontWeight: "600",
                   textTransform: "uppercase",
@@ -1105,7 +1171,7 @@ export default function MealsScreen() {
               </Text>
               <Text
                 style={{
-                  color: "#666",
+                  color: colors.textSecondary,
                   fontSize: 12,
                   marginBottom: 6,
                 }}
@@ -1116,7 +1182,7 @@ export default function MealsScreen() {
                 <View key={dayKey(day.date)}>
                   <Text
                     style={{
-                      color: "#999",
+                      color: colors.textSecondary,
                       fontSize: 13,
                       fontWeight: "700",
                       marginBottom: 6,
@@ -1132,11 +1198,11 @@ export default function MealsScreen() {
                         onDelete={() => confirmDeleteMeal(m)}
                         onPress={() => openEdit(m)}
                         style={{
-                          backgroundColor: "#161616",
+                          backgroundColor: colors.surface,
                           borderRadius: 10,
                           padding: 12,
                           borderWidth: 1,
-                          borderColor: "#222",
+                          borderColor: colors.border,
                           flexDirection: "row",
                           gap: 12,
                           alignItems: "center",
@@ -1153,12 +1219,14 @@ export default function MealsScreen() {
                               width: 40,
                               height: 40,
                               borderRadius: 8,
-                              backgroundColor: "#1f1f1f",
+                              backgroundColor: colors.surfaceRaised,
                               alignItems: "center",
                               justifyContent: "center",
                             }}
                           >
-                            <Text style={{ color: "#444", fontSize: 16 }}>
+                            <Text
+                              style={{ color: colors.textMuted, fontSize: 16 }}
+                            >
                               +
                             </Text>
                           </View>
@@ -1166,21 +1234,26 @@ export default function MealsScreen() {
                         <View style={{ flex: 1 }}>
                           <Text
                             style={{
-                              color: "#e5e5e5",
+                              color: colors.text,
                               fontSize: 14,
                               fontWeight: "600",
                             }}
                           >
                             {m.name}
                           </Text>
-                          <Text style={{ color: "#666", fontSize: 12 }}>
+                          <Text
+                            style={{
+                              color: colors.textSecondary,
+                              fontSize: 12,
+                            }}
+                          >
                             P{m.protein}g C{m.carbs}g F{m.fat}g
                           </Text>
                         </View>
                         <View style={{ alignItems: "flex-end" }}>
                           <Text
                             style={{
-                              color: "#fff",
+                              color: colors.text,
                               fontSize: 16,
                               fontWeight: "700",
                             }}
@@ -1189,7 +1262,7 @@ export default function MealsScreen() {
                           </Text>
                           <Text
                             style={{
-                              color: "#3b82f6",
+                              color: colors.brand,
                               fontSize: 11,
                               fontWeight: "600",
                             }}
@@ -1216,13 +1289,13 @@ export default function MealsScreen() {
         <View
           style={{
             flex: 1,
-            backgroundColor: "#000000cc",
+            backgroundColor: colors.overlay,
             justifyContent: "flex-end",
           }}
         >
           <View
             style={{
-              backgroundColor: "#111",
+              backgroundColor: colors.surfaceRaised,
               borderTopLeftRadius: 20,
               borderTopRightRadius: 20,
               padding: 20,
@@ -1230,23 +1303,25 @@ export default function MealsScreen() {
               gap: 12,
             }}
           >
-            <Text style={{ color: "#fff", fontSize: 20, fontWeight: "800" }}>
+            <Text
+              style={{ color: colors.text, fontSize: 20, fontWeight: "800" }}
+            >
               Edit Meal
             </Text>
 
             <TextInput
               placeholder="Meal name"
-              placeholderTextColor="#555"
+              placeholderTextColor={colors.textMuted}
               value={eName}
               onChangeText={setEName}
               style={{
-                backgroundColor: "#161616",
+                backgroundColor: colors.surface,
                 borderRadius: 10,
                 padding: 14,
-                color: "#fff",
+                color: colors.text,
                 fontSize: 16,
                 borderWidth: 1,
-                borderColor: "#2a2a2a",
+                borderColor: colors.border,
               }}
             />
 
@@ -1275,7 +1350,7 @@ export default function MealsScreen() {
                 <View key={f.label} style={{ flex: 1 }}>
                   <Text
                     style={{
-                      color: "#666",
+                      color: colors.textMuted,
                       fontSize: 11,
                       marginBottom: 4,
                       textAlign: "center",
@@ -1285,18 +1360,18 @@ export default function MealsScreen() {
                   </Text>
                   <TextInput
                     placeholder={f.placeholder}
-                    placeholderTextColor="#444"
+                    placeholderTextColor={colors.textMuted}
                     keyboardType="numeric"
                     value={f.value}
                     onChangeText={f.set}
                     style={{
-                      backgroundColor: "#161616",
+                      backgroundColor: colors.surface,
                       borderRadius: 10,
                       padding: 12,
-                      color: "#fff",
+                      color: colors.text,
                       fontSize: 16,
                       borderWidth: 1,
-                      borderColor: "#2a2a2a",
+                      borderColor: colors.border,
                       textAlign: "center",
                     }}
                   />
@@ -1309,16 +1384,20 @@ export default function MealsScreen() {
                 onPress={() => takePhotoInto(setEImageUri)}
                 style={{
                   flex: 1,
-                  backgroundColor: "#161616",
+                  backgroundColor: colors.surface,
                   borderRadius: 10,
                   padding: 14,
                   borderWidth: 1,
-                  borderColor: "#2a2a2a",
+                  borderColor: colors.border,
                   alignItems: "center",
                 }}
               >
                 <Text
-                  style={{ color: "#8b5cf6", fontSize: 14, fontWeight: "600" }}
+                  style={{
+                    color: colors.brand,
+                    fontSize: 14,
+                    fontWeight: "600",
+                  }}
                 >
                   {eImageUri ? "Retake Photo" : "Take Photo"}
                 </Text>
@@ -1327,16 +1406,20 @@ export default function MealsScreen() {
                 onPress={() => pickImageInto(setEImageUri)}
                 style={{
                   flex: 1,
-                  backgroundColor: "#161616",
+                  backgroundColor: colors.surface,
                   borderRadius: 10,
                   padding: 14,
                   borderWidth: 1,
-                  borderColor: "#2a2a2a",
+                  borderColor: colors.border,
                   alignItems: "center",
                 }}
               >
                 <Text
-                  style={{ color: "#8b5cf6", fontSize: 14, fontWeight: "600" }}
+                  style={{
+                    color: colors.brand,
+                    fontSize: 14,
+                    fontWeight: "600",
+                  }}
                 >
                   {eImageUri ? "Change Photo" : "Pick from Gallery"}
                 </Text>
@@ -1355,7 +1438,7 @@ export default function MealsScreen() {
                 <TouchableOpacity onPress={() => setEImageUri(undefined)}>
                   <Text
                     style={{
-                      color: "#ef4444",
+                      color: colors.danger,
                       fontSize: 14,
                       fontWeight: "600",
                     }}
@@ -1375,16 +1458,20 @@ export default function MealsScreen() {
                 disabled={!editMeal}
                 style={{
                   flex: 1,
-                  backgroundColor: "#161616",
+                  backgroundColor: colors.surface,
                   borderRadius: 14,
                   padding: 16,
                   alignItems: "center",
                   borderWidth: 1,
-                  borderColor: "#f59e0b",
+                  borderColor: colors.warning,
                 }}
               >
                 <Text
-                  style={{ color: "#f59e0b", fontSize: 14, fontWeight: "700" }}
+                  style={{
+                    color: colors.warning,
+                    fontSize: 14,
+                    fontWeight: "700",
+                  }}
                 >
                   Re-log today
                 </Text>
@@ -1393,14 +1480,18 @@ export default function MealsScreen() {
                 onPress={saveEdit}
                 style={{
                   flex: 1,
-                  backgroundColor: "#3b82f6",
+                  backgroundColor: colors.brand,
                   borderRadius: 14,
                   padding: 16,
                   alignItems: "center",
                 }}
               >
                 <Text
-                  style={{ color: "#fff", fontSize: 16, fontWeight: "800" }}
+                  style={{
+                    color: colors.onBrand,
+                    fontSize: 16,
+                    fontWeight: "800",
+                  }}
                 >
                   Save
                 </Text>
@@ -1416,7 +1507,7 @@ export default function MealsScreen() {
         animationType="slide"
         onRequestClose={() => setShowBarcodeScan(false)}
       >
-        <View style={{ flex: 1, backgroundColor: "#000" }}>
+        <View style={{ flex: 1, backgroundColor: colors.shadow }}>
           <View
             style={{
               padding: 16,
@@ -1426,11 +1517,15 @@ export default function MealsScreen() {
               alignItems: "center",
             }}
           >
-            <Text style={{ color: "#fff", fontSize: 16, fontWeight: "700" }}>
+            <Text
+              style={{ color: colors.text, fontSize: 16, fontWeight: "700" }}
+            >
               Scan a barcode
             </Text>
             <TouchableOpacity onPress={() => setShowBarcodeScan(false)}>
-              <Text style={{ color: "#888", fontSize: 15 }}>Close</Text>
+              <Text style={{ color: colors.textSecondary, fontSize: 15 }}>
+                Close
+              </Text>
             </TouchableOpacity>
           </View>
 
@@ -1451,18 +1546,18 @@ export default function MealsScreen() {
                 gap: 12,
               }}
             >
-              <Text style={{ color: "#888", fontSize: 14 }}>
+              <Text style={{ color: colors.textSecondary, fontSize: 14 }}>
                 Camera access is needed to scan barcodes.
               </Text>
               <TouchableOpacity
                 onPress={requestCamPermission}
                 style={{
-                  backgroundColor: "#3b82f6",
+                  backgroundColor: colors.brand,
                   borderRadius: 10,
                   padding: 12,
                 }}
               >
-                <Text style={{ color: "#fff", fontWeight: "600" }}>
+                <Text style={{ color: colors.onBrand, fontWeight: "600" }}>
                   Grant access
                 </Text>
               </TouchableOpacity>
@@ -1470,7 +1565,13 @@ export default function MealsScreen() {
           )}
 
           {scanningLock && (
-            <Text style={{ color: "#888", textAlign: "center", padding: 12 }}>
+            <Text
+              style={{
+                color: colors.textSecondary,
+                textAlign: "center",
+                padding: 12,
+              }}
+            >
               Looking up product...
             </Text>
           )}

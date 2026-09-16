@@ -20,6 +20,8 @@ import {
   syncWithPeer,
 } from "../../lib/sync";
 import type { SyncPeer } from "../../lib/syncProtocol";
+import { colors, spacing } from "../../lib/theme";
+import { AppButton, ScreenTitle, SectionLabel } from "../shared/ui";
 
 const QRCodeView = QRCode as unknown as ComponentType<{
   value: string;
@@ -147,14 +149,14 @@ export function SyncSheet({
       <View
         style={{
           flex: 1,
-          backgroundColor: "#0a0a0a",
+          backgroundColor: colors.background,
           paddingTop: insets.top + 12,
           paddingBottom: insets.bottom + 16,
         }}
       >
         <View
           style={{
-            paddingHorizontal: 16,
+            paddingHorizontal: spacing.lg,
             paddingBottom: 12,
             flexDirection: "row",
             alignItems: "center",
@@ -164,13 +166,11 @@ export function SyncSheet({
           <TouchableOpacity
             onPress={mode === "scan" ? () => setMode("pair") : onClose}
           >
-            <Text style={{ color: "#888", fontSize: 15 }}>
+            <Text style={{ color: colors.textSecondary, fontSize: 15 }}>
               {mode === "scan" ? "Back" : "Close"}
             </Text>
           </TouchableOpacity>
-          <Text style={{ color: "#fff", fontSize: 18, fontWeight: "800" }}>
-            Local Sync
-          </Text>
+          <ScreenTitle style={{ fontSize: 18 }}>Local Sync</ScreenTitle>
           <View style={{ width: 40 }} />
         </View>
 
@@ -186,8 +186,8 @@ export function SyncSheet({
               />
               <Text
                 style={{
-                  color: "#fff",
-                  backgroundColor: "#000",
+                  color: colors.text,
+                  backgroundColor: colors.shadow,
                   textAlign: "center",
                   padding: 16,
                 }}
@@ -205,22 +205,14 @@ export function SyncSheet({
                 padding: 24,
               }}
             >
-              <Text style={{ color: "#888", textAlign: "center" }}>
+              <Text
+                style={{ color: colors.textSecondary, textAlign: "center" }}
+              >
                 Camera access is needed to scan a Fitnexx sync code.
               </Text>
-              <TouchableOpacity
-                onPress={requestCameraPermission}
-                style={{
-                  backgroundColor: "#3b82f6",
-                  borderRadius: 10,
-                  paddingHorizontal: 18,
-                  paddingVertical: 12,
-                }}
-              >
-                <Text style={{ color: "#fff", fontWeight: "700" }}>
-                  Grant access
-                </Text>
-              </TouchableOpacity>
+              <AppButton onPress={requestCameraPermission}>
+                Grant access
+              </AppButton>
             </View>
           )
         ) : (
@@ -232,14 +224,14 @@ export function SyncSheet({
               gap: 16,
             }}
           >
-            <Text style={{ color: "#888", textAlign: "center" }}>
+            <Text style={{ color: colors.textSecondary, textAlign: "center" }}>
               Apps on the same network sync only when their app tokens match.
             </Text>
 
             {pairingCode ? (
               <View
                 style={{
-                  backgroundColor: "#fff",
+                  backgroundColor: colors.text,
                   padding: 14,
                   borderRadius: 16,
                 }}
@@ -253,19 +245,21 @@ export function SyncSheet({
                   height: 248,
                   alignItems: "center",
                   justifyContent: "center",
-                  backgroundColor: "#161616",
+                  backgroundColor: colors.surface,
                   borderRadius: 16,
                 }}
               >
-                <Text style={{ color: "#666" }}>Waiting for Wi-Fi...</Text>
+                <Text style={{ color: colors.textMuted }}>
+                  Waiting for Wi-Fi...
+                </Text>
               </View>
             )}
 
             <View style={{ alignItems: "center", gap: 4 }}>
-              <Text style={{ color: "#666", fontSize: 12 }}>APP TOKEN</Text>
+              <SectionLabel>App token</SectionLabel>
               <Text
                 selectable
-                style={{ color: "#e5e5e5", fontSize: 14, fontWeight: "700" }}
+                style={{ color: colors.text, fontSize: 14, fontWeight: "700" }}
               >
                 {token
                   ? `${token.slice(0, 8)}...${token.slice(-4)}`
@@ -275,7 +269,8 @@ export function SyncSheet({
 
             <Text
               style={{
-                color: status.phase === "error" ? "#ef4444" : "#22c55e",
+                color:
+                  status.phase === "error" ? colors.danger : colors.success,
                 fontSize: 13,
               }}
             >
@@ -283,49 +278,40 @@ export function SyncSheet({
             </Text>
 
             {peer && (
-              <Text style={{ color: "#666", fontSize: 12 }}>
+              <Text style={{ color: colors.textMuted, fontSize: 12 }}>
                 Paired with {peer.host}:{peer.port}
               </Text>
             )}
 
-            <TouchableOpacity
+            <AppButton
               onPress={() => setMode("scan")}
               disabled={status.phase === "syncing"}
-              style={{
-                width: "100%",
-                backgroundColor: "#3b82f6",
-                borderRadius: 12,
-                padding: 15,
-                alignItems: "center",
-                opacity: status.phase === "syncing" ? 0.5 : 1,
-              }}
+              style={{ width: "100%" }}
             >
-              <Text style={{ color: "#fff", fontWeight: "800" }}>
-                Scan another app
-              </Text>
-            </TouchableOpacity>
+              Scan another app
+            </AppButton>
 
             <TouchableOpacity
               onPress={() => void syncNow()}
               disabled={!peer || status.phase === "syncing"}
               style={{
                 width: "100%",
-                backgroundColor: "#1a1a1a",
+                backgroundColor: colors.surfaceRaised,
                 borderRadius: 12,
                 padding: 15,
                 alignItems: "center",
                 borderWidth: 1,
-                borderColor: peer ? "#3b82f6" : "#2a2a2a",
+                borderColor: peer ? colors.brand : colors.border,
                 opacity: !peer || status.phase === "syncing" ? 0.5 : 1,
               }}
             >
-              <Text style={{ color: "#e5e5e5", fontWeight: "700" }}>
+              <Text style={{ color: colors.text, fontWeight: "700" }}>
                 Sync now
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={confirmNewGroup}>
-              <Text style={{ color: "#ef4444", fontSize: 13 }}>
+              <Text style={{ color: colors.danger, fontSize: 13 }}>
                 Create a new app token
               </Text>
             </TouchableOpacity>

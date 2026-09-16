@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { colors, radii, spacing } from "../../lib/theme";
 
 export function Toggle({
   label,
@@ -17,26 +18,28 @@ export function Toggle({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        paddingVertical: 10,
+        paddingVertical: spacing.md,
         borderBottomWidth: 1,
-        borderBottomColor: "#1a1a1a",
+        borderBottomColor: colors.border,
       }}
     >
-      <Text style={{ color: "#e5e5e5", fontSize: 14, flex: 1 }}>{label}</Text>
+      <Text style={{ color: colors.text, fontSize: 14, flex: 1 }}>{label}</Text>
       <View
         style={{
           width: 22,
           height: 22,
-          borderRadius: 6,
+          borderRadius: radii.sm,
           borderWidth: 2,
-          borderColor: value ? "#3b82f6" : "#3a3a3a",
-          backgroundColor: value ? "#3b82f6" : "transparent",
+          borderColor: value ? colors.brand : colors.borderStrong,
+          backgroundColor: value ? colors.brand : colors.transparent,
           alignItems: "center",
           justifyContent: "center",
         }}
       >
         {value && (
-          <Text style={{ color: "#fff", fontSize: 13, fontWeight: "800" }}>
+          <Text
+            style={{ color: colors.onBrand, fontSize: 13, fontWeight: "800" }}
+          >
             ✓
           </Text>
         )}

@@ -8,6 +8,7 @@ import { ProProvider } from "../components/auth/ProProvider";
 import { ToastProvider } from "../components/shared/Toast";
 import { useAppStore } from "../lib/store";
 import { autoSyncIfPaired, getAppToken } from "../lib/sync";
+import { colors } from "../lib/theme";
 import config from "../tamagui.config";
 
 export default function RootLayout() {
@@ -41,7 +42,7 @@ export default function RootLayout() {
             <Stack
               screenOptions={{
                 headerShown: false,
-                contentStyle: { backgroundColor: "#0a0a0a" },
+                contentStyle: { backgroundColor: colors.background },
               }}
             />
           </ToastProvider>

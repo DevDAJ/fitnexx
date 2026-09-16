@@ -1,14 +1,21 @@
-import { View, Text } from "react-native";
+import { Text, View } from "react-native";
+import { colors, radii, spacing } from "../../lib/theme";
 
-type BadgeVariant = "pr" | "improving" | "plateau" | "regression" | "new" | "neutral";
+type BadgeVariant =
+  | "pr"
+  | "improving"
+  | "plateau"
+  | "regression"
+  | "new"
+  | "neutral";
 
 const STYLES: Record<BadgeVariant, { bg: string; text: string }> = {
-  pr: { bg: "#fbbf24", text: "#000" },
-  improving: { bg: "#22c55e", text: "#000" },
-  plateau: { bg: "#f59e0b", text: "#000" },
-  regression: { bg: "#ef4444", text: "#fff" },
-  new: { bg: "#3b82f6", text: "#fff" },
-  neutral: { bg: "#333", text: "#aaa" },
+  pr: { bg: colors.warning, text: colors.onBrand },
+  improving: { bg: colors.success, text: colors.onBrand },
+  plateau: { bg: colors.warning, text: colors.onBrand },
+  regression: { bg: colors.dangerSolid, text: colors.text },
+  new: { bg: colors.brand, text: colors.onBrand },
+  neutral: { bg: colors.surfacePressed, text: colors.textSecondary },
 };
 
 export function Badge({
@@ -23,9 +30,9 @@ export function Badge({
     <View
       style={{
         backgroundColor: s.bg,
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-        borderRadius: 6,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs,
+        borderRadius: radii.sm,
         alignSelf: "flex-start",
       }}
     >

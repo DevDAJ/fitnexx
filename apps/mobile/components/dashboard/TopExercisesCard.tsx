@@ -1,4 +1,6 @@
-import { View, Text } from "react-native";
+import { Text, View } from "react-native";
+import { colors } from "../../lib/theme";
+import { Card, SectionLabel } from "../shared/ui";
 
 export default function TopExercisesCard({
   data,
@@ -9,25 +11,46 @@ export default function TopExercisesCard({
   const maxVol = Math.max(...items.map((d) => d.totalVolume), 1);
 
   return (
-    <View style={{ backgroundColor: "#161616", borderRadius: 14, padding: 16, borderWidth: 1, borderColor: "#222" }}>
-      <Text style={{ color: "#888", fontSize: 12, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 12 }}>
-        Top Exercises
-      </Text>
+    <Card>
+      <SectionLabel style={{ marginBottom: 12 }}>Top Exercises</SectionLabel>
       {items.map((d, i) => {
         const pct = d.totalVolume / maxVol;
         return (
-          <View key={d.name} style={{ marginBottom: i < items.length - 1 ? 10 : 0 }}>
-            <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 4 }}>
-              <Text style={{ color: "#e5e5e5", fontSize: 13, fontWeight: "600" }} numberOfLines={1}>{d.name}</Text>
-              <Text style={{ color: "#888", fontSize: 12 }}>{d.totalVolume.toLocaleString()}</Text>
+          <View
+            key={d.name}
+            style={{ marginBottom: i < items.length - 1 ? 10 : 0 }}
+          >
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                marginBottom: 4,
+              }}
+            >
+              <Text
+                style={{ color: colors.text, fontSize: 13, fontWeight: "600" }}
+                numberOfLines={1}
+              >
+                {d.name}
+              </Text>
+              <Text style={{ color: colors.textSecondary, fontSize: 12 }}>
+                {d.totalVolume.toLocaleString()}
+              </Text>
             </View>
-            <View style={{ height: 6, borderRadius: 3, backgroundColor: "#222", overflow: "hidden" }}>
+            <View
+              style={{
+                height: 6,
+                borderRadius: 3,
+                backgroundColor: colors.surfacePressed,
+                overflow: "hidden",
+              }}
+            >
               <View
                 style={{
                   height: 6,
                   borderRadius: 3,
                   width: `${pct * 100}%`,
-                  backgroundColor: "#3b82f6",
+                  backgroundColor: colors.brand,
                   opacity: 0.6 + pct * 0.4,
                 }}
               />
@@ -35,6 +58,6 @@ export default function TopExercisesCard({
           </View>
         );
       })}
-    </View>
+    </Card>
   );
 }

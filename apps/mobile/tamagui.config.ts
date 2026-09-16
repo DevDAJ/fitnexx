@@ -1,5 +1,6 @@
 import { config } from "@tamagui/config/v3";
 import { createTamagui } from "tamagui";
+import { colors } from "./lib/theme";
 
 const appConfig = createTamagui({
   ...config,
@@ -7,13 +8,13 @@ const appConfig = createTamagui({
     ...config.themes,
     dark: {
       ...config.themes.dark,
-      background: "#0a0a0a",
-      backgroundHover: "#1a1a1a",
-      backgroundPress: "#222222",
-      color: "#e5e5e5",
-      colorHover: "#ffffff",
-      borderColor: "#2a2a2a",
-      placeholderColor: "#666666",
+      background: colors.background,
+      backgroundHover: colors.surfaceRaised,
+      backgroundPress: colors.surfacePressed,
+      color: colors.text,
+      colorHover: colors.text,
+      borderColor: colors.border,
+      placeholderColor: colors.textMuted,
     },
   },
 });

@@ -1,5 +1,6 @@
 import { Heading, Text, View, YStack } from "@fitnexx/ui";
 import type { ReactNode } from "react";
+import { PageIntro } from "@/components/home/motion";
 import { HomepageNavbar } from "@/components/homepage-navbar";
 import { SiteFooter } from "@/components/site-footer";
 
@@ -15,50 +16,73 @@ export function LegalDocumentPage({
   children,
 }: LegalDocumentPageProps) {
   return (
-    <View
-      style={{ display: "flex", minHeight: "100vh", flexDirection: "column" }}
-    >
-      <HomepageNavbar />
+    <PageIntro>
       <View
-        className="route-hero"
-        flex={1}
-        tag="main"
-        paddingVertical={56}
-        paddingHorizontal={16}
-        $sm={{ paddingVertical: 40 }}
+        style={{ display: "flex", minHeight: "100vh", flexDirection: "column" }}
       >
-        <YStack
-          className="legal"
-          tag="article"
-          maxWidth={680}
-          width="100%"
-          marginLeft="auto"
-          marginRight="auto"
-          gap={16}
+        <HomepageNavbar />
+        <View
+          className="route-hero"
+          flex={1}
+          tag="main"
+          paddingVertical={72}
+          paddingHorizontal={16}
+          $sm={{ paddingVertical: 48 }}
         >
-          <YStack
-            gap={8}
-            borderLeftWidth={2}
-            borderColor="rgba(59,130,246,0.4)"
-            paddingLeft={20}
+          <View
+            maxWidth={1120}
+            width="100%"
+            marginLeft="auto"
+            marginRight="auto"
+            flexDirection="row"
+            alignItems="flex-start"
+            gap={88}
+            $sm={{ flexDirection: "column", gap: 40 }}
           >
-            <Heading
-              tag="h1"
-              fontSize={32}
-              fontWeight="800"
-              color="$color"
-              $sm={{ fontSize: 28 }}
+            <YStack width={280} flexShrink={0} gap={20} $sm={{ width: "100%" }}>
+              <Heading
+                tag="h1"
+                fontSize={42}
+                lineHeight={46}
+                fontWeight="800"
+                color="$color"
+                $sm={{ fontSize: 34, lineHeight: 38 }}
+              >
+                {title}
+              </Heading>
+              <YStack
+                gap={6}
+                borderTopWidth={1}
+                borderColor="$borderColor"
+                paddingTop={16}
+              >
+                <Text color="$subtle" fontSize={12} fontStyle="normal">
+                  Last updated
+                </Text>
+                <Text color="$color" fontSize={14} fontWeight="600">
+                  {lastUpdated}
+                </Text>
+              </YStack>
+            </YStack>
+            <YStack
+              className="legal"
+              tag="article"
+              maxWidth={720}
+              width="100%"
+              gap={18}
+              padding={32}
+              borderWidth={1}
+              borderColor="$borderColor"
+              borderRadius={18}
+              backgroundColor="rgba(14,14,14,0.72)"
+              $sm={{ padding: 20 }}
             >
-              {title}
-            </Heading>
-            <Text color="$subtle" fontSize={12} fontStyle="normal">
-              Last updated: {lastUpdated}
-            </Text>
-          </YStack>
-          {children}
-        </YStack>
+              {children}
+            </YStack>
+          </View>
+        </View>
+        <SiteFooter />
       </View>
-      <SiteFooter />
-    </View>
+    </PageIntro>
   );
 }

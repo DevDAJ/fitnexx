@@ -1,4 +1,5 @@
 import { Image, Text, TouchableOpacity, View } from "react-native";
+import { colors } from "../../lib/theme";
 import type { Workout, WorkoutSet } from "../../lib/types";
 import { SET_TYPE_COLORS, SET_TYPE_LABELS } from "../../lib/types";
 import { useExerciseEquipment } from "../../lib/useExerciseEquipment";
@@ -43,10 +44,10 @@ export function SessionCard({
   return (
     <View
       style={{
-        backgroundColor: "#161616",
+        backgroundColor: colors.surface,
         borderRadius: 14,
         borderWidth: 1,
-        borderColor: "#222",
+        borderColor: colors.border,
         marginBottom: 8,
       }}
     >
@@ -63,10 +64,14 @@ export function SessionCard({
           }}
         >
           <View style={{ flex: 1 }}>
-            <Text style={{ color: "#e5e5e5", fontSize: 16, fontWeight: "700" }}>
+            <Text
+              style={{ color: colors.text, fontSize: 16, fontWeight: "700" }}
+            >
               {workout.title}
             </Text>
-            <Text style={{ color: "#666", fontSize: 13, marginTop: 2 }}>
+            <Text
+              style={{ color: colors.textMuted, fontSize: 13, marginTop: 2 }}
+            >
               {dayName}, {dateStr}
             </Text>
           </View>
@@ -86,19 +91,21 @@ export function SessionCard({
             alignItems: "center",
           }}
         >
-          <Text style={{ color: "#888", fontSize: 12 }}>
+          <Text style={{ color: colors.textSecondary, fontSize: 12 }}>
             {workout.exercises.length} exercises
           </Text>
-          <Text style={{ color: "#888", fontSize: 12 }}>
+          <Text style={{ color: colors.textSecondary, fontSize: 12 }}>
             {formatVol(workout.totalVolume)} vol
           </Text>
           {durationMin > 0 && (
-            <Text style={{ color: "#888", fontSize: 12 }}>{durationMin}m</Text>
+            <Text style={{ color: colors.textSecondary, fontSize: 12 }}>
+              {durationMin}m
+            </Text>
           )}
           {delta && delta.volume !== 0 && (
             <View
               style={{
-                backgroundColor: delta.volume > 0 ? "#22c55e15" : "#ef444415",
+                backgroundColor: colors.surfaceRaised,
                 paddingHorizontal: 6,
                 paddingVertical: 2,
                 borderRadius: 4,
@@ -106,7 +113,7 @@ export function SessionCard({
             >
               <Text
                 style={{
-                  color: delta.volume > 0 ? "#22c55e" : "#ef4444",
+                  color: delta.volume > 0 ? colors.success : colors.danger,
                   fontSize: 11,
                   fontWeight: "600",
                 }}
@@ -123,7 +130,7 @@ export function SessionCard({
         <View
           style={{
             borderTopWidth: 1,
-            borderTopColor: "#222",
+            borderTopColor: colors.border,
             paddingVertical: 12,
             paddingHorizontal: 16,
           }}
@@ -134,7 +141,7 @@ export function SessionCard({
                 <View
                   style={{
                     height: 1,
-                    backgroundColor: "#222",
+                    backgroundColor: colors.border,
                     marginVertical: 8,
                   }}
                 />
@@ -156,7 +163,11 @@ export function SessionCard({
                   />
                 )}
                 <Text
-                  style={{ color: "#3b82f6", fontSize: 14, fontWeight: "600" }}
+                  style={{
+                    color: colors.brand,
+                    fontSize: 14,
+                    fontWeight: "600",
+                  }}
                 >
                   {ex.exerciseName}
                 </Text>
@@ -173,7 +184,7 @@ export function SessionCard({
 }
 
 function SetRow({ set, index }: { set: WorkoutSet; index: number }) {
-  const typeColor = SET_TYPE_COLORS[set.setType] || "#666";
+  const typeColor = SET_TYPE_COLORS[set.setType] || colors.textMuted;
   const typeLabel = SET_TYPE_LABELS[set.setType] || set.setType;
 
   return (
@@ -186,14 +197,16 @@ function SetRow({ set, index }: { set: WorkoutSet; index: number }) {
         alignItems: "center",
       }}
     >
-      <Text style={{ color: "#666", fontSize: 12, width: 18 }}>
+      <Text style={{ color: colors.textMuted, fontSize: 12, width: 18 }}>
         {index + 1}.
       </Text>
-      <Text style={{ color: "#aaa", fontSize: 12 }}>
+      <Text style={{ color: colors.textSecondary, fontSize: 12 }}>
         {set.weight > 0 ? `${set.weight}kg` : "BW"} x {set.reps}
       </Text>
       {set.rpe != null && (
-        <Text style={{ color: "#666", fontSize: 11 }}>RPE {set.rpe}</Text>
+        <Text style={{ color: colors.textMuted, fontSize: 11 }}>
+          RPE {set.rpe}
+        </Text>
       )}
       {typeLabel && set.setType !== "normal" && (
         <View
@@ -210,7 +223,9 @@ function SetRow({ set, index }: { set: WorkoutSet; index: number }) {
         </View>
       )}
       {set.isPr && (
-        <Text style={{ color: "#fbbf24", fontSize: 11, fontWeight: "700" }}>
+        <Text
+          style={{ color: colors.warning, fontSize: 11, fontWeight: "700" }}
+        >
           PR
         </Text>
       )}

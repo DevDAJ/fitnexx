@@ -12,7 +12,7 @@
   "dependencies": {
     "@fitnexx/ai": "workspace:*",
     "@fitnexx/ui": "workspace:*",
-    "@react-spring/web": "^10.1.2",
+    "@gsap/react": "^2.1.2",
     "@supabase/supabase-js": "^2.116.0",
     "@tamagui/next-plugin": "1.144.4",
     "@tamagui/next-theme": "1.144.4",

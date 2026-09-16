@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import type { TextStyle } from "react-native";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { colors } from "../../lib/theme";
 import type { WorkoutSet } from "../../lib/types";
 
 export function SetRow({
@@ -21,14 +22,14 @@ export function SetRow({
   const [showNotes, setShowNotes] = useState(Boolean(set.notes));
 
   const inputStyle: TextStyle = {
-    backgroundColor: "#1a1a1a",
+    backgroundColor: colors.surfaceRaised,
     borderRadius: 8,
     padding: 8,
-    color: "#fff",
+    color: colors.text,
     fontSize: 14,
     textAlign: "center",
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: colors.border,
   };
 
   return (
@@ -42,7 +43,7 @@ export function SetRow({
       >
         <Text
           style={{
-            color: "#666",
+            color: colors.textMuted,
             fontSize: 13,
             width: 24,
             textAlign: "center",
@@ -53,7 +54,7 @@ export function SetRow({
 
         <TextInput
           placeholder="0"
-          placeholderTextColor="#444"
+          placeholderTextColor={colors.textMuted}
           keyboardType="decimal-pad"
           returnKeyType="next"
           selectTextOnFocus
@@ -66,7 +67,7 @@ export function SetRow({
         <TextInput
           ref={repsRef}
           placeholder="0"
-          placeholderTextColor="#444"
+          placeholderTextColor={colors.textMuted}
           keyboardType="number-pad"
           returnKeyType="next"
           selectTextOnFocus
@@ -79,7 +80,7 @@ export function SetRow({
         <TextInput
           ref={rpeRef}
           placeholder="RPE"
-          placeholderTextColor="#444"
+          placeholderTextColor={colors.textMuted}
           keyboardType="decimal-pad"
           returnKeyType="done"
           selectTextOnFocus
@@ -96,7 +97,7 @@ export function SetRow({
         >
           <Text
             style={{
-              color: set.notes ? "#3b82f6" : "#555",
+              color: set.notes ? colors.brand : colors.textMuted,
               fontSize: 16,
               fontWeight: "700",
             }}
@@ -110,13 +111,15 @@ export function SetRow({
         {set.isPr && (
           <View
             style={{
-              backgroundColor: "#fbbf24",
+              backgroundColor: colors.warning,
               borderRadius: 6,
               paddingHorizontal: 6,
               paddingVertical: 2,
             }}
           >
-            <Text style={{ color: "#000", fontSize: 10, fontWeight: "800" }}>
+            <Text
+              style={{ color: colors.onBrand, fontSize: 10, fontWeight: "800" }}
+            >
               PR
             </Text>
           </View>
@@ -125,7 +128,11 @@ export function SetRow({
         {showRemove && (
           <TouchableOpacity onPress={onRemove}>
             <Text
-              style={{ color: "#ef4444", fontSize: 18, paddingHorizontal: 4 }}
+              style={{
+                color: colors.danger,
+                fontSize: 18,
+                paddingHorizontal: 4,
+              }}
             >
               ×
             </Text>
@@ -136,20 +143,20 @@ export function SetRow({
       {(showNotes || set.notes) && (
         <TextInput
           placeholder="Notes (e.g. paused 3s at the bottom)"
-          placeholderTextColor="#444"
+          placeholderTextColor={colors.textMuted}
           value={set.notes ?? ""}
           onChangeText={(t) => onUpdate({ notes: t || undefined })}
           multiline
           style={{
-            backgroundColor: "#1a1a1a",
+            backgroundColor: colors.surfaceRaised,
             borderRadius: 8,
             padding: 8,
             marginTop: 6,
             marginLeft: 32,
-            color: "#ccc",
+            color: colors.textSecondary,
             fontSize: 13,
             borderWidth: 1,
-            borderColor: "#2a2a2a",
+            borderColor: colors.border,
           }}
         />
       )}

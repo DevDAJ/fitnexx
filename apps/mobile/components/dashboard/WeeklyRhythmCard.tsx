@@ -1,5 +1,6 @@
-import { View, Text } from "react-native";
-import Svg, { Rect, Text as SvgText, Line } from "react-native-svg";
+import Svg, { Line, Rect, Text as SvgText } from "react-native-svg";
+import { colors } from "../../lib/theme";
+import { Card, SectionLabel } from "../shared/ui";
 
 export default function WeeklyRhythmCard({
   data,
@@ -16,33 +17,38 @@ export default function WeeklyRhythmCard({
   const barW = Math.min(cw / days.length - 4, 30);
 
   return (
-    <View style={{ backgroundColor: "#161616", borderRadius: 14, padding: 16, borderWidth: 1, borderColor: "#222" }}>
-      <Text style={{ color: "#888", fontSize: 12, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>
-        Weekly Rhythm
-      </Text>
+    <Card>
+      <SectionLabel style={{ marginBottom: 8 }}>Weekly Rhythm</SectionLabel>
       <Svg width={W} height={H}>
-        <Line x1={pad} y1={H - pad} x2={W - pad} y2={H - pad} stroke="#333" strokeWidth={1} />
+        <Line
+          x1={pad}
+          y1={H - pad}
+          x2={W - pad}
+          y2={H - pad}
+          stroke={colors.borderStrong}
+          strokeWidth={1}
+        />
         {days.map((d, i) => {
           const barH = (d.sessions / max) * ch;
           const x = pad + (i / days.length) * cw + 2;
           return (
             <Rect
-              key={i}
+              key={`bar-${d.day}`}
               x={x}
               y={H - pad - barH}
               width={barW}
               height={barH || 2}
-              fill={d.sessions > 0 ? "#3b82f6" : "#222"}
+              fill={d.sessions > 0 ? colors.brand : colors.surfacePressed}
               rx={3}
             />
           );
         })}
         {days.map((d, i) => (
           <SvgText
-            key={i}
+            key={`label-${d.day}`}
             x={pad + (i / days.length) * cw + barW / 2 + 2}
             y={H - 8}
-            fill="#666"
+            fill={colors.textMuted}
             fontSize={10}
             textAnchor="middle"
           >
@@ -50,6 +56,6 @@ export default function WeeklyRhythmCard({
           </SvgText>
         ))}
       </Svg>
-    </View>
+    </Card>
   );
 }

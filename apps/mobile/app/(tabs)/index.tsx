@@ -1,6 +1,6 @@
 import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
-import { RefreshControl, ScrollView, Text, View } from "react-native";
+import { RefreshControl, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ActivityHeatmap } from "../../components/dashboard/ActivityHeatmap";
 import InjuryRiskCard from "../../components/dashboard/InjuryRiskCard";
@@ -18,6 +18,7 @@ import VolumeDensityCard from "../../components/dashboard/VolumeDensityCard";
 import { WaterCard } from "../../components/dashboard/WaterCard";
 import WeeklyRhythmCard from "../../components/dashboard/WeeklyRhythmCard";
 import { WeeklySetsChart } from "../../components/dashboard/WeeklySetsChart";
+import { ScreenTitle, SectionLabel } from "../../components/shared/ui";
 import { MUSCLE_COLORS } from "../../constants/muscles";
 import { computeInjuryRisk } from "../../lib/analysis/injuryRisk";
 import { computeIntensityEvolution } from "../../lib/analysis/intensityEvolution";
@@ -35,7 +36,8 @@ import { computeVolumeDensity } from "../../lib/analysis/volumeDensity";
 import { computeWeeklyRhythm } from "../../lib/analysis/weeklyRhythm";
 import { computeWeeklySets } from "../../lib/analysis/weeklySets";
 import { useAppStore } from "../../lib/store";
-import type { DailySummary, MuscleWeeklyData } from "../../lib/types";
+import { colors, spacing } from "../../lib/theme";
+import type { DailySummary } from "../../lib/types";
 
 const WINDOW_DAYS = 90;
 
@@ -100,10 +102,10 @@ export default function DashboardScreen() {
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: "#0a0a0a" }}
+      style={{ flex: 1, backgroundColor: colors.background }}
       contentContainerStyle={{
         paddingTop: insets.top + 16,
-        paddingHorizontal: 16,
+        paddingHorizontal: spacing.screen,
         paddingBottom: 100,
         gap: 12,
       }}
@@ -111,13 +113,11 @@ export default function DashboardScreen() {
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
-          tintColor="#3b82f6"
+          tintColor={colors.brand}
         />
       }
     >
-      <Text style={{ color: "#fff", fontSize: 28, fontWeight: "800" }}>
-        Dashboard
-      </Text>
+      <ScreenTitle>Dashboard</ScreenTitle>
 
       {/* KPI Row */}
       <View style={{ flexDirection: "row", gap: 10 }}>
@@ -127,7 +127,7 @@ export default function DashboardScreen() {
           subtitle="last 30 days"
           delta={calcDelta(prCount30d, prCountPrev)}
           sparkData={prSpark}
-          color="#fbbf24"
+          color={colors.warning}
         />
         <KpiCard
           title="Volume"
@@ -135,7 +135,7 @@ export default function DashboardScreen() {
           subtitle="last 30 days"
           delta={calcDelta(volume30d, volumePrev)}
           sparkData={volSpark}
-          color="#3b82f6"
+          color={colors.brand}
         />
       </View>
       <KpiCard
@@ -143,15 +143,18 @@ export default function DashboardScreen() {
         value={avgWeeklySets.toFixed(1)}
         subtitle="avg sets / muscle / week"
         delta={{ value: 0, direction: "same" }}
-        color="#8b5cf6"
+        color={colors.brand}
       />
 
+      <SectionLabel style={{ marginTop: spacing.sm }}>Today</SectionLabel>
       <WaterCard />
 
       <StreakCard />
       <NutritionRecapCard />
 
-      {/* Charts */}
+      <SectionLabel style={{ marginTop: spacing.md }}>
+        Training analytics
+      </SectionLabel>
       <PrTrendCard data={prTrendData} />
       <VolumeDensityCard data={volumeDensityData} />
       <MuscleTrendCard data={muscleTrendData} muscleColors={MUSCLE_COLORS} />

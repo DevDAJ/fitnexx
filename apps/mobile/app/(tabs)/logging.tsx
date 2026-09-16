@@ -1,14 +1,7 @@
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import {
-  Alert,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ExerciseSuggestions } from "../../components/ExerciseSuggestions";
 import { ExerciseBlock } from "../../components/logging/ExerciseBlock";
@@ -20,6 +13,12 @@ import { ScheduleSetup } from "../../components/ScheduleSetup";
 import { ExerciseInfoSheet } from "../../components/shared/ExerciseInfoSheet";
 import { SegmentedControl } from "../../components/shared/SegmentedControl";
 import { useToast } from "../../components/shared/Toast";
+import {
+  AppButton,
+  AppTextInput,
+  EmptyState,
+  ScreenTitle,
+} from "../../components/shared/ui";
 import { TodaySchedule } from "../../components/TodaySchedule";
 import {
   detectPrs,
@@ -28,6 +27,7 @@ import {
 import { isExerciseAvailable } from "../../lib/gyms";
 import { useAppStore } from "../../lib/store";
 import { saveWorkoutAsTemplate } from "../../lib/templates";
+import { colors, spacing } from "../../lib/theme";
 import type {
   ExerciseAsset,
   ExerciseEntry,
@@ -174,17 +174,15 @@ export default function LoggingScreen() {
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: "#0a0a0a" }}
+      style={{ flex: 1, backgroundColor: colors.background }}
       contentContainerStyle={{
         paddingTop: insets.top + 16,
-        paddingHorizontal: 16,
+        paddingHorizontal: spacing.screen,
         paddingBottom: 100,
         gap: 12,
       }}
     >
-      <Text style={{ color: "#fff", fontSize: 28, fontWeight: "800" }}>
-        Workouts
-      </Text>
+      <ScreenTitle>Workouts</ScreenTitle>
 
       <SegmentedControl
         options={[
@@ -197,14 +195,10 @@ export default function LoggingScreen() {
 
       {view === "history" ? (
         workouts.length === 0 ? (
-          <View style={{ alignItems: "center", paddingVertical: 48 }}>
-            <Text style={{ color: "#666", fontSize: 15, textAlign: "center" }}>
-              No workouts logged yet.
-            </Text>
-            <Text style={{ color: "#555", fontSize: 13, marginTop: 4 }}>
-              Switch to Log and start training.
-            </Text>
-          </View>
+          <EmptyState
+            title="No workouts logged yet"
+            description="Switch to Log and start training."
+          />
         ) : (
           <View style={{ marginTop: 4 }}>
             {workouts.map((workout, wi) => {
@@ -231,15 +225,19 @@ export default function LoggingScreen() {
           {currentGym && (
             <View
               style={{
-                backgroundColor: "#102a1a",
+                backgroundColor: colors.surfaceRaised,
                 borderRadius: 10,
                 padding: 12,
                 borderWidth: 1,
-                borderColor: "#22c55e",
+                borderColor: colors.success,
               }}
             >
               <Text
-                style={{ color: "#22c55e", fontSize: 13, fontWeight: "700" }}
+                style={{
+                  color: colors.success,
+                  fontSize: 13,
+                  fontWeight: "700",
+                }}
               >
                 ✓ At {currentGym.name}
               </Text>
@@ -251,15 +249,17 @@ export default function LoggingScreen() {
           <TouchableOpacity
             onPress={() => setShowScheduleSetup(true)}
             style={{
-              backgroundColor: "#161616",
+              backgroundColor: colors.surface,
               borderRadius: 10,
               padding: 14,
               borderWidth: 1,
-              borderColor: "#2a2a2a",
+              borderColor: colors.border,
               alignItems: "center",
             }}
           >
-            <Text style={{ color: "#8b5cf6", fontSize: 14, fontWeight: "600" }}>
+            <Text
+              style={{ color: colors.brand, fontSize: 14, fontWeight: "600" }}
+            >
               Schedule
             </Text>
           </TouchableOpacity>
@@ -272,12 +272,14 @@ export default function LoggingScreen() {
                 paddingHorizontal: 24,
               }}
             >
-              <Text style={{ color: "#fff", fontSize: 22, fontWeight: "800" }}>
+              <Text
+                style={{ color: colors.text, fontSize: 22, fontWeight: "800" }}
+              >
                 Ready to train?
               </Text>
               <Text
                 style={{
-                  color: "#666",
+                  color: colors.textSecondary,
                   fontSize: 14,
                   marginTop: 6,
                   textAlign: "center",
@@ -286,60 +288,23 @@ export default function LoggingScreen() {
                 Add an exercise or load a template to get your sets in.
               </Text>
               <View style={{ flexDirection: "row", gap: 10, marginTop: 20 }}>
-                <TouchableOpacity
-                  onPress={() => setShowExercisePicker(true)}
-                  style={{
-                    backgroundColor: "#3b82f6",
-                    borderRadius: 12,
-                    paddingHorizontal: 22,
-                    paddingVertical: 14,
-                  }}
-                >
-                  <Text
-                    style={{ color: "#fff", fontSize: 15, fontWeight: "700" }}
-                  >
-                    + Add Exercise
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
+                <AppButton onPress={() => setShowExercisePicker(true)}>
+                  + Add Exercise
+                </AppButton>
+                <AppButton
                   onPress={() => setShowTemplatePicker(true)}
-                  style={{
-                    backgroundColor: "#161616",
-                    borderRadius: 12,
-                    paddingHorizontal: 22,
-                    paddingVertical: 14,
-                    borderWidth: 1,
-                    borderColor: "#2a2a2a",
-                  }}
+                  variant="secondary"
                 >
-                  <Text
-                    style={{
-                      color: "#8b5cf6",
-                      fontSize: 15,
-                      fontWeight: "700",
-                    }}
-                  >
-                    Load Template
-                  </Text>
-                </TouchableOpacity>
+                  Load Template
+                </AppButton>
               </View>
             </View>
           ) : (
             <>
-              <TextInput
+              <AppTextInput
                 placeholder="Workout title (optional)"
-                placeholderTextColor="#555"
                 value={title}
                 onChangeText={setTitle}
-                style={{
-                  backgroundColor: "#161616",
-                  borderRadius: 10,
-                  padding: 14,
-                  color: "#fff",
-                  fontSize: 16,
-                  borderWidth: 1,
-                  borderColor: "#2a2a2a",
-                }}
               />
 
               <View style={{ flexDirection: "row", gap: 8 }}>
@@ -347,17 +312,17 @@ export default function LoggingScreen() {
                   onPress={() => setShowTemplatePicker(true)}
                   style={{
                     flex: 1,
-                    backgroundColor: "#161616",
+                    backgroundColor: colors.surface,
                     borderRadius: 10,
                     padding: 14,
                     borderWidth: 1,
-                    borderColor: "#2a2a2a",
+                    borderColor: colors.border,
                     alignItems: "center",
                   }}
                 >
                   <Text
                     style={{
-                      color: "#8b5cf6",
+                      color: colors.brand,
                       fontSize: 14,
                       fontWeight: "600",
                     }}
@@ -369,17 +334,17 @@ export default function LoggingScreen() {
                   onPress={saveAsTemplate}
                   style={{
                     flex: 1,
-                    backgroundColor: "#161616",
+                    backgroundColor: colors.surface,
                     borderRadius: 10,
                     padding: 14,
                     borderWidth: 1,
-                    borderColor: "#2a2a2a",
+                    borderColor: colors.border,
                     alignItems: "center",
                   }}
                 >
                   <Text
                     style={{
-                      color: "#f59e0b",
+                      color: colors.warning,
                       fontSize: 14,
                       fontWeight: "600",
                     }}
@@ -400,17 +365,17 @@ export default function LoggingScreen() {
                     {missing && (
                       <View
                         style={{
-                          backgroundColor: "#2a1f10",
+                          backgroundColor: colors.surfaceRaised,
                           borderRadius: 8,
                           padding: 8,
                           marginBottom: 4,
                           borderWidth: 1,
-                          borderColor: "#f59e0b",
+                          borderColor: colors.warning,
                         }}
                       >
                         <Text
                           style={{
-                            color: "#f59e0b",
+                            color: colors.warning,
                             fontSize: 12,
                             fontWeight: "600",
                           }}
@@ -434,17 +399,21 @@ export default function LoggingScreen() {
               <TouchableOpacity
                 onPress={() => setShowExercisePicker(true)}
                 style={{
-                  backgroundColor: "#161616",
+                  backgroundColor: colors.surface,
                   borderRadius: 14,
                   padding: 16,
                   borderWidth: 1,
-                  borderColor: "#3b82f6",
+                  borderColor: colors.brand,
                   borderStyle: "dashed",
                   alignItems: "center",
                 }}
               >
                 <Text
-                  style={{ color: "#3b82f6", fontSize: 15, fontWeight: "700" }}
+                  style={{
+                    color: colors.brand,
+                    fontSize: 15,
+                    fontWeight: "700",
+                  }}
                 >
                   + Add Exercise
                 </Text>
@@ -452,33 +421,37 @@ export default function LoggingScreen() {
 
               <RestTimer />
 
-              <TouchableOpacity
+              <AppButton
                 onPress={saveWorkout}
                 style={{
-                  backgroundColor: "#22c55e",
-                  borderRadius: 14,
-                  padding: 18,
-                  alignItems: "center",
+                  backgroundColor: colors.success,
+                  borderColor: colors.success,
+                  minHeight: 62,
                   marginTop: 4,
                 }}
               >
-                <Text
-                  style={{ color: "#fff", fontSize: 17, fontWeight: "800" }}
-                >
-                  Save Workout
-                </Text>
-                <Text
-                  style={{
-                    color: "#fff",
-                    fontSize: 13,
-                    opacity: 0.8,
-                    marginTop: 2,
-                  }}
-                >
-                  {exercises.length} exercises |{" "}
-                  {formatVolume(calculateTotalVolume())} volume
-                </Text>
-              </TouchableOpacity>
+                <View style={{ alignItems: "center" }}>
+                  <Text
+                    style={{
+                      color: colors.onBrand,
+                      fontSize: 17,
+                      fontWeight: "800",
+                    }}
+                  >
+                    Save Workout
+                  </Text>
+                  <Text
+                    style={{
+                      color: colors.onBrand,
+                      fontSize: 13,
+                      marginTop: 2,
+                    }}
+                  >
+                    {exercises.length} exercises |{" "}
+                    {formatVolume(calculateTotalVolume())} volume
+                  </Text>
+                </View>
+              </AppButton>
 
               <ExerciseSuggestions />
             </>

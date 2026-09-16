@@ -5,7 +5,6 @@ import {
   ActivityIndicator,
   Alert,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -13,7 +12,9 @@ import {
 import { getAIKey, getAIModels, saveAIConfiguration } from "../../lib/ai";
 import { storage } from "../../lib/storage";
 import { useAppStore } from "../../lib/store";
+import { colors } from "../../lib/theme";
 import { useAuth } from "../auth/AuthProvider";
+import { AppButton, AppTextInput, Card, SectionLabel } from "../shared/ui";
 import { Autocomplete } from "./Autocomplete";
 
 const PROVIDERS = AI_PROVIDERS.filter(
@@ -110,28 +111,11 @@ export function AISettingsCard() {
 
   return (
     <View style={{ gap: 12 }}>
-      <View
-        style={{
-          backgroundColor: "#161616",
-          borderColor: "#222",
-          borderRadius: 14,
-          borderWidth: 1,
-          padding: 16,
-        }}
-      >
+      <Card style={{}}>
+        <SectionLabel>Account</SectionLabel>
         <Text
           style={{
-            color: "#888",
-            fontSize: 12,
-            fontWeight: "600",
-            letterSpacing: 0.5,
-          }}
-        >
-          ACCOUNT
-        </Text>
-        <Text
-          style={{
-            color: "#666",
+            color: colors.textSecondary,
             fontSize: 13,
             marginBottom: 12,
             marginTop: 4,
@@ -145,15 +129,17 @@ export function AISettingsCard() {
           onPress={() => (user ? void signOut() : router.push("/auth"))}
           style={{
             alignItems: "center",
-            backgroundColor: "#1a1a1a",
-            borderColor: "#2a2a2a",
+            backgroundColor: colors.surfaceRaised,
+            borderColor: colors.border,
             borderRadius: 10,
             borderWidth: 1,
             opacity: configured ? 1 : 0.45,
             padding: 13,
           }}
         >
-          <Text style={{ color: "#60a5fa", fontSize: 14, fontWeight: "700" }}>
+          <Text
+            style={{ color: colors.brand, fontSize: 14, fontWeight: "700" }}
+          >
             {user
               ? "Sign out"
               : configured
@@ -161,16 +147,11 @@ export function AISettingsCard() {
                 : "Auth not configured"}
           </Text>
         </TouchableOpacity>
-      </View>
+      </Card>
 
-      <View
+      <Card
         style={{
-          backgroundColor: "#161616",
-          borderColor: "#222",
-          borderRadius: 14,
-          borderWidth: 1,
           gap: 12,
-          padding: 16,
         }}
       >
         <View
@@ -181,17 +162,14 @@ export function AISettingsCard() {
           }}
         >
           <View style={{ flex: 1 }}>
+            <SectionLabel>AI Provider</SectionLabel>
             <Text
               style={{
-                color: "#888",
-                fontSize: 12,
-                fontWeight: "600",
-                letterSpacing: 0.5,
+                color: colors.textSecondary,
+                fontSize: 13,
+                marginTop: 4,
               }}
             >
-              AI PROVIDER
-            </Text>
-            <Text style={{ color: "#666", fontSize: 13, marginTop: 4 }}>
               {usingPro
                 ? "Use Fitnexx-managed models."
                 : "Use your own key without an account."}
@@ -207,16 +185,20 @@ export function AISettingsCard() {
               }
               style={{
                 backgroundColor:
-                  settings.provider === "custom" ? "#3b82f6" : "#1a1a1a",
+                  settings.provider === "custom"
+                    ? colors.brand
+                    : colors.surfaceRaised,
                 borderColor:
-                  settings.provider === "custom" ? "#3b82f6" : "#2a2a2a",
+                  settings.provider === "custom" ? colors.brand : colors.border,
                 borderRadius: 8,
                 borderWidth: 1,
                 paddingHorizontal: 10,
                 paddingVertical: 7,
               }}
             >
-              <Text style={{ color: "#fff", fontSize: 11, fontWeight: "700" }}>
+              <Text
+                style={{ color: colors.text, fontSize: 11, fontWeight: "700" }}
+              >
                 {settings.provider === "custom" ? "Providers" : "Custom URL"}
               </Text>
             </TouchableOpacity>
@@ -249,14 +231,21 @@ export function AISettingsCard() {
                 style={{
                   alignItems: "center",
                   backgroundColor:
-                    usingPro === mode.value ? "#3b82f6" : "#101010",
+                    usingPro === mode.value
+                      ? colors.brand
+                      : colors.surfaceRaised,
                   borderRadius: 9,
                   flex: 1,
                   padding: 10,
                 }}
               >
                 <Text
-                  style={{ color: "#fff", fontSize: 12, fontWeight: "700" }}
+                  style={{
+                    color:
+                      usingPro === mode.value ? colors.onBrand : colors.text,
+                    fontSize: 12,
+                    fontWeight: "700",
+                  }}
                 >
                   {mode.label}
                 </Text>
@@ -267,10 +256,10 @@ export function AISettingsCard() {
 
         {settings.provider === "custom" && !usingPro ? (
           <View style={{ gap: 6 }}>
-            <Text style={{ color: "#888", fontSize: 12 }}>
+            <Text style={{ color: colors.textSecondary, fontSize: 12 }}>
               OpenAI-compatible base URL
             </Text>
-            <TextInput
+            <AppTextInput
               autoCapitalize="none"
               autoCorrect={false}
               keyboardType="url"
@@ -278,13 +267,8 @@ export function AISettingsCard() {
                 setSettings({ ...settings, customUrl })
               }
               placeholder="http://localhost:11434/v1"
-              placeholderTextColor="#666"
               style={{
-                backgroundColor: "#101010",
-                borderColor: "#2a2a2a",
                 borderRadius: 10,
-                borderWidth: 1,
-                color: "#fff",
                 padding: 12,
               }}
               value={settings.customUrl ?? ""}
@@ -302,23 +286,20 @@ export function AISettingsCard() {
 
         {!usingPro ? (
           <View style={{ gap: 6 }}>
-            <Text style={{ color: "#888", fontSize: 12 }}>API key</Text>
+            <Text style={{ color: colors.textSecondary, fontSize: 12 }}>
+              API key
+            </Text>
             <View style={{ flexDirection: "row", gap: 8 }}>
-              <TextInput
+              <AppTextInput
                 autoCapitalize="none"
                 autoCorrect={false}
                 onChangeText={setApiKey}
                 placeholder={
                   settings.provider === "custom" ? "Optional" : "Required"
                 }
-                placeholderTextColor="#666"
                 secureTextEntry={!showKey}
                 style={{
-                  backgroundColor: "#101010",
-                  borderColor: "#2a2a2a",
                   borderRadius: 10,
-                  borderWidth: 1,
-                  color: "#fff",
                   flex: 1,
                   padding: 12,
                 }}
@@ -330,13 +311,13 @@ export function AISettingsCard() {
                 onPress={() => setShowKey(!showKey)}
                 style={{
                   alignItems: "center",
-                  backgroundColor: "#1a1a1a",
+                  backgroundColor: colors.surfaceRaised,
                   borderRadius: 10,
                   justifyContent: "center",
                   paddingHorizontal: 12,
                 }}
               >
-                <Text style={{ color: "#888", fontSize: 12 }}>
+                <Text style={{ color: colors.textSecondary, fontSize: 12 }}>
                   {showKey ? "Hide" : "Show"}
                 </Text>
               </TouchableOpacity>
@@ -359,8 +340,8 @@ export function AISettingsCard() {
             onPress={loadModels}
             style={{
               alignItems: "center",
-              backgroundColor: "#1a1a1a",
-              borderColor: "#2a2a2a",
+              backgroundColor: colors.surfaceRaised,
+              borderColor: colors.border,
               borderRadius: 10,
               borderWidth: 1,
               flex: 1,
@@ -369,33 +350,25 @@ export function AISettingsCard() {
             }}
           >
             {busy ? (
-              <ActivityIndicator color="#60a5fa" />
+              <ActivityIndicator color={colors.brand} />
             ) : (
               <Text
-                style={{ color: "#60a5fa", fontSize: 14, fontWeight: "700" }}
+                style={{ color: colors.brand, fontSize: 14, fontWeight: "700" }}
               >
                 Load models
               </Text>
             )}
           </TouchableOpacity>
-          <TouchableOpacity
-            accessibilityRole="button"
+          <AppButton
             onPress={save}
             style={{
-              alignItems: "center",
-              backgroundColor: "#3b82f6",
-              borderRadius: 10,
               flex: 1,
-              justifyContent: "center",
-              padding: 13,
             }}
           >
-            <Text style={{ color: "#fff", fontSize: 14, fontWeight: "700" }}>
-              Save
-            </Text>
-          </TouchableOpacity>
+            Save
+          </AppButton>
         </View>
-      </View>
+      </Card>
     </View>
   );
 }

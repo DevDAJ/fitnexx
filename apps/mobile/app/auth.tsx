@@ -7,12 +7,13 @@ import {
   Platform,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 
 import { useAuth } from "../components/auth/AuthProvider";
+import { AppButton, AppTextInput, ScreenTitle } from "../components/shared/ui";
+import { colors, radii, spacing } from "../lib/theme";
 
 export default function AuthScreen() {
   const router = useRouter();
@@ -60,35 +61,33 @@ export default function AuthScreen() {
           onPress={() => router.back()}
           style={styles.iconButton}
         >
-          <Ionicons name="close" size={24} color="#e5e5e5" />
+          <Ionicons name="close" size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
       <View style={styles.form}>
-        <Text style={styles.title}>
+        <ScreenTitle style={styles.title}>
           {mode === "signIn" ? "Sign in" : "Create account"}
-        </Text>
+        </ScreenTitle>
         <Text style={styles.copy}>
           Sign in to use Fitnexx Pro. Your workout and nutrition history stays
           on this device.
         </Text>
-        <TextInput
+        <AppTextInput
           autoCapitalize="none"
           autoComplete="email"
           editable={!busy}
           keyboardType="email-address"
           onChangeText={setEmail}
           placeholder="Email"
-          placeholderTextColor="#666"
           style={styles.input}
           value={email}
         />
-        <TextInput
+        <AppTextInput
           autoCapitalize="none"
           autoComplete={mode === "signIn" ? "current-password" : "new-password"}
           editable={!busy}
           onChangeText={setPassword}
           placeholder="Password"
-          placeholderTextColor="#666"
           secureTextEntry
           style={styles.input}
           value={password}
@@ -99,23 +98,19 @@ export default function AuthScreen() {
           </Text>
         ) : null}
         {message ? <Text style={styles.error}>{message}</Text> : null}
-        <TouchableOpacity
-          accessibilityRole="button"
+        <AppButton
           disabled={busy || !configured}
           onPress={submit}
-          style={[
-            styles.primaryButton,
-            (busy || !configured) && styles.disabled,
-          ]}
+          style={styles.primaryButton}
         >
           {busy ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={colors.onBrand} />
           ) : (
             <Text style={styles.primaryText}>
               {mode === "signIn" ? "Sign in" : "Create account"}
             </Text>
           )}
-        </TouchableOpacity>
+        </AppButton>
         <TouchableOpacity
           accessibilityRole="button"
           disabled={busy}
@@ -133,34 +128,32 @@ export default function AuthScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#0a0a0a" },
-  header: { paddingHorizontal: 20, paddingTop: 56, alignItems: "flex-end" },
+  screen: { flex: 1, backgroundColor: colors.background },
+  header: {
+    paddingHorizontal: spacing.screen,
+    paddingTop: 56,
+    alignItems: "flex-end",
+  },
   iconButton: { padding: 8 },
-  form: { flex: 1, justifyContent: "center", padding: 24, gap: 14 },
-  title: { color: "#fff", fontSize: 30, fontWeight: "700" },
-  copy: { color: "#888", fontSize: 15, lineHeight: 22, marginBottom: 8 },
+  form: { flex: 1, justifyContent: "center", padding: spacing.xl, gap: 14 },
+  title: { fontSize: 30 },
+  copy: {
+    color: colors.textSecondary,
+    fontSize: 15,
+    lineHeight: 22,
+    marginBottom: 8,
+  },
   input: {
-    backgroundColor: "#161616",
-    borderColor: "#2a2a2a",
-    borderRadius: 12,
-    borderWidth: 1,
-    color: "#fff",
-    fontSize: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    minHeight: 52,
   },
   primaryButton: {
-    alignItems: "center",
-    backgroundColor: "#3b82f6",
-    borderRadius: 12,
+    borderRadius: radii.md,
     minHeight: 50,
-    justifyContent: "center",
   },
-  primaryText: { color: "#fff", fontSize: 16, fontWeight: "700" },
-  disabled: { opacity: 0.45 },
-  error: { color: "#f87171", fontSize: 13, lineHeight: 18 },
+  primaryText: { color: colors.onBrand, fontSize: 16, fontWeight: "700" },
+  error: { color: colors.danger, fontSize: 13, lineHeight: 18 },
   switchText: {
-    color: "#60a5fa",
+    color: colors.brand,
     fontSize: 14,
     textAlign: "center",
     padding: 8,

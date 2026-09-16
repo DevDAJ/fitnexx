@@ -19,7 +19,7 @@ export { View, Text, XStack, YStack, ScrollView, Theme, Separator };
 
 export const Container = styled(View, {
   name: "Container",
-  maxWidth: 1024,
+  maxWidth: 1180,
   width: "100%",
   marginLeft: "auto",
   marginRight: "auto",
@@ -28,8 +28,9 @@ export const Container = styled(View, {
 
 export const Section = styled(YStack, {
   name: "Section",
-  paddingVertical: 48,
-  paddingHorizontal: 16,
+  paddingVertical: 96,
+  paddingHorizontal: 20,
+  $sm: { paddingVertical: 64, paddingHorizontal: 16 },
 });
 
 export const Card = styled(View, {
@@ -37,15 +38,15 @@ export const Card = styled(View, {
   backgroundColor: "$card",
   borderWidth: 1,
   borderColor: "$borderColor",
-  borderRadius: 14,
-  padding: 16,
+  borderRadius: 18,
+  padding: 20,
 });
 
 export const Heading = styled(Text, {
   name: "Heading",
   color: "$color",
   fontWeight: "800",
-  letterSpacing: -0.02,
+  letterSpacing: -0.045,
 });
 
 export const CardTitle = styled(Text, {
@@ -62,10 +63,10 @@ export const Muted = styled(Text, {
 
 export const BaseButton = styled(TButton, {
   name: "Button",
-  borderRadius: 10,
+  borderRadius: 999,
   backgroundColor: "$primary",
-  hoverStyle: { backgroundColor: "$primaryHover" },
-  pressStyle: { backgroundColor: "$primaryHover" },
+  hoverStyle: { backgroundColor: "$primaryHover", y: -1 },
+  pressStyle: { backgroundColor: "$primaryHover", y: 0, scale: 0.98 },
   color: "#ffffff",
   paddingHorizontal: 16,
   height: 40,
@@ -75,10 +76,15 @@ export const BaseButton = styled(TButton, {
     variant: {
       primary: { backgroundColor: "$primary", color: "#ffffff" },
       outline: {
-        backgroundColor: "transparent",
+        backgroundColor: "$surface",
         borderWidth: 1,
         borderColor: "$borderColor",
         color: "$color",
+        hoverStyle: {
+          backgroundColor: "$card",
+          borderColor: "$borderColorHover",
+          y: -1,
+        },
       },
       ghost: { backgroundColor: "transparent", color: "$color" },
       secondary: { backgroundColor: "$surface", color: "$color" },
@@ -105,9 +111,9 @@ export const Input = styled(TInput, {
   backgroundColor: "$surface",
   borderWidth: 1,
   borderColor: "$borderColor",
-  borderRadius: 10,
-  height: 44,
-  paddingHorizontal: 12,
+  borderRadius: 12,
+  height: 48,
+  paddingHorizontal: 14,
   color: "$color",
   fontSize: 15,
   placeholderTextColor: "$subtle",

@@ -1,10 +1,12 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Text, TouchableOpacity } from "react-native";
 
 import { purchasePro, restorePro } from "../../lib/payments";
 import { useAppStore } from "../../lib/store";
+import { colors } from "../../lib/theme";
 import { useAuth } from "../auth/AuthProvider";
+import { AppButton, Card, SectionLabel } from "../shared/ui";
 
 export function ProCard() {
   const router = useRouter();
@@ -46,51 +48,38 @@ export function ProCard() {
   };
 
   return (
-    <View
+    <Card
       style={{
-        backgroundColor: "#161616",
-        borderColor: isPro ? "#fbbf24" : "#222",
-        borderRadius: 14,
-        borderWidth: 1,
+        borderColor: isPro ? colors.warning : colors.border,
         gap: 12,
-        padding: 16,
       }}
     >
-      <Text
-        style={{
-          color: "#888",
-          fontSize: 12,
-          fontWeight: "600",
-          letterSpacing: 0.5,
-        }}
-      >
-        FITNEXX PRO
-      </Text>
-      <Text style={{ color: "#e5e5e5", fontSize: 18, fontWeight: "700" }}>
+      <SectionLabel>Fitnexx Pro</SectionLabel>
+      <Text style={{ color: colors.text, fontSize: 18, fontWeight: "700" }}>
         {isPro ? "Pro is active" : "$3.99 per month"}
       </Text>
-      <Text style={{ color: "#666", fontSize: 13, lineHeight: 19 }}>
+      <Text
+        style={{ color: colors.textSecondary, fontSize: 13, lineHeight: 19 }}
+      >
         {isPro
           ? "Unlimited server-powered AI suggestions are enabled."
           : "Use AI suggestions without managing provider keys. Cancel through your app store."}
       </Text>
       {!isPro ? (
-        <TouchableOpacity
-          accessibilityRole="button"
+        <AppButton
           disabled={busy}
           onPress={() => void run(purchasePro)}
           style={{
-            alignItems: "center",
-            backgroundColor: "#fbbf24",
-            borderRadius: 10,
-            opacity: busy ? 0.5 : 1,
-            padding: 13,
+            backgroundColor: colors.warning,
+            borderColor: colors.warning,
           }}
         >
-          <Text style={{ color: "#111", fontSize: 14, fontWeight: "800" }}>
+          <Text
+            style={{ color: colors.onBrand, fontSize: 14, fontWeight: "800" }}
+          >
             {user ? "Start Pro" : "Sign in to start Pro"}
           </Text>
-        </TouchableOpacity>
+        </AppButton>
       ) : null}
       <TouchableOpacity
         accessibilityRole="button"
@@ -98,10 +87,10 @@ export function ProCard() {
         onPress={() => void run(restorePro)}
         style={{ alignItems: "center", padding: 6 }}
       >
-        <Text style={{ color: "#60a5fa", fontSize: 13, fontWeight: "600" }}>
+        <Text style={{ color: colors.brand, fontSize: 13, fontWeight: "600" }}>
           Restore purchases
         </Text>
       </TouchableOpacity>
-    </View>
+    </Card>
   );
 }

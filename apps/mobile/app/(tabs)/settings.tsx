@@ -6,7 +6,6 @@ import {
   Modal,
   ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -15,6 +14,13 @@ import { AISettingsCard } from "../../components/settings/AISettingsCard";
 import { ProCard } from "../../components/settings/ProCard";
 import { UsageHistory } from "../../components/settings/UsageHistory";
 import { LineChart } from "../../components/shared/Sparkline";
+import {
+  AppButton,
+  AppTextInput,
+  Card,
+  ScreenTitle,
+  SectionLabel,
+} from "../../components/shared/ui";
 import { SyncSheet } from "../../components/sync/SyncSheet";
 import { clearAIKeys } from "../../lib/ai";
 import { ACTIVITY_LEVELS, fmtWeight } from "../../lib/bodyMetrics";
@@ -22,6 +28,7 @@ import { clearCache } from "../../lib/computationCache";
 import { exportData, importData } from "../../lib/export";
 import { useAppStore } from "../../lib/store";
 import { createNewSyncGroup } from "../../lib/sync";
+import { colors, spacing } from "../../lib/theme";
 import type {
   BodyMetrics,
   HabitReminder,
@@ -59,14 +66,14 @@ function StepButton({
         width: 40,
         height: 40,
         borderRadius: 10,
-        backgroundColor: "#1a1a1a",
+        backgroundColor: colors.surfaceRaised,
         alignItems: "center",
         justifyContent: "center",
         borderWidth: 1,
-        borderColor: "#2a2a2a",
+        borderColor: colors.border,
       }}
     >
-      <Text style={{ color: "#fff", fontSize: 18, fontWeight: "700" }}>
+      <Text style={{ color: colors.text, fontSize: 18, fontWeight: "700" }}>
         {label}
       </Text>
     </TouchableOpacity>
@@ -90,7 +97,7 @@ function TimeStepper({
       />
       <Text
         style={{
-          color: "#fff",
+          color: colors.text,
           fontSize: 22,
           fontWeight: "700",
           flex: 1,
@@ -100,14 +107,14 @@ function TimeStepper({
         {fmtTime(hour, minute)}
       </Text>
       <StepButton label="+" onPress={() => onChange((hour + 1) % 24, minute)} />
-      <View style={{ width: 2, height: 26, backgroundColor: "#222" }} />
+      <View style={{ width: 2, height: 26, backgroundColor: colors.border }} />
       <StepButton
         label="-"
         onPress={() => onChange(hour, (minute + 55) % 60)}
       />
       <Text
         style={{
-          color: "#fff",
+          color: colors.text,
           fontSize: 22,
           fontWeight: "700",
           flex: 1,
@@ -317,26 +324,20 @@ export default function SettingsScreen() {
   return (
     <ScrollView
       keyboardShouldPersistTaps="handled"
-      style={{ flex: 1, backgroundColor: "#0a0a0a" }}
+      style={{ flex: 1, backgroundColor: colors.background }}
       contentContainerStyle={{
         paddingTop: insets.top + 16,
-        paddingHorizontal: 16,
+        paddingHorizontal: spacing.screen,
         paddingBottom: 100,
         gap: 12,
       }}
     >
-      <Text style={{ color: "#fff", fontSize: 28, fontWeight: "800" }}>
-        Settings
-      </Text>
+      <ScreenTitle>Settings</ScreenTitle>
 
       {/* Profile & Body Metrics */}
-      <View
+      <Card
         style={{
-          backgroundColor: "#161616",
-          borderRadius: 14,
-          padding: 16,
-          borderWidth: 1,
-          borderColor: "#222",
+          padding: spacing.lg,
         }}
       >
         <View
@@ -347,19 +348,11 @@ export default function SettingsScreen() {
             marginBottom: 10,
           }}
         >
-          <Text
-            style={{
-              color: "#888",
-              fontSize: 12,
-              fontWeight: "600",
-              textTransform: "uppercase",
-              letterSpacing: 0.5,
-            }}
-          >
-            Profile & Body Metrics
-          </Text>
+          <SectionLabel>Profile & Body Metrics</SectionLabel>
           <TouchableOpacity onPress={openMetricsSheet} disabled={saving}>
-            <Text style={{ color: "#3b82f6", fontSize: 13, fontWeight: "700" }}>
+            <Text
+              style={{ color: colors.brand, fontSize: 13, fontWeight: "700" }}
+            >
               {latest ? "Update" : "+ Add"}
             </Text>
           </TouchableOpacity>
@@ -370,19 +363,27 @@ export default function SettingsScreen() {
               style={{ flexDirection: "row", justifyContent: "space-between" }}
             >
               <View>
-                <Text style={{ color: "#888", fontSize: 11 }}>Current</Text>
+                <Text style={{ color: colors.textMuted, fontSize: 11 }}>
+                  Current
+                </Text>
                 <Text
-                  style={{ color: "#fff", fontSize: 20, fontWeight: "700" }}
+                  style={{
+                    color: colors.text,
+                    fontSize: 20,
+                    fontWeight: "700",
+                  }}
                 >
                   {fmtWeight(latest.weight, isLbs)}
                 </Text>
               </View>
               {latest.targetWeight != null && (
                 <View style={{ alignItems: "center" }}>
-                  <Text style={{ color: "#888", fontSize: 11 }}>Goal</Text>
+                  <Text style={{ color: colors.textMuted, fontSize: 11 }}>
+                    Goal
+                  </Text>
                   <Text
                     style={{
-                      color: "#22c55e",
+                      color: colors.success,
                       fontSize: 20,
                       fontWeight: "700",
                     }}
@@ -392,15 +393,21 @@ export default function SettingsScreen() {
                 </View>
               )}
               <View style={{ alignItems: "flex-end" }}>
-                <Text style={{ color: "#888", fontSize: 11 }}>Height</Text>
+                <Text style={{ color: colors.textMuted, fontSize: 11 }}>
+                  Height
+                </Text>
                 <Text
-                  style={{ color: "#fff", fontSize: 20, fontWeight: "700" }}
+                  style={{
+                    color: colors.text,
+                    fontSize: 20,
+                    fontWeight: "700",
+                  }}
                 >
                   {latest.height}cm
                 </Text>
               </View>
             </View>
-            <Text style={{ color: "#666", fontSize: 12 }}>
+            <Text style={{ color: colors.textSecondary, fontSize: 12 }}>
               {latest.bodyFat != null && `${latest.bodyFat}% BF | `}
               {latest.age} yrs | {latest.sex === "male" ? "Male" : "Female"} |{" "}
               {
@@ -410,7 +417,7 @@ export default function SettingsScreen() {
             </Text>
           </View>
         ) : (
-          <Text style={{ color: "#666", fontSize: 13 }}>
+          <Text style={{ color: colors.textSecondary, fontSize: 13 }}>
             Add your weight, height, and activity level to get BMR & calorie
             estimates on Meals.
           </Text>
@@ -420,7 +427,7 @@ export default function SettingsScreen() {
           <>
             <Text
               style={{
-                color: "#888",
+                color: colors.textMuted,
                 fontSize: 11,
                 fontWeight: "600",
                 textTransform: "uppercase",
@@ -435,7 +442,7 @@ export default function SettingsScreen() {
               <View style={{ alignItems: "center", marginVertical: 8 }}>
                 <LineChart
                   data={weightSeries}
-                  color="#22c55e"
+                  color={colors.success}
                   width={300}
                   height={80}
                 />
@@ -449,15 +456,19 @@ export default function SettingsScreen() {
                   justifyContent: "space-between",
                   paddingVertical: 6,
                   borderTopWidth: i > 0 ? 1 : 0,
-                  borderTopColor: "#222",
+                  borderTopColor: colors.border,
                 }}
               >
                 <Text
-                  style={{ color: "#e5e5e5", fontSize: 14, fontWeight: "600" }}
+                  style={{
+                    color: colors.text,
+                    fontSize: 14,
+                    fontWeight: "600",
+                  }}
                 >
                   {fmtWeight(m.weight, isLbs)}
                 </Text>
-                <Text style={{ color: "#888", fontSize: 12 }}>
+                <Text style={{ color: colors.textMuted, fontSize: 12 }}>
                   {new Date(m.date).toLocaleDateString("en-US", {
                     month: "short",
                     day: "numeric",
@@ -467,47 +478,34 @@ export default function SettingsScreen() {
             ))}
           </>
         )}
-      </View>
+      </Card>
 
       {/* Metrics Reminder */}
-      <View
+      <Card
         style={{
-          backgroundColor: "#161616",
-          borderRadius: 14,
-          padding: 16,
-          borderWidth: 1,
-          borderColor: "#222",
+          padding: spacing.lg,
         }}
       >
-        <Text
-          style={{
-            color: "#888",
-            fontSize: 12,
-            fontWeight: "600",
-            textTransform: "uppercase",
-            letterSpacing: 0.5,
-            marginBottom: 10,
-          }}
-        >
+        <SectionLabel style={{ marginBottom: 10 }}>
           Metrics Reminder
-        </Text>
+        </SectionLabel>
         <TouchableOpacity
           onPress={() =>
             updateReminder({ ...reminder, enabled: !reminder.enabled }, true)
           }
           disabled={saving}
           style={{
-            backgroundColor: "#1a1a1a",
+            backgroundColor: colors.surfaceRaised,
             borderRadius: 10,
             padding: 14,
             flexDirection: "row",
             justifyContent: "space-between",
             alignItems: "center",
             borderWidth: 1,
-            borderColor: reminder.enabled ? "#3b82f6" : "#2a2a2a",
+            borderColor: reminder.enabled ? colors.brand : colors.border,
           }}
         >
-          <Text style={{ color: "#e5e5e5", fontSize: 15, fontWeight: "600" }}>
+          <Text style={{ color: colors.text, fontSize: 15, fontWeight: "600" }}>
             {reminder.enabled ? "Reminder on" : "Reminder off"}
           </Text>
           <View
@@ -515,7 +513,9 @@ export default function SettingsScreen() {
               width: 44,
               height: 26,
               borderRadius: 13,
-              backgroundColor: reminder.enabled ? "#3b82f6" : "#333",
+              backgroundColor: reminder.enabled
+                ? colors.brand
+                : colors.borderStrong,
               justifyContent: "center",
               paddingHorizontal: 4,
             }}
@@ -525,7 +525,7 @@ export default function SettingsScreen() {
                 width: 18,
                 height: 18,
                 borderRadius: 9,
-                backgroundColor: "#fff",
+                backgroundColor: colors.text,
                 alignSelf: reminder.enabled ? "flex-end" : "flex-start",
               }}
             />
@@ -536,7 +536,7 @@ export default function SettingsScreen() {
           <>
             <Text
               style={{
-                color: "#888",
+                color: colors.textMuted,
                 fontSize: 11,
                 marginTop: 12,
                 marginBottom: 6,
@@ -555,18 +555,23 @@ export default function SettingsScreen() {
                   style={{
                     flex: 1,
                     backgroundColor:
-                      reminder.frequency === f ? "#3b82f6" : "#1a1a1a",
+                      reminder.frequency === f
+                        ? colors.brand
+                        : colors.surfaceRaised,
                     borderRadius: 10,
                     padding: 12,
                     alignItems: "center",
                     borderWidth: 1,
                     borderColor:
-                      reminder.frequency === f ? "#3b82f6" : "#2a2a2a",
+                      reminder.frequency === f ? colors.brand : colors.border,
                   }}
                 >
                   <Text
                     style={{
-                      color: reminder.frequency === f ? "#fff" : "#888",
+                      color:
+                        reminder.frequency === f
+                          ? colors.onBrand
+                          : colors.textSecondary,
                       fontSize: 14,
                       fontWeight: "600",
                     }}
@@ -581,7 +586,7 @@ export default function SettingsScreen() {
               <>
                 <Text
                   style={{
-                    color: "#888",
+                    color: colors.textMuted,
                     fontSize: 11,
                     marginTop: 12,
                     marginBottom: 6,
@@ -600,18 +605,25 @@ export default function SettingsScreen() {
                       style={{
                         flex: 1,
                         backgroundColor:
-                          reminder.weekday === i + 1 ? "#3b82f6" : "#1a1a1a",
+                          reminder.weekday === i + 1
+                            ? colors.brand
+                            : colors.surfaceRaised,
                         borderRadius: 8,
                         paddingVertical: 8,
                         alignItems: "center",
                         borderWidth: 1,
                         borderColor:
-                          reminder.weekday === i + 1 ? "#3b82f6" : "#2a2a2a",
+                          reminder.weekday === i + 1
+                            ? colors.brand
+                            : colors.border,
                       }}
                     >
                       <Text
                         style={{
-                          color: reminder.weekday === i + 1 ? "#fff" : "#888",
+                          color:
+                            reminder.weekday === i + 1
+                              ? colors.onBrand
+                              : colors.textSecondary,
                           fontSize: 12,
                           fontWeight: "600",
                         }}
@@ -626,7 +638,7 @@ export default function SettingsScreen() {
 
             <Text
               style={{
-                color: "#888",
+                color: colors.textMuted,
                 fontSize: 11,
                 marginTop: 12,
                 marginBottom: 6,
@@ -647,22 +659,26 @@ export default function SettingsScreen() {
                   width: 40,
                   height: 40,
                   borderRadius: 10,
-                  backgroundColor: "#1a1a1a",
+                  backgroundColor: colors.surfaceRaised,
                   alignItems: "center",
                   justifyContent: "center",
                   borderWidth: 1,
-                  borderColor: "#2a2a2a",
+                  borderColor: colors.border,
                 }}
               >
                 <Text
-                  style={{ color: "#fff", fontSize: 18, fontWeight: "700" }}
+                  style={{
+                    color: colors.text,
+                    fontSize: 18,
+                    fontWeight: "700",
+                  }}
                 >
                   -
                 </Text>
               </TouchableOpacity>
               <Text
                 style={{
-                  color: "#fff",
+                  color: colors.text,
                   fontSize: 22,
                   fontWeight: "700",
                   flex: 1,
@@ -681,20 +697,26 @@ export default function SettingsScreen() {
                   width: 40,
                   height: 40,
                   borderRadius: 10,
-                  backgroundColor: "#1a1a1a",
+                  backgroundColor: colors.surfaceRaised,
                   alignItems: "center",
                   justifyContent: "center",
                   borderWidth: 1,
-                  borderColor: "#2a2a2a",
+                  borderColor: colors.border,
                 }}
               >
                 <Text
-                  style={{ color: "#fff", fontSize: 18, fontWeight: "700" }}
+                  style={{
+                    color: colors.text,
+                    fontSize: 18,
+                    fontWeight: "700",
+                  }}
                 >
                   +
                 </Text>
               </TouchableOpacity>
-              <View style={{ width: 2, height: 26, backgroundColor: "#222" }} />
+              <View
+                style={{ width: 2, height: 26, backgroundColor: colors.border }}
+              />
               <TouchableOpacity
                 onPress={() => {
                   const m = (reminder.minute + 55) % 60;
@@ -705,22 +727,26 @@ export default function SettingsScreen() {
                   width: 40,
                   height: 40,
                   borderRadius: 10,
-                  backgroundColor: "#1a1a1a",
+                  backgroundColor: colors.surfaceRaised,
                   alignItems: "center",
                   justifyContent: "center",
                   borderWidth: 1,
-                  borderColor: "#2a2a2a",
+                  borderColor: colors.border,
                 }}
               >
                 <Text
-                  style={{ color: "#fff", fontSize: 18, fontWeight: "700" }}
+                  style={{
+                    color: colors.text,
+                    fontSize: 18,
+                    fontWeight: "700",
+                  }}
                 >
                   -
                 </Text>
               </TouchableOpacity>
               <Text
                 style={{
-                  color: "#fff",
+                  color: colors.text,
                   fontSize: 22,
                   fontWeight: "700",
                   flex: 1,
@@ -739,15 +765,19 @@ export default function SettingsScreen() {
                   width: 40,
                   height: 40,
                   borderRadius: 10,
-                  backgroundColor: "#1a1a1a",
+                  backgroundColor: colors.surfaceRaised,
                   alignItems: "center",
                   justifyContent: "center",
                   borderWidth: 1,
-                  borderColor: "#2a2a2a",
+                  borderColor: colors.border,
                 }}
               >
                 <Text
-                  style={{ color: "#fff", fontSize: 18, fontWeight: "700" }}
+                  style={{
+                    color: colors.text,
+                    fontSize: 18,
+                    fontWeight: "700",
+                  }}
                 >
                   +
                 </Text>
@@ -755,21 +785,21 @@ export default function SettingsScreen() {
             </View>
           </>
         )}
-      </View>
+      </Card>
 
       {/* Habit Reminders */}
       <View
         style={{
-          backgroundColor: "#161616",
+          backgroundColor: colors.surface,
           borderRadius: 14,
           padding: 16,
           borderWidth: 1,
-          borderColor: "#222",
+          borderColor: colors.border,
         }}
       >
         <Text
           style={{
-            color: "#888",
+            color: colors.textMuted,
             fontSize: 12,
             fontWeight: "600",
             textTransform: "uppercase",
@@ -789,7 +819,7 @@ export default function SettingsScreen() {
                 marginBottom: i === 0 ? 14 : 0,
                 paddingBottom: i === 0 ? 14 : 0,
                 borderBottomWidth: i === 0 ? 1 : 0,
-                borderBottomColor: "#222",
+                borderBottomColor: colors.border,
               }}
             >
               <TouchableOpacity
@@ -798,18 +828,22 @@ export default function SettingsScreen() {
                 }
                 disabled={saving}
                 style={{
-                  backgroundColor: "#1a1a1a",
+                  backgroundColor: colors.surfaceRaised,
                   borderRadius: 10,
                   padding: 14,
                   flexDirection: "row",
                   justifyContent: "space-between",
                   alignItems: "center",
                   borderWidth: 1,
-                  borderColor: hr.enabled ? "#3b82f6" : "#2a2a2a",
+                  borderColor: hr.enabled ? colors.brand : colors.border,
                 }}
               >
                 <Text
-                  style={{ color: "#e5e5e5", fontSize: 15, fontWeight: "600" }}
+                  style={{
+                    color: colors.text,
+                    fontSize: 15,
+                    fontWeight: "600",
+                  }}
                 >
                   {key === "training"
                     ? "Training day reminder"
@@ -820,7 +854,9 @@ export default function SettingsScreen() {
                     width: 44,
                     height: 26,
                     borderRadius: 13,
-                    backgroundColor: hr.enabled ? "#3b82f6" : "#333",
+                    backgroundColor: hr.enabled
+                      ? colors.brand
+                      : colors.borderStrong,
                     justifyContent: "center",
                     paddingHorizontal: 4,
                   }}
@@ -830,7 +866,7 @@ export default function SettingsScreen() {
                       width: 18,
                       height: 18,
                       borderRadius: 9,
-                      backgroundColor: "#fff",
+                      backgroundColor: colors.text,
                       alignSelf: hr.enabled ? "flex-end" : "flex-start",
                     }}
                   />
@@ -841,7 +877,7 @@ export default function SettingsScreen() {
                 <>
                   <Text
                     style={{
-                      color: "#888",
+                      color: colors.textMuted,
                       fontSize: 11,
                       marginTop: 12,
                       marginBottom: 6,
@@ -867,16 +903,16 @@ export default function SettingsScreen() {
 
       <View
         style={{
-          backgroundColor: "#161616",
+          backgroundColor: colors.surface,
           borderRadius: 14,
           padding: 16,
           borderWidth: 1,
-          borderColor: "#222",
+          borderColor: colors.border,
         }}
       >
         <Text
           style={{
-            color: "#888",
+            color: colors.textMuted,
             fontSize: 12,
             fontWeight: "600",
             textTransform: "uppercase",
@@ -886,21 +922,29 @@ export default function SettingsScreen() {
         >
           Local Sync
         </Text>
-        <Text style={{ color: "#666", fontSize: 13, marginBottom: 12 }}>
+        <Text
+          style={{
+            color: colors.textSecondary,
+            fontSize: 13,
+            marginBottom: 12,
+          }}
+        >
           Sync directly with Fitnexx apps using the same token on your Wi-Fi.
         </Text>
         <TouchableOpacity
           onPress={() => setShowSync(true)}
           style={{
-            backgroundColor: "#1a1a1a",
+            backgroundColor: colors.surfaceRaised,
             borderRadius: 10,
             padding: 14,
             borderWidth: 1,
-            borderColor: "#3b82f6",
+            borderColor: colors.brand,
             alignItems: "center",
           }}
         >
-          <Text style={{ color: "#3b82f6", fontSize: 15, fontWeight: "700" }}>
+          <Text
+            style={{ color: colors.brand, fontSize: 15, fontWeight: "700" }}
+          >
             Pair or sync apps
           </Text>
         </TouchableOpacity>
@@ -913,16 +957,16 @@ export default function SettingsScreen() {
 
       <View
         style={{
-          backgroundColor: "#161616",
+          backgroundColor: colors.surface,
           borderRadius: 14,
           padding: 16,
           borderWidth: 1,
-          borderColor: "#222",
+          borderColor: colors.border,
         }}
       >
         <Text
           style={{
-            color: "#888",
+            color: colors.textMuted,
             fontSize: 12,
             fontWeight: "600",
             textTransform: "uppercase",
@@ -939,17 +983,19 @@ export default function SettingsScreen() {
               onPress={() => handleSetWeightUnit(unit)}
               style={{
                 flex: 1,
-                backgroundColor: weightUnit === unit ? "#3b82f6" : "#1a1a1a",
+                backgroundColor:
+                  weightUnit === unit ? colors.brand : colors.surfaceRaised,
                 borderRadius: 10,
                 padding: 14,
                 alignItems: "center",
                 borderWidth: 1,
-                borderColor: weightUnit === unit ? "#3b82f6" : "#2a2a2a",
+                borderColor: weightUnit === unit ? colors.brand : colors.border,
               }}
             >
               <Text
                 style={{
-                  color: weightUnit === unit ? "#fff" : "#888",
+                  color:
+                    weightUnit === unit ? colors.onBrand : colors.textSecondary,
                   fontSize: 15,
                   fontWeight: "700",
                 }}
@@ -963,16 +1009,16 @@ export default function SettingsScreen() {
 
       <View
         style={{
-          backgroundColor: "#161616",
+          backgroundColor: colors.surface,
           borderRadius: 14,
           padding: 16,
           borderWidth: 1,
-          borderColor: "#222",
+          borderColor: colors.border,
         }}
       >
         <Text
           style={{
-            color: "#888",
+            color: colors.textMuted,
             fontSize: 12,
             fontWeight: "600",
             textTransform: "uppercase",
@@ -985,47 +1031,53 @@ export default function SettingsScreen() {
         <TouchableOpacity
           onPress={handleExport}
           style={{
-            backgroundColor: "#1a1a1a",
+            backgroundColor: colors.surfaceRaised,
             borderRadius: 10,
             padding: 14,
             borderWidth: 1,
-            borderColor: "#2a2a2a",
+            borderColor: colors.border,
             alignItems: "center",
             marginBottom: 8,
           }}
         >
-          <Text style={{ color: "#3b82f6", fontSize: 15, fontWeight: "600" }}>
+          <Text
+            style={{ color: colors.brand, fontSize: 15, fontWeight: "600" }}
+          >
             Export Data (JSON)
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={confirmImport}
           style={{
-            backgroundColor: "#1a1a1a",
+            backgroundColor: colors.surfaceRaised,
             borderRadius: 10,
             padding: 14,
             borderWidth: 1,
-            borderColor: "#2a2a2a",
+            borderColor: colors.border,
             alignItems: "center",
             marginBottom: 12,
           }}
         >
-          <Text style={{ color: "#3b82f6", fontSize: 15, fontWeight: "600" }}>
+          <Text
+            style={{ color: colors.brand, fontSize: 15, fontWeight: "600" }}
+          >
             Import Data
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={clearAllData}
           style={{
-            backgroundColor: "#1a1a1a",
+            backgroundColor: colors.surfaceRaised,
             borderRadius: 10,
             padding: 14,
             borderWidth: 1,
-            borderColor: "#ef4444",
+            borderColor: colors.danger,
             alignItems: "center",
           }}
         >
-          <Text style={{ color: "#ef4444", fontSize: 15, fontWeight: "600" }}>
+          <Text
+            style={{ color: colors.danger, fontSize: 15, fontWeight: "600" }}
+          >
             Clear All Data
           </Text>
         </TouchableOpacity>
@@ -1033,16 +1085,16 @@ export default function SettingsScreen() {
 
       <View
         style={{
-          backgroundColor: "#161616",
+          backgroundColor: colors.surface,
           borderRadius: 14,
           padding: 16,
           borderWidth: 1,
-          borderColor: "#222",
+          borderColor: colors.border,
         }}
       >
         <Text
           style={{
-            color: "#888",
+            color: colors.textMuted,
             fontSize: 12,
             fontWeight: "600",
             textTransform: "uppercase",
@@ -1052,13 +1104,15 @@ export default function SettingsScreen() {
         >
           About
         </Text>
-        <Text style={{ color: "#e5e5e5", fontSize: 15, fontWeight: "700" }}>
+        <Text style={{ color: colors.text, fontSize: 15, fontWeight: "700" }}>
           Fitnexx
         </Text>
-        <Text style={{ color: "#666", fontSize: 13, marginTop: 2 }}>
+        <Text
+          style={{ color: colors.textSecondary, fontSize: 13, marginTop: 2 }}
+        >
           Privacy-first gym performance tracker.
         </Text>
-        <Text style={{ color: "#555", fontSize: 12, marginTop: 8 }}>
+        <Text style={{ color: colors.textMuted, fontSize: 12, marginTop: 8 }}>
           Fitness data stays local. AI sends only the context you choose to your
           selected provider.
         </Text>
@@ -1074,13 +1128,13 @@ export default function SettingsScreen() {
         <View
           style={{
             flex: 1,
-            backgroundColor: "#000000cc",
+            backgroundColor: colors.overlay,
             justifyContent: "flex-end",
           }}
         >
           <View
             style={{
-              backgroundColor: "#111",
+              backgroundColor: colors.surfaceRaised,
               borderTopLeftRadius: 20,
               borderTopRightRadius: 20,
               padding: 20,
@@ -1088,51 +1142,55 @@ export default function SettingsScreen() {
               gap: 12,
             }}
           >
-            <Text style={{ color: "#fff", fontSize: 20, fontWeight: "800" }}>
+            <Text
+              style={{ color: colors.text, fontSize: 20, fontWeight: "800" }}
+            >
               Body Metrics
             </Text>
 
             <View style={{ flexDirection: "row", gap: 8 }}>
               <View style={{ flex: 1 }}>
-                <Text style={{ color: "#666", fontSize: 11, marginBottom: 4 }}>
+                <Text
+                  style={{
+                    color: colors.textMuted,
+                    fontSize: 11,
+                    marginBottom: 4,
+                  }}
+                >
                   Weight ({isLbs ? "lbs" : "kg"})
                 </Text>
-                <TextInput
+                <AppTextInput
                   keyboardType="numeric"
                   placeholder={isLbs ? "154" : "70"}
-                  placeholderTextColor="#444"
                   value={mWeight}
                   onChangeText={setMWeight}
                   style={{
-                    backgroundColor: "#161616",
                     borderRadius: 10,
                     padding: 12,
-                    color: "#fff",
                     fontSize: 16,
-                    borderWidth: 1,
-                    borderColor: "#2a2a2a",
                     textAlign: "center",
                   }}
                 />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ color: "#666", fontSize: 11, marginBottom: 4 }}>
+                <Text
+                  style={{
+                    color: colors.textMuted,
+                    fontSize: 11,
+                    marginBottom: 4,
+                  }}
+                >
                   Height (cm)
                 </Text>
-                <TextInput
+                <AppTextInput
                   keyboardType="numeric"
                   placeholder="175"
-                  placeholderTextColor="#444"
                   value={mHeight}
                   onChangeText={setMHeight}
                   style={{
-                    backgroundColor: "#161616",
                     borderRadius: 10,
                     padding: 12,
-                    color: "#fff",
                     fontSize: 16,
-                    borderWidth: 1,
-                    borderColor: "#2a2a2a",
                     textAlign: "center",
                   }}
                 />
@@ -1141,45 +1199,47 @@ export default function SettingsScreen() {
 
             <View style={{ flexDirection: "row", gap: 8 }}>
               <View style={{ flex: 1 }}>
-                <Text style={{ color: "#666", fontSize: 11, marginBottom: 4 }}>
+                <Text
+                  style={{
+                    color: colors.textMuted,
+                    fontSize: 11,
+                    marginBottom: 4,
+                  }}
+                >
                   Body Fat %
                 </Text>
-                <TextInput
+                <AppTextInput
                   keyboardType="numeric"
                   placeholder="optional"
-                  placeholderTextColor="#444"
                   value={mBodyFat}
                   onChangeText={setMBodyFat}
                   style={{
-                    backgroundColor: "#161616",
                     borderRadius: 10,
                     padding: 12,
-                    color: "#fff",
                     fontSize: 16,
-                    borderWidth: 1,
-                    borderColor: "#2a2a2a",
                     textAlign: "center",
                   }}
                 />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ color: "#666", fontSize: 11, marginBottom: 4 }}>
+                <Text
+                  style={{
+                    color: colors.textMuted,
+                    fontSize: 11,
+                    marginBottom: 4,
+                  }}
+                >
                   Age
                 </Text>
-                <TextInput
+                <AppTextInput
                   keyboardType="numeric"
                   placeholder="25"
-                  placeholderTextColor="#444"
                   value={mAge}
                   onChangeText={setMAge}
                   style={{
-                    backgroundColor: "#161616",
                     borderRadius: 10,
                     padding: 12,
-                    color: "#fff",
                     fontSize: 16,
-                    borderWidth: 1,
-                    borderColor: "#2a2a2a",
                     textAlign: "center",
                   }}
                 />
@@ -1187,7 +1247,13 @@ export default function SettingsScreen() {
             </View>
 
             <View>
-              <Text style={{ color: "#666", fontSize: 11, marginBottom: 6 }}>
+              <Text
+                style={{
+                  color: colors.textMuted,
+                  fontSize: 11,
+                  marginBottom: 6,
+                }}
+              >
                 Sex
               </Text>
               <View style={{ flexDirection: "row", gap: 8 }}>
@@ -1197,17 +1263,19 @@ export default function SettingsScreen() {
                     onPress={() => setMSex(s)}
                     style={{
                       flex: 1,
-                      backgroundColor: mSex === s ? "#3b82f6" : "#161616",
+                      backgroundColor:
+                        mSex === s ? colors.brand : colors.surface,
                       borderRadius: 10,
                       padding: 12,
                       alignItems: "center",
                       borderWidth: 1,
-                      borderColor: mSex === s ? "#3b82f6" : "#2a2a2a",
+                      borderColor: mSex === s ? colors.brand : colors.border,
                     }}
                   >
                     <Text
                       style={{
-                        color: mSex === s ? "#fff" : "#888",
+                        color:
+                          mSex === s ? colors.onBrand : colors.textSecondary,
                         fontSize: 14,
                         fontWeight: "600",
                       }}
@@ -1220,7 +1288,13 @@ export default function SettingsScreen() {
             </View>
 
             <View>
-              <Text style={{ color: "#666", fontSize: 11, marginBottom: 6 }}>
+              <Text
+                style={{
+                  color: colors.textMuted,
+                  fontSize: 11,
+                  marginBottom: 6,
+                }}
+              >
                 Activity Level
               </Text>
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
@@ -1230,17 +1304,21 @@ export default function SettingsScreen() {
                     onPress={() => setMActivity(l.key)}
                     style={{
                       backgroundColor:
-                        mActivity === l.key ? "#3b82f6" : "#161616",
+                        mActivity === l.key ? colors.brand : colors.surface,
                       borderRadius: 8,
                       paddingHorizontal: 12,
                       paddingVertical: 8,
                       borderWidth: 1,
-                      borderColor: mActivity === l.key ? "#3b82f6" : "#2a2a2a",
+                      borderColor:
+                        mActivity === l.key ? colors.brand : colors.border,
                     }}
                   >
                     <Text
                       style={{
-                        color: mActivity === l.key ? "#fff" : "#888",
+                        color:
+                          mActivity === l.key
+                            ? colors.onBrand
+                            : colors.textSecondary,
                         fontSize: 12,
                         fontWeight: "600",
                       }}
@@ -1253,62 +1331,48 @@ export default function SettingsScreen() {
             </View>
 
             <View>
-              <Text style={{ color: "#666", fontSize: 11, marginBottom: 4 }}>
+              <Text
+                style={{
+                  color: colors.textMuted,
+                  fontSize: 11,
+                  marginBottom: 4,
+                }}
+              >
                 Target Weight ({isLbs ? "lbs" : "kg"})
               </Text>
-              <TextInput
+              <AppTextInput
                 keyboardType="numeric"
                 placeholder="optional"
-                placeholderTextColor="#444"
                 value={mTarget}
                 onChangeText={setMTarget}
                 style={{
-                  backgroundColor: "#161616",
                   borderRadius: 10,
                   padding: 12,
-                  color: "#fff",
                   fontSize: 16,
-                  borderWidth: 1,
-                  borderColor: "#2a2a2a",
                 }}
               />
             </View>
 
             <View style={{ flexDirection: "row", gap: 8, marginTop: 4 }}>
-              <TouchableOpacity
+              <AppButton
                 onPress={() => setShowMetrics(false)}
                 disabled={saving}
+                variant="secondary"
                 style={{
                   flex: 1,
-                  backgroundColor: "#222",
-                  borderRadius: 14,
-                  padding: 16,
-                  alignItems: "center",
                 }}
               >
-                <Text
-                  style={{ color: "#888", fontSize: 16, fontWeight: "600" }}
-                >
-                  Cancel
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
+                Cancel
+              </AppButton>
+              <AppButton
                 onPress={saveBodyMetricsEntry}
                 disabled={saving}
                 style={{
                   flex: 2,
-                  backgroundColor: "#3b82f6",
-                  borderRadius: 14,
-                  padding: 16,
-                  alignItems: "center",
                 }}
               >
-                <Text
-                  style={{ color: "#fff", fontSize: 16, fontWeight: "800" }}
-                >
-                  Save
-                </Text>
-              </TouchableOpacity>
+                Save
+              </AppButton>
             </View>
           </View>
         </View>

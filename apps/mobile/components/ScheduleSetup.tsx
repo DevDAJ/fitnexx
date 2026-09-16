@@ -1,14 +1,9 @@
 import { useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Modal,
-  ScrollView,
-} from "react-native";
+import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useAppStore } from "../lib/store";
-import type { Schedule, ScheduleSplit, ScheduleDay } from "../lib/types";
-import { MOCK_SCHEDULE } from "../lib/mockData";
+import { colors, spacing } from "../lib/theme";
+import type { Schedule, ScheduleDay, ScheduleSplit } from "../lib/types";
+import { AppButton, Card, SectionLabel } from "./shared/ui";
 
 interface Props {
   visible: boolean;
@@ -71,16 +66,16 @@ export function ScheduleSetup({ visible, onClose }: Props) {
       <View
         style={{
           flex: 1,
-          backgroundColor: "rgba(0,0,0,0.8)",
+          backgroundColor: colors.overlay,
           justifyContent: "flex-end",
         }}
       >
         <View
           style={{
-            backgroundColor: "#111",
+            backgroundColor: colors.surfaceRaised,
             borderTopLeftRadius: 20,
             borderTopRightRadius: 20,
-            padding: 20,
+            padding: spacing.screen,
             maxHeight: "80%",
           }}
         >
@@ -92,34 +87,51 @@ export function ScheduleSetup({ visible, onClose }: Props) {
               marginBottom: 16,
             }}
           >
-            <Text style={{ color: "#fff", fontSize: 20, fontWeight: "800" }}>
+            <Text
+              style={{ color: colors.text, fontSize: 20, fontWeight: "800" }}
+            >
               Set Up Schedule
             </Text>
             <TouchableOpacity onPress={onClose}>
-              <Text style={{ color: "#888", fontSize: 16 }}>Close</Text>
+              <Text style={{ color: colors.textSecondary, fontSize: 16 }}>
+                Close
+              </Text>
             </TouchableOpacity>
           </View>
 
           <ScrollView contentContainerStyle={{ gap: 12 }}>
-            <Text style={{ color: "#888", fontSize: 13, fontWeight: "600" }}>
-              PRESET SPLITS
-            </Text>
+            <SectionLabel>Preset Splits</SectionLabel>
             {PRESETS.map((preset) => (
               <TouchableOpacity
                 key={preset.split}
                 onPress={() => handlePreset(preset)}
                 style={{
-                  backgroundColor: "#161616",
+                  backgroundColor: colors.surface,
                   borderRadius: 14,
                   padding: 16,
                   borderWidth: 1,
-                  borderColor: existingSchedule?.split === preset.split ? "#3b82f6" : "#222",
+                  borderColor:
+                    existingSchedule?.split === preset.split
+                      ? colors.brand
+                      : colors.border,
                 }}
               >
-                <Text style={{ color: "#fff", fontSize: 16, fontWeight: "700" }}>
+                <Text
+                  style={{
+                    color: colors.text,
+                    fontSize: 16,
+                    fontWeight: "700",
+                  }}
+                >
                   {preset.name}
                 </Text>
-                <Text style={{ color: "#888", fontSize: 13, marginTop: 4 }}>
+                <Text
+                  style={{
+                    color: colors.textSecondary,
+                    fontSize: 13,
+                    marginTop: 4,
+                  }}
+                >
                   {preset.days
                     .map((d) => `${DAY_LABELS[d.dayOfWeek]}: ${d.label}`)
                     .join(" | ")}
@@ -127,25 +139,25 @@ export function ScheduleSetup({ visible, onClose }: Props) {
               </TouchableOpacity>
             ))}
 
-            <Text style={{ color: "#888", fontSize: 13, fontWeight: "600", marginTop: 8 }}>
-              CUSTOM WEEKLY
-            </Text>
-            <View
+            <SectionLabel style={{ marginTop: 8 }}>Custom Weekly</SectionLabel>
+            <Card
               style={{
-                backgroundColor: "#161616",
-                borderRadius: 14,
-                padding: 16,
-                borderWidth: 1,
-                borderColor: "#222",
+                padding: spacing.lg,
               }}
             >
-              <Text style={{ color: "#888", fontSize: 13, marginBottom: 12 }}>
+              <Text
+                style={{
+                  color: colors.textSecondary,
+                  fontSize: 13,
+                  marginBottom: 12,
+                }}
+              >
                 Tap a day, then pick a template:
               </Text>
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
                 {[1, 2, 3, 4, 5, 6, 0].map((day) => {
                   const assigned = existingSchedule?.days.find(
-                    (d) => d.dayOfWeek === day
+                    (d) => d.dayOfWeek === day,
                   );
                   return (
                     <TouchableOpacity
@@ -155,7 +167,9 @@ export function ScheduleSetup({ visible, onClose }: Props) {
                       }
                       style={{
                         backgroundColor:
-                          selectedDay === day ? "#3b82f6" : "#222",
+                          selectedDay === day
+                            ? colors.brand
+                            : colors.surfacePressed,
                         borderRadius: 8,
                         padding: 8,
                         minWidth: 44,
@@ -164,7 +178,10 @@ export function ScheduleSetup({ visible, onClose }: Props) {
                     >
                       <Text
                         style={{
-                          color: selectedDay === day ? "#fff" : "#888",
+                          color:
+                            selectedDay === day
+                              ? colors.onBrand
+                              : colors.textSecondary,
                           fontSize: 12,
                           fontWeight: "600",
                         }}
@@ -174,7 +191,7 @@ export function ScheduleSetup({ visible, onClose }: Props) {
                       {assigned && (
                         <Text
                           style={{
-                            color: "#3b82f6",
+                            color: colors.brand,
                             fontSize: 9,
                             marginTop: 2,
                           }}
@@ -197,7 +214,7 @@ export function ScheduleSetup({ visible, onClose }: Props) {
                         const existing = existingSchedule?.days || [];
                         const newDays = [
                           ...existing.filter(
-                            (d) => d.dayOfWeek !== selectedDay
+                            (d) => d.dayOfWeek !== selectedDay,
                           ),
                           {
                             dayOfWeek: selectedDay,
@@ -215,47 +232,37 @@ export function ScheduleSetup({ visible, onClose }: Props) {
                         setSelectedDay(null);
                       }}
                       style={{
-                        backgroundColor: "#222",
+                        backgroundColor: colors.surfacePressed,
                         borderRadius: 8,
                         padding: 12,
                         borderWidth: 1,
-                        borderColor:
-                          existingSchedule?.days.find(
-                            (d) =>
-                              d.dayOfWeek === selectedDay &&
-                              d.templateId === t.id
-                          )
-                            ? "#3b82f6"
-                            : "#333",
+                        borderColor: existingSchedule?.days.find(
+                          (d) =>
+                            d.dayOfWeek === selectedDay &&
+                            d.templateId === t.id,
+                        )
+                          ? colors.brand
+                          : colors.borderStrong,
                       }}
                     >
-                      <Text style={{ color: "#fff", fontSize: 14 }}>
+                      <Text style={{ color: colors.text, fontSize: 14 }}>
                         {t.name}
                       </Text>
-                      <Text style={{ color: "#888", fontSize: 12 }}>
+                      <Text
+                        style={{ color: colors.textSecondary, fontSize: 12 }}
+                      >
                         {t.exercises.length} exercises
                       </Text>
                     </TouchableOpacity>
                   ))}
                 </View>
               )}
-            </View>
+            </Card>
 
             {existingSchedule && (
-              <TouchableOpacity
-                onPress={handleRemoveSchedule}
-                style={{
-                  borderRadius: 14,
-                  padding: 14,
-                  alignItems: "center",
-                  borderWidth: 1,
-                  borderColor: "#ef4444",
-                }}
-              >
-                <Text style={{ color: "#ef4444", fontSize: 14, fontWeight: "600" }}>
-                  Remove Schedule
-                </Text>
-              </TouchableOpacity>
+              <AppButton onPress={handleRemoveSchedule} variant="danger">
+                Remove Schedule
+              </AppButton>
             )}
           </ScrollView>
         </View>

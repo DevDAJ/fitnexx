@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { colors } from "../../lib/theme";
 
 type Option = { label: string; value: string };
 
@@ -27,7 +28,7 @@ export function Autocomplete({
 
   return (
     <View style={{ gap: 6 }}>
-      <Text style={{ color: "#888", fontSize: 12 }}>{label}</Text>
+      <Text style={{ color: colors.textSecondary, fontSize: 12 }}>{label}</Text>
       <TextInput
         accessibilityLabel={label}
         autoCapitalize="none"
@@ -41,13 +42,13 @@ export function Autocomplete({
           setOpen(true);
         }}
         placeholder={placeholder}
-        placeholderTextColor="#666"
+        placeholderTextColor={colors.textMuted}
         style={{
-          backgroundColor: "#101010",
-          borderColor: open ? "#3b82f6" : "#2a2a2a",
+          backgroundColor: colors.surfaceRaised,
+          borderColor: open ? colors.brand : colors.border,
           borderRadius: 10,
           borderWidth: 1,
-          color: "#fff",
+          color: colors.text,
           fontSize: 14,
           padding: 12,
         }}
@@ -56,8 +57,8 @@ export function Autocomplete({
       {open && visible.length > 0 ? (
         <View
           style={{
-            backgroundColor: "#101010",
-            borderColor: "#2a2a2a",
+            backgroundColor: colors.surfaceRaised,
+            borderColor: colors.border,
             borderRadius: 10,
             borderWidth: 1,
             maxHeight: 210,
@@ -74,13 +75,13 @@ export function Autocomplete({
                 setOpen(false);
               }}
               style={{
-                borderBottomColor: "#222",
+                borderBottomColor: colors.border,
                 borderBottomWidth: 1,
                 paddingHorizontal: 12,
                 paddingVertical: 11,
               }}
             >
-              <Text style={{ color: "#e5e5e5", fontSize: 14 }}>
+              <Text style={{ color: colors.text, fontSize: 14 }}>
                 {option.label}
               </Text>
             </TouchableOpacity>

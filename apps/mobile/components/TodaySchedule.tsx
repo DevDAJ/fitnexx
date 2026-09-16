@@ -1,12 +1,12 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { Text, View } from "react-native";
 import { useAppStore } from "../lib/store";
-import type { WorkoutTemplate, Schedule } from "../lib/types";
+import { colors, fontSizes, spacing } from "../lib/theme";
+import type { WorkoutTemplate } from "../lib/types";
+import { AppButton, Card } from "./shared/ui";
 
 interface Props {
   onStartTemplate: (template: WorkoutTemplate) => void;
 }
-
-const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export function TodaySchedule({ onStartTemplate }: Props) {
   const schedule = useAppStore((s) => s.schedule);
@@ -19,79 +19,74 @@ export function TodaySchedule({ onStartTemplate }: Props) {
 
   if (!todayEntry) {
     return (
-      <View
-        style={{
-          backgroundColor: "#161616",
-          borderRadius: 14,
-          padding: 16,
-          borderWidth: 1,
-          borderColor: "#222",
-        }}
-      >
+      <Card>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
           <View
             style={{
               width: 8,
               height: 8,
               borderRadius: 4,
-              backgroundColor: "#666",
+              backgroundColor: colors.textMuted,
             }}
           />
-          <Text style={{ color: "#888", fontSize: 14, fontWeight: "600" }}>
+          <Text
+            style={{
+              color: colors.textSecondary,
+              fontSize: fontSizes.sm,
+              fontWeight: "600",
+            }}
+          >
             Rest Day
           </Text>
         </View>
-        <Text style={{ color: "#555", fontSize: 12, marginTop: 4 }}>
+        <Text
+          style={{
+            color: colors.textMuted,
+            fontSize: fontSizes.xs,
+            marginTop: spacing.xs,
+          }}
+        >
           {schedule.name}
         </Text>
-      </View>
+      </Card>
     );
   }
 
   const template = templates.find((t) => t.id === todayEntry.templateId);
 
   return (
-    <View
-      style={{
-        backgroundColor: "#161616",
-        borderRadius: 14,
-        padding: 16,
-        borderWidth: 1,
-        borderColor: "#3b82f6",
-      }}
-    >
+    <Card style={{ borderColor: colors.brand }}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
         <View
           style={{
             width: 8,
             height: 8,
             borderRadius: 4,
-            backgroundColor: "#3b82f6",
+            backgroundColor: colors.brand,
           }}
         />
-        <Text style={{ color: "#fff", fontSize: 15, fontWeight: "700" }}>
+        <Text style={{ color: colors.text, fontSize: 15, fontWeight: "700" }}>
           Today: {todayEntry.label}
         </Text>
       </View>
-      <Text style={{ color: "#888", fontSize: 12, marginTop: 4 }}>
-        {schedule.name} {template ? `(${template.exercises.length} exercises)` : ""}
+      <Text
+        style={{
+          color: colors.textSecondary,
+          fontSize: fontSizes.xs,
+          marginTop: spacing.xs,
+        }}
+      >
+        {schedule.name}{" "}
+        {template ? `(${template.exercises.length} exercises)` : ""}
       </Text>
       {template && (
-        <TouchableOpacity
+        <AppButton
           onPress={() => onStartTemplate(template)}
-          style={{
-            backgroundColor: "#3b82f6",
-            borderRadius: 10,
-            padding: 12,
-            alignItems: "center",
-            marginTop: 12,
-          }}
+          style={{ marginTop: spacing.md }}
         >
-          <Text style={{ color: "#fff", fontSize: 14, fontWeight: "700" }}>
-            Start Workout
-          </Text>
-        </TouchableOpacity>
+          Start Workout
+        </AppButton>
       )}
-    </View>
+    </Card>
   );
 }

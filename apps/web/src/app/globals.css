@@ -6,14 +6,30 @@
 
 html,
 body {
-  background: #0a0a0a;
-  color: #e5e5e5;
+  background: #080b10;
+  color: #f4f7fb;
+}
+
+:root {
+  color-scheme: dark;
+  --background: #080b10;
+  --surface: #0d121a;
+  --card: #131a24;
+  --surface-raised: #192231;
+  --border: #243043;
+  --border-strong: #344258;
+  --text: #f4f7fb;
+  --muted: #b6c0ce;
+  --subtle: #8491a3;
+  --primary: #3b82f6;
+  --primary-muted: #172a48;
 }
 
 body {
   min-height: 100vh;
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
 }
 
 a {
@@ -21,22 +37,37 @@ a {
   text-decoration: none;
 }
 
+section[id] {
+  scroll-margin-top: 80px;
+}
+
 ::selection {
-  background: #3b82f6;
+  background: var(--primary);
   color: #ffffff;
 }
 
 .route-hero {
   background-image:
-    radial-gradient(circle at 85% 0%, rgba(59, 130, 246, 0.16), transparent 42%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent 55%);
+    radial-gradient(circle at 82% 4%, rgba(59, 130, 246, 0.2), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 60%);
 }
 
 .route-card {
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 24px 70px rgba(1, 5, 12, 0.24);
   transition:
     border-color 160ms ease,
     transform 160ms ease;
+}
+
+.spring-card {
+  height: 100%;
+  transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-phone-static .pf-scroll {
+  overflow: hidden;
+  overscroll-behavior: none;
+  pointer-events: none;
 }
 
 .feature-grid {
@@ -44,7 +75,7 @@ a {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
   width: 100%;
-  max-width: 1024px;
+  max-width: 1180px;
   margin-inline: auto;
 }
 
@@ -52,6 +83,10 @@ a {
   .route-card:hover {
     border-color: rgba(59, 130, 246, 0.38);
     transform: translateY(-2px);
+  }
+
+  .spring-card:hover {
+    transform: translateY(-5px) scale(1.01);
   }
 }
 
@@ -89,7 +124,7 @@ a {
 /* Thin dark scrollbars to match the mobile UI */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #2a2a2a #0a0a0a;
+  scrollbar-color: var(--border-strong) var(--background);
 }
 
 *::-webkit-scrollbar {
@@ -98,28 +133,28 @@ a {
 }
 
 *::-webkit-scrollbar-thumb {
-  background: #2a2a2a;
+  background: var(--border-strong);
   border-radius: 8px;
 }
 
 /* Legal document content (server-rendered HTML elements) */
 .legal {
-  color: #888888;
-  font-size: 14px;
-  line-height: 1.7;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.8;
 }
 
 .legal h2 {
-  color: #ffffff;
-  font-size: 20px;
+  color: var(--text);
+  font-size: 24px;
   font-weight: 700;
   letter-spacing: -0.01em;
   margin-top: 24px;
 }
 
 .legal h3 {
-  color: #ffffff;
-  font-size: 16px;
+  color: var(--text);
+  font-size: 18px;
   font-weight: 700;
   margin-top: 20px;
 }
@@ -139,17 +174,17 @@ a {
 }
 
 .legal li::marker {
-  color: #666666;
+  color: var(--primary);
 }
 
 .legal a {
-  color: #60a5fa;
+  color: #93c5fd;
   text-decoration: underline;
   text-underline-offset: 4px;
 }
 
 .legal strong {
-  color: #ffffff;
+  color: var(--text);
   font-weight: 600;
 }
 
@@ -160,11 +195,48 @@ a {
 /* Native form fields (kept for server-action compatibility) */
 input:focus,
 textarea:focus {
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 0 1px #3b82f6;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.16);
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: #666666;
+  color: var(--subtle);
+}
+
+.site-grid {
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.045) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: linear-gradient(to bottom, black 0%, transparent 85%);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.mono-label {
+  font-family: var(--font-geist-mono), monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    scroll-behavior: auto;
+  }
 }
