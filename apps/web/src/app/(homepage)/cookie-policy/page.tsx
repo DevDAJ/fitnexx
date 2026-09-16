@@ -103,7 +103,7 @@ export default function CookiePolicyPage() {
       <p>
         Questions:&nbsp;
         <Link
-          href="/contact"
+          href="/#contact"
           className="text-foreground underline underline-offset-4"
         >
           Contact form

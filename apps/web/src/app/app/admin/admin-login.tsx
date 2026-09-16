@@ -14,12 +14,12 @@ export function AdminLogin() {
         flexDirection: "column",
         gap: 12,
         width: "100%",
-        maxWidth: 320,
+        maxWidth: 360,
       }}
     >
       <label
         htmlFor="admin-password"
-        style={{ color: "#e5e5e5", fontSize: 14, fontWeight: 600 }}
+        style={{ color: "#e5e5e5", fontSize: 13, fontWeight: 600 }}
       >
         Password
       </label>
@@ -30,10 +30,10 @@ export function AdminLogin() {
         placeholder="Admin password"
         required
         style={{
-          padding: "12px 14px",
-          borderRadius: 10,
-          border: "1px solid #333",
-          background: "#111",
+          padding: "13px 14px",
+          borderRadius: 8,
+          border: "1px solid #343434",
+          background: "#0b0b0b",
           color: "#fff",
           fontSize: 15,
         }}
@@ -47,8 +47,8 @@ export function AdminLogin() {
         type="submit"
         disabled={pending}
         style={{
-          padding: "12px 14px",
-          borderRadius: 10,
+          padding: "13px 14px",
+          borderRadius: 8,
           border: "none",
           background: "#3b82f6",
           color: "#fff",

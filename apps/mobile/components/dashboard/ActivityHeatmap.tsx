@@ -1,30 +1,33 @@
-import { View, Text, ScrollView, Dimensions } from "react-native";
+import { ScrollView, Text, View } from "react-native";
+import { colors } from "../../lib/theme";
 import type { DailySummary } from "../../lib/types";
+import { Card, SectionLabel } from "../shared/ui";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const CELL_SIZE = 13;
 const CELL_GAP = 3;
 const MONTHS_TO_SHOW = 6;
 
 function getColor(intensity: number): string {
-  if (intensity === 0) return "#1a1a1a";
+  if (intensity === 0) return colors.surfaceRaised;
   if (intensity < 0.25) return "#0e4429";
   if (intensity < 0.5) return "#006d32";
   if (intensity < 0.75) return "#26a641";
   return "#39d353";
 }
 
-export function ActivityHeatmap({ dailySummaries }: { dailySummaries: DailySummary[] }) {
+export function ActivityHeatmap({
+  dailySummaries,
+}: {
+  dailySummaries: DailySummary[];
+}) {
   if (dailySummaries.length === 0) {
     return (
-      <View style={{ backgroundColor: "#161616", borderRadius: 14, padding: 16, borderWidth: 1, borderColor: "#222" }}>
-        <Text style={{ color: "#888", fontSize: 12, fontWeight: "600", textTransform: "uppercase" }}>
-          Activity
-        </Text>
-        <Text style={{ color: "#666", fontSize: 14, marginTop: 10 }}>
+      <Card>
+        <SectionLabel>Activity</SectionLabel>
+        <Text style={{ color: colors.textMuted, fontSize: 14, marginTop: 10 }}>
           No activity yet. Start logging!
         </Text>
-      </View>
+      </Card>
     );
   }
 
@@ -43,7 +46,8 @@ export function ActivityHeatmap({ dailySummaries }: { dailySummaries: DailySumma
     const dateStr = d.toISOString().split("T")[0];
     const summary = summaryMap.get(dateStr);
     const count = summary?.sets || 0;
-    const intensity = maxVolume > 0 ? (summary?.totalVolume || 0) / maxVolume : 0;
+    const intensity =
+      maxVolume > 0 ? (summary?.totalVolume || 0) / maxVolume : 0;
 
     currentWeek.push({ date: new Date(d), count, intensity });
 
@@ -56,27 +60,32 @@ export function ActivityHeatmap({ dailySummaries }: { dailySummaries: DailySumma
   if (currentWeek.length > 0) weeks.push(currentWeek);
 
   const totalDays = dailySummaries.length;
-  const totalWeeks = Math.round(MONTHS_TO_SHOW * 30 / 7);
+  const totalWeeks = Math.round((MONTHS_TO_SHOW * 30) / 7);
   const consistency = Math.round((totalDays / Math.max(totalWeeks, 1)) * 100);
 
   return (
-    <View style={{ backgroundColor: "#161616", borderRadius: 14, padding: 16, borderWidth: 1, borderColor: "#222" }}>
-      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <Text style={{ color: "#888", fontSize: 12, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.5 }}>
-          Activity
-        </Text>
-        <Text style={{ color: "#666", fontSize: 12 }}>
+    <Card>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 12,
+        }}
+      >
+        <SectionLabel>Activity</SectionLabel>
+        <Text style={{ color: colors.textMuted, fontSize: 12 }}>
           {consistency}% consistency
         </Text>
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View style={{ flexDirection: "row", gap: CELL_GAP }}>
-          {weeks.map((week, wi) => (
-            <View key={wi} style={{ gap: CELL_GAP }}>
-              {week.map((day, di) => (
+          {weeks.map((week) => (
+            <View key={week[0].date.toISOString()} style={{ gap: CELL_GAP }}>
+              {week.map((day) => (
                 <View
-                  key={di}
+                  key={day.date.toISOString()}
                   style={{
                     width: CELL_SIZE,
                     height: CELL_SIZE,
@@ -90,13 +99,29 @@ export function ActivityHeatmap({ dailySummaries }: { dailySummaries: DailySumma
         </View>
       </ScrollView>
 
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 4, marginTop: 10, alignSelf: "flex-end" }}>
-        <Text style={{ color: "#666", fontSize: 10 }}>Less</Text>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 4,
+          marginTop: 10,
+          alignSelf: "flex-end",
+        }}
+      >
+        <Text style={{ color: colors.textMuted, fontSize: 10 }}>Less</Text>
         {[0, 0.25, 0.5, 0.75, 1].map((i) => (
-          <View key={i} style={{ width: 11, height: 11, borderRadius: 2, backgroundColor: getColor(i) }} />
+          <View
+            key={i}
+            style={{
+              width: 11,
+              height: 11,
+              borderRadius: 2,
+              backgroundColor: getColor(i),
+            }}
+          />
         ))}
-        <Text style={{ color: "#666", fontSize: 10 }}>More</Text>
+        <Text style={{ color: colors.textMuted, fontSize: 10 }}>More</Text>
       </View>
-    </View>
+    </Card>
   );
 }

@@ -1,5 +1,7 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import { useAppStore } from "../../lib/store";
+import { colors, radii } from "../../lib/theme";
+import { Card, SectionLabel } from "../shared/ui";
 
 const GOAL = 2000;
 
@@ -11,15 +13,7 @@ export function WaterCard() {
   const pct = Math.min((ml / GOAL) * 100, 100);
 
   return (
-    <View
-      style={{
-        backgroundColor: "#161616",
-        borderRadius: 14,
-        padding: 16,
-        borderWidth: 1,
-        borderColor: "#222",
-      }}
-    >
+    <Card>
       <View
         style={{
           flexDirection: "row",
@@ -28,18 +22,8 @@ export function WaterCard() {
           marginBottom: 10,
         }}
       >
-        <Text
-          style={{
-            color: "#888",
-            fontSize: 12,
-            fontWeight: "600",
-            textTransform: "uppercase",
-            letterSpacing: 0.5,
-          }}
-        >
-          Water
-        </Text>
-        <Text style={{ color: "#3b82f6", fontSize: 16, fontWeight: "700" }}>
+        <SectionLabel>Water</SectionLabel>
+        <Text style={{ color: colors.brand, fontSize: 16, fontWeight: "700" }}>
           {ml} / {GOAL} ml
         </Text>
       </View>
@@ -48,7 +32,7 @@ export function WaterCard() {
         style={{
           height: 6,
           borderRadius: 3,
-          backgroundColor: "#222",
+          backgroundColor: colors.surfacePressed,
           overflow: "hidden",
         }}
       >
@@ -56,7 +40,7 @@ export function WaterCard() {
           style={{
             height: "100%",
             width: `${pct}%`,
-            backgroundColor: pct >= 100 ? "#22c55e" : "#60a5fa",
+            backgroundColor: pct >= 100 ? colors.success : colors.brand,
             borderRadius: 3,
           }}
         />
@@ -69,15 +53,17 @@ export function WaterCard() {
             onPress={() => addWater(increment)}
             style={{
               flex: 1,
-              backgroundColor: "#1a1a1a",
-              borderRadius: 10,
+              backgroundColor: colors.surfaceRaised,
+              borderRadius: radii.md,
               padding: 12,
               alignItems: "center",
               borderWidth: 1,
-              borderColor: "#2a2a2a",
+              borderColor: colors.borderStrong,
             }}
           >
-            <Text style={{ color: "#fff", fontSize: 14, fontWeight: "700" }}>
+            <Text
+              style={{ color: colors.text, fontSize: 14, fontWeight: "700" }}
+            >
               +{increment} ml
             </Text>
           </TouchableOpacity>
@@ -87,20 +73,26 @@ export function WaterCard() {
             onPress={() => addWater(-ml)}
             style={{
               flex: 1,
-              backgroundColor: "#1a1a1a",
-              borderRadius: 10,
+              backgroundColor: colors.surfaceRaised,
+              borderRadius: radii.md,
               padding: 12,
               alignItems: "center",
               borderWidth: 1,
-              borderColor: "#2a2a2a",
+              borderColor: colors.borderStrong,
             }}
           >
-            <Text style={{ color: "#888", fontSize: 14, fontWeight: "700" }}>
+            <Text
+              style={{
+                color: colors.textSecondary,
+                fontSize: 14,
+                fontWeight: "700",
+              }}
+            >
               Reset
             </Text>
           </TouchableOpacity>
         )}
       </View>
-    </View>
+    </Card>
   );
 }

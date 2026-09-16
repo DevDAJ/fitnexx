@@ -1,12 +1,7 @@
-import { useState } from "react";
-import {
-  Modal,
-  Pressable,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useState } from "react";
+import { Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
+import { colors, radii, spacing } from "../../lib/theme";
 
 export function FilterDropdown({
   muscles,
@@ -45,19 +40,19 @@ export function FilterDropdown({
           justifyContent: "space-between",
           alignItems: "center",
           borderBottomWidth: 1,
-          borderBottomColor: "#1a1a1a",
+          borderBottomColor: colors.border,
         }}
       >
         <Text
           style={{
-            color: active ? "#3b82f6" : "#e5e5e5",
+            color: active ? colors.brand : colors.text,
             fontSize: 15,
             fontWeight: active ? "700" : "500",
           }}
         >
           {label}
         </Text>
-        {active && <Text style={{ color: "#3b82f6", fontSize: 13 }}>✓</Text>}
+        {active && <Text style={{ color: colors.brand, fontSize: 13 }}>✓</Text>}
       </TouchableOpacity>
     );
   };
@@ -69,24 +64,24 @@ export function FilterDropdown({
         style={{
           flexDirection: "row",
           alignItems: "center",
-          gap: 6,
+          gap: spacing.sm,
           alignSelf: "flex-start",
-          backgroundColor: activeCount > 0 ? "#3b82f6" : "#161616",
+          backgroundColor: activeCount > 0 ? colors.brand : colors.surface,
           borderWidth: 1,
-          borderColor: activeCount > 0 ? "#3b82f6" : "#2a2a2a",
-          borderRadius: 10,
-          paddingHorizontal: 14,
-          paddingVertical: 8,
+          borderColor: activeCount > 0 ? colors.brand : colors.border,
+          borderRadius: radii.md,
+          paddingHorizontal: spacing.md,
+          paddingVertical: spacing.sm,
         }}
       >
         <Ionicons
           name="funnel"
           size={14}
-          color={activeCount > 0 ? "#fff" : "#999"}
+          color={activeCount > 0 ? colors.onBrand : colors.textSecondary}
         />
         <Text
           style={{
-            color: activeCount > 0 ? "#fff" : "#bbb",
+            color: activeCount > 0 ? colors.onBrand : colors.textSecondary,
             fontSize: 13,
             fontWeight: "600",
           }}
@@ -104,17 +99,17 @@ export function FilterDropdown({
         <Pressable
           style={{
             flex: 1,
-            backgroundColor: "rgba(0,0,0,0.6)",
+            backgroundColor: colors.overlay,
             justifyContent: "flex-end",
           }}
           onPress={() => setOpen(false)}
         >
           <Pressable
             style={{
-              backgroundColor: "#111",
-              borderTopLeftRadius: 18,
-              borderTopRightRadius: 18,
-              paddingHorizontal: 16,
+              backgroundColor: colors.surfaceRaised,
+              borderTopLeftRadius: radii.lg,
+              borderTopRightRadius: radii.lg,
+              paddingHorizontal: spacing.lg,
               paddingBottom: 40,
             }}
             onPress={() => {}}
@@ -127,11 +122,13 @@ export function FilterDropdown({
                 paddingVertical: 14,
               }}
             >
-              <Text style={{ color: "#fff", fontSize: 18, fontWeight: "800" }}>
+              <Text
+                style={{ color: colors.text, fontSize: 18, fontWeight: "800" }}
+              >
                 Filter exercises
               </Text>
               <TouchableOpacity onPress={() => setOpen(false)}>
-                <Text style={{ color: "#3b82f6", fontSize: 15 }}>Done</Text>
+                <Text style={{ color: colors.brand, fontSize: 15 }}>Done</Text>
               </TouchableOpacity>
             </View>
             {muscles.length > 0 && (
@@ -154,7 +151,7 @@ export function FilterDropdown({
 }
 
 const sectionLabel = {
-  color: "#888",
+  color: colors.textMuted,
   fontSize: 12,
   fontWeight: "600" as const,
   textTransform: "uppercase" as const,

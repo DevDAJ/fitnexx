@@ -1,5 +1,7 @@
-import { View, Text } from "react-native";
+import { Text, View } from "react-native";
+import { colors, fontSizes, radii, spacing } from "../../lib/theme";
 import { Sparkline } from "../shared/Sparkline";
+import { Card, SectionLabel } from "../shared/ui";
 
 export function KpiCard({
   title,
@@ -7,7 +9,7 @@ export function KpiCard({
   subtitle,
   delta,
   sparkData,
-  color = "#3b82f6",
+  color = colors.brand,
 }: {
   title: string;
   value: string;
@@ -18,37 +20,57 @@ export function KpiCard({
 }) {
   const deltaColor =
     delta?.direction === "up"
-      ? "#22c55e"
+      ? colors.success
       : delta?.direction === "down"
-      ? "#ef4444"
-      : "#666";
+        ? colors.danger
+        : colors.textMuted;
 
   return (
-    <View
+    <Card
       style={{
-        backgroundColor: "#161616",
-        borderRadius: 14,
-        padding: 16,
         flex: 1,
         minWidth: 140,
-        borderWidth: 1,
-        borderColor: "#222",
+        backgroundColor: colors.surfaceRaised,
+        borderRadius: radii.xl,
+        padding: spacing.lg,
       }}
     >
-      <Text style={{ color: "#888", fontSize: 12, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.5 }}>
-        {title}
-      </Text>
-      <Text style={{ color: "#fff", fontSize: 28, fontWeight: "800", marginTop: 6 }}>
+      <SectionLabel>{title}</SectionLabel>
+      <Text
+        style={{
+          color: colors.text,
+          fontSize: 30,
+          fontWeight: "800",
+          marginTop: spacing.sm,
+        }}
+      >
         {value}
       </Text>
-      <Text style={{ color: "#666", fontSize: 12, marginTop: 2 }}>
+      <Text
+        style={{
+          color: colors.textSecondary,
+          fontSize: fontSizes.xs,
+          marginTop: 2,
+        }}
+      >
         {subtitle}
       </Text>
 
-      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 10 }}>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginTop: 10,
+        }}
+      >
         {delta && (
           <Text style={{ color: deltaColor, fontSize: 13, fontWeight: "700" }}>
-            {delta.direction === "up" ? "↑" : delta.direction === "down" ? "↓" : "→"}{" "}
+            {delta.direction === "up"
+              ? "↑"
+              : delta.direction === "down"
+                ? "↓"
+                : "→"}{" "}
             {Math.abs(delta.value).toFixed(1)}%
           </Text>
         )}
@@ -56,6 +78,6 @@ export function KpiCard({
           <Sparkline data={sparkData} color={color} width={80} height={32} />
         )}
       </View>
-    </View>
+    </Card>
   );
 }

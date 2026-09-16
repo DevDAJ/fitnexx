@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { colors, radii, spacing } from "../../lib/theme";
 
 export function SegmentedControl<T extends string>({
   options,
@@ -13,11 +14,11 @@ export function SegmentedControl<T extends string>({
     <View
       style={{
         flexDirection: "row",
-        backgroundColor: "#161616",
-        borderRadius: 12,
-        padding: 3,
+        backgroundColor: colors.surface,
+        borderRadius: radii.md,
+        padding: spacing.xs,
         borderWidth: 1,
-        borderColor: "#222",
+        borderColor: colors.border,
       }}
     >
       {options.map((o) => {
@@ -29,14 +30,14 @@ export function SegmentedControl<T extends string>({
             style={{
               flex: 1,
               paddingVertical: 9,
-              borderRadius: 9,
+              borderRadius: radii.sm,
               alignItems: "center",
-              backgroundColor: active ? "#3b82f6" : "transparent",
+              backgroundColor: active ? colors.brand : colors.transparent,
             }}
           >
             <Text
               style={{
-                color: active ? "#fff" : "#888",
+                color: active ? colors.onBrand : colors.textSecondary,
                 fontSize: 14,
                 fontWeight: active ? "700" : "600",
               }}

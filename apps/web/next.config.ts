@@ -2,6 +2,19 @@ import { withTamagui } from "@tamagui/next-plugin";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      { source: "/features", destination: "/#features", permanent: true },
+      { source: "/pricing", destination: "/#pricing", permanent: true },
+      { source: "/mission", destination: "/#mission", permanent: true },
+      { source: "/contact", destination: "/#contact", permanent: true },
+      {
+        source: "/coming-soon",
+        destination: "/early-access",
+        permanent: true,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {

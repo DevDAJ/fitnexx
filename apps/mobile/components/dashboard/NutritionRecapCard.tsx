@@ -2,6 +2,8 @@ import { useMemo } from "react";
 import { Text, View } from "react-native";
 import { useAppStore } from "../../lib/store";
 import { dayKey } from "../../lib/streak";
+import { colors } from "../../lib/theme";
+import { Card, SectionLabel } from "../shared/ui";
 
 export function NutritionRecapCard() {
   const meals = useAppStore((s) => s.meals);
@@ -33,41 +35,31 @@ export function NutritionRecapCard() {
   }, [meals, waterLog, workouts]);
 
   return (
-    <View
-      style={{
-        backgroundColor: "#161616",
-        borderRadius: 14,
-        padding: 16,
-        borderWidth: 1,
-        borderColor: "#222",
-      }}
-    >
-      <Text
-        style={{
-          color: "#888",
-          fontSize: 12,
-          fontWeight: "600",
-          textTransform: "uppercase",
-          letterSpacing: 0.5,
-        }}
-      >
-        Past 7 Days
-      </Text>
+    <Card>
+      <SectionLabel>Past 7 Days</SectionLabel>
       <View style={{ flexDirection: "row", marginTop: 12, gap: 12 }}>
-        <Stat label="Avg kcal" value={`${recap.avgCals}`} color="#3b82f6" />
+        <Stat
+          label="Avg kcal"
+          value={`${recap.avgCals}`}
+          color={colors.brand}
+        />
         <Stat
           label="Avg protein"
           value={`${recap.avgProtein}g`}
-          color="#22c55e"
+          color={colors.success}
         />
         <Stat
           label="Water"
           value={`${Math.round(recap.waterMl / 1000)}L`}
-          color="#60a5fa"
+          color={colors.brand}
         />
-        <Stat label="Sessions" value={`${recap.sessions}`} color="#fbbf24" />
+        <Stat
+          label="Sessions"
+          value={`${recap.sessions}`}
+          color={colors.warning}
+        />
       </View>
-    </View>
+    </Card>
   );
 }
 
@@ -83,7 +75,9 @@ function Stat({
   return (
     <View style={{ flex: 1 }}>
       <Text style={{ color, fontSize: 18, fontWeight: "800" }}>{value}</Text>
-      <Text style={{ color: "#666", fontSize: 11, marginTop: 2 }}>{label}</Text>
+      <Text style={{ color: colors.textMuted, fontSize: 11, marginTop: 2 }}>
+        {label}
+      </Text>
     </View>
   );
 }

@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, Dimensions } from "react-native";
-import Svg, { Path, G, Rect } from "react-native-svg";
+import { Dimensions, Text, TouchableOpacity, View } from "react-native";
+import Svg, { G, Path, Rect } from "react-native-svg";
 import { MUSCLE_COLORS, type Muscle } from "../../constants/muscles";
+import { colors, radii } from "../../lib/theme";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const MAP_WIDTH = (SCREEN_WIDTH - 48) * 0.5;
@@ -193,11 +194,15 @@ const ADDUCTOR_PATHS_FRONT = [
 
 interface BodyMapProps {
   muscleData: Map<string, { weeklySets: number; hypertrophyScore: number }>;
-  onSelectMuscle: (muscle: Muscle) => void;
+  onSelectMuscle: (muscle: Muscle | null) => void;
   selectedMuscle: Muscle | null;
 }
 
-export function BodyMap({ muscleData, onSelectMuscle, selectedMuscle }: BodyMapProps) {
+export function BodyMap({
+  muscleData,
+  onSelectMuscle,
+  selectedMuscle,
+}: BodyMapProps) {
   const [view, setView] = useState<"front" | "back">("front");
 
   return (
@@ -210,13 +215,20 @@ export function BodyMap({ muscleData, onSelectMuscle, selectedMuscle }: BodyMapP
             style={{
               paddingHorizontal: 20,
               paddingVertical: 8,
-              borderRadius: 8,
-              backgroundColor: view === v ? "#3b82f6" : "#161616",
+              borderRadius: radii.full,
+              backgroundColor: view === v ? colors.brand : colors.surfaceRaised,
               borderWidth: 1,
-              borderColor: view === v ? "#3b82f6" : "#2a2a2a",
+              borderColor: view === v ? colors.brand : colors.borderStrong,
             }}
           >
-            <Text style={{ color: view === v ? "#fff" : "#888", fontSize: 13, fontWeight: "600", textTransform: "capitalize" }}>
+            <Text
+              style={{
+                color: view === v ? colors.onBrand : colors.textSecondary,
+                fontSize: 13,
+                fontWeight: "600",
+                textTransform: "capitalize",
+              }}
+            >
               {v}
             </Text>
           </TouchableOpacity>
@@ -224,21 +236,30 @@ export function BodyMap({ muscleData, onSelectMuscle, selectedMuscle }: BodyMapP
       </View>
 
       <Svg width={MAP_WIDTH} height={MAP_HEIGHT} viewBox={`0 0 ${VW} ${VH}`}>
-        <Rect x="0" y="0" width={VW} height={VH} fill="transparent" onPress={() => onSelectMuscle(null as any)} />
+        <Rect
+          x="0"
+          y="0"
+          width={VW}
+          height={VH}
+          fill="transparent"
+          onPress={() => onSelectMuscle(null)}
+        />
         {/* Adductors (mapped to Quads for display) */}
         {view === "front" &&
-          ADDUCTOR_PATHS_FRONT.map((d, i) => {
+          ADDUCTOR_PATHS_FRONT.map((d) => {
             const data = muscleData.get("Quads");
-            const intensity = data ? Math.min(data.hypertrophyScore / 100, 1) : 0;
-            const color = MUSCLE_COLORS["Quads"] || "#666";
+            const intensity = data
+              ? Math.min(data.hypertrophyScore / 100, 1)
+              : 0;
+            const color = MUSCLE_COLORS.Quads || colors.textMuted;
             const isSelected = selectedMuscle === "Quads";
             return (
               <Path
-                key={`adductor-${i}`}
+                key={d}
                 d={d}
                 fill={color}
                 opacity={isSelected ? 0.9 : 0.15 + intensity * 0.65}
-                stroke={isSelected ? "#fff" : "rgba(255,255,255,0.08)"}
+                stroke={isSelected ? colors.text : colors.border}
                 strokeWidth={isSelected ? 2 : 0.5}
                 onPress={() => onSelectMuscle("Quads")}
               />
@@ -251,18 +272,25 @@ export function BodyMap({ muscleData, onSelectMuscle, selectedMuscle }: BodyMapP
 
           const data = muscleData.get(group.muscle);
           const intensity = data ? Math.min(data.hypertrophyScore / 100, 1) : 0;
-          const baseColor = MUSCLE_COLORS[group.muscle] || "#666";
+          const baseColor = MUSCLE_COLORS[group.muscle] || colors.textMuted;
           const isSelected = selectedMuscle === group.muscle;
 
           return (
-            <G key={group.muscle} transform={group.muscle === "Calves" && view === "front" ? "translate(0, -90)" : undefined}>
+            <G
+              key={group.muscle}
+              transform={
+                group.muscle === "Calves" && view === "front"
+                  ? "translate(0, -90)"
+                  : undefined
+              }
+            >
               {paths.map((d, i) => (
                 <Path
                   key={`${group.muscle}-${i}`}
                   d={d}
                   fill={baseColor}
                   opacity={isSelected ? 0.9 : 0.15 + intensity * 0.65}
-                  stroke={isSelected ? "#fff" : "rgba(255,255,255,0.08)"}
+                  stroke={isSelected ? colors.text : colors.border}
                   strokeWidth={isSelected ? 2 : 0.5}
                   onPress={() => onSelectMuscle(group.muscle)}
                 />

@@ -1,6 +1,8 @@
-import { useState, useEffect, useRef } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
 import * as Haptics from "expo-haptics";
+import { useEffect, useRef, useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import { colors } from "../../lib/theme";
+import { AppButton, Card, SectionLabel } from "../shared/ui";
 
 const PRESETS = [60, 90, 120, 180];
 
@@ -42,22 +44,28 @@ export function RestTimer() {
   const seconds = remaining % 60;
 
   return (
-    <View style={{ backgroundColor: "#161616", borderRadius: 14, padding: 16, borderWidth: 1, borderColor: "#222" }}>
-      <Text style={{ color: "#888", fontSize: 12, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10 }}>
-        Rest Timer
-      </Text>
+    <Card>
+      <SectionLabel style={{ marginBottom: 10 }}>Rest Timer</SectionLabel>
 
       {running ? (
         <View style={{ alignItems: "center" }}>
-          <Text style={{ color: remaining <= 10 ? "#f59e0b" : "#fff", fontSize: 48, fontWeight: "800", fontVariant: ["tabular-nums"] }}>
+          <Text
+            style={{
+              color: remaining <= 10 ? colors.warning : colors.text,
+              fontSize: 48,
+              fontWeight: "800",
+              fontVariant: ["tabular-nums"],
+            }}
+          >
             {minutes}:{seconds.toString().padStart(2, "0")}
           </Text>
-          <TouchableOpacity
+          <AppButton
             onPress={stop}
-            style={{ marginTop: 12, backgroundColor: "#ef4444", borderRadius: 10, paddingHorizontal: 24, paddingVertical: 10 }}
+            variant="danger"
+            style={{ marginTop: 12, minHeight: 42 }}
           >
-            <Text style={{ color: "#fff", fontWeight: "700" }}>Stop</Text>
-          </TouchableOpacity>
+            Stop
+          </AppButton>
         </View>
       ) : (
         <View style={{ alignItems: "center" }}>
@@ -67,28 +75,39 @@ export function RestTimer() {
                 key={p}
                 onPress={() => setTarget(p)}
                 style={{
-                  backgroundColor: target === p ? "#3b82f6" : "#1a1a1a",
+                  backgroundColor:
+                    target === p ? colors.brand : colors.surfaceRaised,
                   borderRadius: 8,
                   paddingHorizontal: 14,
                   paddingVertical: 8,
                   borderWidth: 1,
-                  borderColor: target === p ? "#3b82f6" : "#2a2a2a",
+                  borderColor: target === p ? colors.brand : colors.border,
                 }}
               >
-                <Text style={{ color: target === p ? "#fff" : "#888", fontSize: 13, fontWeight: "600" }}>
+                <Text
+                  style={{
+                    color: target === p ? colors.onBrand : colors.textSecondary,
+                    fontSize: 13,
+                    fontWeight: "600",
+                  }}
+                >
                   {p}s
                 </Text>
               </TouchableOpacity>
             ))}
           </View>
-          <TouchableOpacity
+          <AppButton
             onPress={start}
-            style={{ backgroundColor: "#22c55e", borderRadius: 10, paddingHorizontal: 32, paddingVertical: 12 }}
+            style={{
+              backgroundColor: colors.success,
+              borderColor: colors.success,
+              minHeight: 44,
+            }}
           >
-            <Text style={{ color: "#fff", fontSize: 15, fontWeight: "700" }}>Start</Text>
-          </TouchableOpacity>
+            Start
+          </AppButton>
         </View>
       )}
-    </View>
+    </Card>
   );
 }

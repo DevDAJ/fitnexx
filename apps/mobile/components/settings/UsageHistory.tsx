@@ -4,6 +4,8 @@ import { useCallback, useState } from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 
 import { storage } from "../../lib/storage";
+import { colors } from "../../lib/theme";
+import { Card, SectionLabel } from "../shared/ui";
 
 const number = new Intl.NumberFormat();
 
@@ -41,14 +43,9 @@ export function UsageHistory() {
     );
 
   return (
-    <View
+    <Card
       style={{
-        backgroundColor: "#161616",
-        borderColor: "#222",
-        borderRadius: 14,
-        borderWidth: 1,
         gap: 12,
-        padding: 16,
       }}
     >
       <View
@@ -59,23 +56,18 @@ export function UsageHistory() {
         }}
       >
         <View>
+          <SectionLabel>AI Usage</SectionLabel>
           <Text
-            style={{
-              color: "#888",
-              fontSize: 12,
-              fontWeight: "600",
-              letterSpacing: 0.5,
-            }}
+            style={{ color: colors.textSecondary, fontSize: 12, marginTop: 3 }}
           >
-            AI USAGE
-          </Text>
-          <Text style={{ color: "#666", fontSize: 12, marginTop: 3 }}>
             Stored only on this device
           </Text>
         </View>
         {records.length ? (
           <TouchableOpacity accessibilityRole="button" onPress={clear}>
-            <Text style={{ color: "#f87171", fontSize: 12, fontWeight: "600" }}>
+            <Text
+              style={{ color: colors.danger, fontSize: 12, fontWeight: "600" }}
+            >
               Clear
             </Text>
           </TouchableOpacity>
@@ -91,7 +83,7 @@ export function UsageHistory() {
         <View
           key={record.id}
           style={{
-            borderTopColor: "#222",
+            borderTopColor: colors.border,
             borderTopWidth: 1,
             flexDirection: "row",
             justifyContent: "space-between",
@@ -101,26 +93,28 @@ export function UsageHistory() {
           <View style={{ flex: 1, paddingRight: 12 }}>
             <Text
               numberOfLines={1}
-              style={{ color: "#e5e5e5", fontSize: 13, fontWeight: "600" }}
+              style={{ color: colors.text, fontSize: 13, fontWeight: "600" }}
             >
               {record.model}
             </Text>
-            <Text style={{ color: "#666", fontSize: 11, marginTop: 2 }}>
+            <Text
+              style={{ color: colors.textMuted, fontSize: 11, marginTop: 2 }}
+            >
               {record.provider} ·{" "}
               {new Date(record.timestamp).toLocaleDateString()}
             </Text>
           </View>
-          <Text style={{ color: "#888", fontSize: 12 }}>
+          <Text style={{ color: colors.textSecondary, fontSize: 12 }}>
             {number.format(record.totalTokens)} tokens
           </Text>
         </View>
       ))}
       {!records.length ? (
-        <Text style={{ color: "#666", fontSize: 13 }}>
+        <Text style={{ color: colors.textSecondary, fontSize: 13 }}>
           Usage appears after your first AI suggestion.
         </Text>
       ) : null}
-    </View>
+    </Card>
   );
 }
 
@@ -128,16 +122,18 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <View
       style={{
-        backgroundColor: "#101010",
+        backgroundColor: colors.surfaceRaised,
         borderRadius: 10,
         flex: 1,
         padding: 12,
       }}
     >
-      <Text style={{ color: "#fff", fontSize: 19, fontWeight: "700" }}>
+      <Text style={{ color: colors.text, fontSize: 19, fontWeight: "700" }}>
         {value}
       </Text>
-      <Text style={{ color: "#666", fontSize: 11, marginTop: 2 }}>{label}</Text>
+      <Text style={{ color: colors.textMuted, fontSize: 11, marginTop: 2 }}>
+        {label}
+      </Text>
     </View>
   );
 }

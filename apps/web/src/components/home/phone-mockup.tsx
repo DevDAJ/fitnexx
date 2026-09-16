@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
@@ -28,17 +30,17 @@ const PHONE_CSS = `
 `;
 
 const CARD: React.CSSProperties = {
-  background: "#161616",
+  background: "#131a24",
   borderRadius: 14,
   padding: 16,
   borderWidth: 1,
 
   borderStyle: "solid",
-  borderColor: "#222",
+  borderColor: "#243043",
 };
 
 const LABEL: React.CSSProperties = {
-  color: "#888",
+  color: "#b6c0ce",
   fontSize: 12,
   fontWeight: 600,
   textTransform: "uppercase",
@@ -168,10 +170,10 @@ function TabBar({ active }: { active: number }) {
         left: 0,
         right: 0,
         bottom: 0,
-        background: "#111111",
+        background: "#0d121a",
         borderTopStyle: "solid",
         borderTopWidth: 1,
-        borderTopColor: "#222222",
+        borderTopColor: "#243043",
         paddingTop: 8,
         zIndex: 30,
       }}
@@ -191,10 +193,10 @@ function TabBar({ active }: { active: number }) {
                 opacity: on ? 1 : 0.4,
               }}
             >
-              <div style={{ color: on ? "#3b82f6" : "#666" }}>{it.icon}</div>
+              <div style={{ color: on ? "#3b82f6" : "#8491a3" }}>{it.icon}</div>
               <div
                 style={{
-                  color: on ? "#3b82f6" : "#666",
+                  color: on ? "#3b82f6" : "#8491a3",
                   fontSize: 10,
                   fontWeight: 600,
                   lineHeight: 1,
@@ -218,7 +220,7 @@ function TabBar({ active }: { active: number }) {
             width: 120,
             height: 4,
             borderRadius: 999,
-            background: "#333",
+            background: "#344258",
           }}
         />
       </div>
@@ -274,8 +276,8 @@ export function PhoneFrame({
           <div
             style={{
               borderRadius: 46,
-              border: "6px solid #1c1c1e",
-              background: "#050505",
+              border: "6px solid #344258",
+              background: "#080b10",
               padding: 8,
               boxShadow:
                 "0 46px 90px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)",
@@ -287,7 +289,7 @@ export function PhoneFrame({
                 aspectRatio: "272 / 560",
                 borderRadius: 40,
                 overflow: "hidden",
-                background: "#0a0a0a",
+                background: "#080b10",
               }}
             >
               <div
@@ -299,7 +301,7 @@ export function PhoneFrame({
                   width: 92,
                   height: 22,
                   borderRadius: 999,
-                  background: "#141416",
+                  background: "#0d121a",
                   zIndex: 20,
                   display: "flex",
                   alignItems: "center",
@@ -344,7 +346,7 @@ const SCREEN_ROOT: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   gap: 12,
-  color: "#fff",
+  color: "#f4f7fb",
   fontFamily:
     '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
 };
@@ -354,7 +356,7 @@ function KpiCard({
   value,
   subtitle,
   delta,
-  deltaColor = "#666",
+  deltaColor = "#8491a3",
   color = "#3b82f6",
   sparkData,
 }: {
@@ -370,11 +372,16 @@ function KpiCard({
     <div style={{ ...CARD, flex: 1, minWidth: 0 }}>
       <div style={LABEL}>{title}</div>
       <div
-        style={{ color: "#fff", fontSize: 28, fontWeight: 800, marginTop: 6 }}
+        style={{
+          color: "#f4f7fb",
+          fontSize: 28,
+          fontWeight: 800,
+          marginTop: 6,
+        }}
       >
         {value}
       </div>
-      <div style={{ color: "#666", fontSize: 12, marginTop: 2 }}>
+      <div style={{ color: "#8491a3", fontSize: 12, marginTop: 2 }}>
         {subtitle}
       </div>
       <div
@@ -438,7 +445,7 @@ function ChartLabels({
         y1={H - pad}
         x2={W - pad}
         y2={H - pad}
-        stroke="#333"
+        stroke="#344258"
         strokeWidth="1"
       />
       {idx.map((i) => (
@@ -446,7 +453,7 @@ function ChartLabels({
           key={labels[i]}
           x={pad + (i / (labels.length - 1)) * (W - pad * 2)}
           y={H - 8}
-          fill="#666"
+          fill="#8491a3"
           fontSize="10"
           textAnchor="middle"
         >
@@ -479,7 +486,7 @@ function PrTrendCard() {
           strokeLinejoin="round"
         />
         <ChartLabels labels={labels} W={W} H={H} pad={pad} />
-        <text x={4} y={pad + 4} fill="#666" fontSize="10">
+        <text x={4} y={pad + 4} fill="#8491a3" fontSize="10">
           {max}
         </text>
       </svg>
@@ -517,9 +524,9 @@ function VolumeDensityCard() {
               style={{
                 padding: "4px 10px",
                 borderRadius: 10,
-                background: mode === m ? "#3b82f6" : "#222",
+                background: mode === m ? "#3b82f6" : "#192231",
                 border: "none",
-                color: mode === m ? "#fff" : "#888",
+                color: mode === m ? "#f4f7fb" : "#b6c0ce",
                 fontSize: 11,
                 fontWeight: 600,
                 textTransform: "capitalize",
@@ -558,14 +565,14 @@ function VolumeDensityCard() {
                 y={H - pad - barH}
                 width={barW}
                 height={barH}
-                fill="#22c55e"
+                fill="#34d399"
                 rx="3"
               />
             );
           })
         )}
         <ChartLabels labels={labels} W={W} H={H} pad={pad} />
-        <text x={4} y={pad + 4} fill="#666" fontSize="10">
+        <text x={4} y={pad + 4} fill="#8491a3" fontSize="10">
           {max}
         </text>
       </svg>
@@ -576,8 +583,8 @@ function VolumeDensityCard() {
 function MuscleTrendCard() {
   const layers = ["Chest", "Back", "Shoulders", "Biceps", "Abs"];
   const layerColors = [
-    ...layers.map((m) => MUSCLE_COLORS[m] || "#666"),
-    "#666",
+    ...layers.map((m) => MUSCLE_COLORS[m] || "#8491a3"),
+    "#8491a3",
   ];
   const allKeys = [...layers, "Other"];
   const weeks = [
@@ -622,7 +629,7 @@ function MuscleTrendCard() {
           y1={H - pad}
           x2={W - pad}
           y2={H - pad}
-          stroke="#333"
+          stroke="#344258"
           strokeWidth="1"
         />
         {allKeys.map((key, li) => {
@@ -669,7 +676,7 @@ function MuscleTrendCard() {
                 background: layerColors[li],
               }}
             />
-            <span style={{ color: "#aaa", fontSize: 11 }}>{key}</span>
+            <span style={{ color: "#b6c0ce", fontSize: 11 }}>{key}</span>
           </span>
         ))}
       </div>
@@ -711,7 +718,7 @@ function WeeklySetsChart() {
                 width: "100%",
                 height: (it.v / max) * 96,
                 borderRadius: 4,
-                background: MUSCLE_COLORS[it.m] || "#666",
+                background: MUSCLE_COLORS[it.m] || "#8491a3",
               }}
             />
           </span>
@@ -728,10 +735,10 @@ function WeeklySetsChart() {
                 width: 8,
                 height: 8,
                 borderRadius: 4,
-                background: MUSCLE_COLORS[it.m] || "#666",
+                background: MUSCLE_COLORS[it.m] || "#8491a3",
               }}
             />
-            <span style={{ color: "#aaa", fontSize: 11 }}>
+            <span style={{ color: "#b6c0ce", fontSize: 11 }}>
               {it.m} ({it.v})
             </span>
           </span>
@@ -772,7 +779,7 @@ function IntensityEvolutionCard() {
           y1={H - pad}
           x2={W - pad}
           y2={H - pad}
-          stroke="#333"
+          stroke="#344258"
           strokeWidth="1"
         />
         {INTENSITY_ZONES.map((zone) => {
@@ -822,7 +829,7 @@ function IntensityEvolutionCard() {
                 background: z.color,
               }}
             />
-            <span style={{ color: "#aaa", fontSize: 10 }}>{z.label}</span>
+            <span style={{ color: "#b6c0ce", fontSize: 10 }}>{z.label}</span>
           </span>
         ))}
       </div>
@@ -869,10 +876,10 @@ function WeeklyRhythmCard() {
                 width: "100%",
                 height: d.sessions > 0 ? (d.sessions / max) * 96 : 4,
                 borderRadius: 3,
-                background: d.sessions > 0 ? "#3b82f6" : "#222",
+                background: d.sessions > 0 ? "#3b82f6" : "#192231",
               }}
             />
-            <span style={{ color: "#666", fontSize: 10 }}>{d.day}</span>
+            <span style={{ color: "#8491a3", fontSize: 10 }}>{d.day}</span>
           </span>
         ))}
       </div>
@@ -906,19 +913,19 @@ function TopExercisesCard() {
                 }}
               >
                 <span
-                  style={{ color: "#e5e5e5", fontSize: 13, fontWeight: 600 }}
+                  style={{ color: "#f4f7fb", fontSize: 13, fontWeight: 600 }}
                 >
                   {d.name}
                 </span>
-                <span style={{ color: "#888", fontSize: 12 }}>
-                  {d.v.toLocaleString()}
+                <span style={{ color: "#b6c0ce", fontSize: 12 }}>
+                  {d.v.toLocaleString("en-US")}
                 </span>
               </div>
               <div
                 style={{
                   height: 6,
                   borderRadius: 3,
-                  background: "#222",
+                  background: "#192231",
                   overflow: "hidden",
                 }}
               >
@@ -942,9 +949,9 @@ function TopExercisesCard() {
 }
 
 const STATUS_STYLE: Record<string, { bg: string; fg: string }> = {
-  ok: { bg: "#22c55e22", fg: "#22c55e" },
-  watch: { bg: "#f59e0b22", fg: "#f59e0b" },
-  flag: { bg: "#ef444422", fg: "#ef4444" },
+  ok: { bg: "#34d39922", fg: "#34d399" },
+  watch: { bg: "#fbbf2422", fg: "#fbbf24" },
+  flag: { bg: "#fb718522", fg: "#fb7185" },
 };
 
 const TREND_ARROW: Record<string, string> = {
@@ -976,12 +983,12 @@ function StrengthBalanceCard() {
               paddingBottom: 10,
               borderTopStyle: "solid",
               borderTopWidth: i > 0 ? 1 : 0,
-              borderTopColor: "#222",
+              borderTopColor: "#243043",
             }}
           >
             <span
               style={{
-                color: "#e5e5e5",
+                color: "#f4f7fb",
                 fontSize: 13,
                 fontWeight: 600,
                 flex: 1,
@@ -991,7 +998,7 @@ function StrengthBalanceCard() {
             </span>
             <span
               style={{
-                color: "#e5e5e5",
+                color: "#f4f7fb",
                 fontSize: 13,
                 fontWeight: 700,
                 marginLeft: 8,
@@ -1001,7 +1008,7 @@ function StrengthBalanceCard() {
               {f.ratio.toFixed(2)}x
             </span>
             <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ color: "#666", fontSize: 14 }}>
+              <span style={{ color: "#8491a3", fontSize: 14 }}>
                 {TREND_ARROW[f.trend]}
               </span>
               <span
@@ -1053,14 +1060,14 @@ function PlateauCard() {
             paddingBottom: 10,
             borderTopStyle: "solid",
             borderTopWidth: i > 0 ? 1 : 0,
-            borderTopColor: "#222",
+            borderTopColor: "#243043",
           }}
         >
           <span style={{ flex: 1 }}>
             <span
               style={{
                 display: "block",
-                color: "#e5e5e5",
+                color: "#f4f7fb",
                 fontSize: 14,
                 fontWeight: 600,
               }}
@@ -1070,7 +1077,7 @@ function PlateauCard() {
             <span
               style={{
                 display: "block",
-                color: "#666",
+                color: "#8491a3",
                 fontSize: 12,
                 marginTop: 2,
               }}
@@ -1085,10 +1092,10 @@ function PlateauCard() {
               paddingTop: 2,
               paddingBottom: 2,
               borderRadius: 6,
-              background: "#f59e0b22",
+              background: "#fbbf2422",
             }}
           >
-            <span style={{ color: "#f59e0b", fontSize: 11, fontWeight: 700 }}>
+            <span style={{ color: "#fbbf24", fontSize: 11, fontWeight: 700 }}>
               Plateau
             </span>
           </span>
@@ -1103,8 +1110,8 @@ function InjuryRiskCard() {
   const riskLevel = "low";
   const factors = { acwr: 0.9, recovery: 22, imbalance: 15 };
   const risk = (v: number) =>
-    v < 30 ? "#22c55e" : v <= 60 ? "#f59e0b" : "#ef4444";
-  const badge = { backgroundColor: "#22c55e22", color: "#22c55e" };
+    v < 30 ? "#34d399" : v <= 60 ? "#fbbf24" : "#fb7185";
+  const badge = { backgroundColor: "#34d39922", color: "#34d399" };
   return (
     <div style={CARD}>
       <div
@@ -1159,20 +1166,22 @@ function InjuryRiskCard() {
               marginBottom: 4,
             }}
           >
-            <span style={{ color: "#aaa", fontSize: 12 }}>
+            <span style={{ color: "#b6c0ce", fontSize: 12 }}>
               {key === "acwr"
                 ? "ACWR"
                 : key === "recovery"
                   ? "Recovery"
                   : "Imbalance"}
             </span>
-            <span style={{ color: "#888", fontSize: 12 }}>{factors[key]}</span>
+            <span style={{ color: "#b6c0ce", fontSize: 12 }}>
+              {factors[key]}
+            </span>
           </div>
           <div
             style={{
               height: 6,
               borderRadius: 3,
-              background: "#222",
+              background: "#192231",
               overflow: "hidden",
             }}
           >
@@ -1202,14 +1211,14 @@ function TrainingTimelineCard() {
           <span
             style={{
               display: "block",
-              color: "#e5e5e5",
+              color: "#f4f7fb",
               fontSize: 20,
               fontWeight: 800,
             }}
           >
             Master
           </span>
-          <span style={{ display: "block", color: "#888", fontSize: 12 }}>
+          <span style={{ display: "block", color: "#b6c0ce", fontSize: 12 }}>
             19400 lifetime sets
           </span>
         </span>
@@ -1218,7 +1227,7 @@ function TrainingTimelineCard() {
         style={{
           height: 8,
           borderRadius: 4,
-          background: "#222",
+          background: "#192231",
           overflow: "hidden",
           marginTop: 14,
         }}
@@ -1235,7 +1244,7 @@ function TrainingTimelineCard() {
       </div>
       <div
         style={{
-          color: "#666",
+          color: "#8491a3",
           fontSize: 11,
           textAlign: "right",
           marginTop: 4,
@@ -1243,8 +1252,8 @@ function TrainingTimelineCard() {
       >
         54%
       </div>
-      <div style={{ color: "#888", fontSize: 13, marginTop: 6 }}>
-        Next: <span style={{ color: "#e5e5e5", fontWeight: 700 }}>Legend</span>{" "}
+      <div style={{ color: "#b6c0ce", fontSize: 13, marginTop: 6 }}>
+        Next: <span style={{ color: "#f4f7fb", fontWeight: 700 }}>Legend</span>{" "}
         in ~9 weeks
       </div>
     </div>
@@ -1268,7 +1277,7 @@ const HEAT_WEEKS: {
 })();
 
 function heatColor(intensity: number): string {
-  if (intensity === 0) return "#1a1a1a";
+  if (intensity === 0) return "#192231";
   if (intensity < 0.25) return "#0e4429";
   if (intensity < 0.5) return "#006d32";
   if (intensity < 0.75) return "#26a641";
@@ -1287,7 +1296,7 @@ function ActivityHeatmap() {
         }}
       >
         <div style={LABEL}>Activity</div>
-        <span style={{ color: "#666", fontSize: 12 }}>72% consistency</span>
+        <span style={{ color: "#8491a3", fontSize: 12 }}>72% consistency</span>
       </div>
       <div style={{ display: "flex", gap: 3 }}>
         {HEAT_WEEKS.map((week) => (
@@ -1318,7 +1327,7 @@ function ActivityHeatmap() {
           justifyContent: "flex-end",
         }}
       >
-        <span style={{ color: "#666", fontSize: 10 }}>Less</span>
+        <span style={{ color: "#8491a3", fontSize: 10 }}>Less</span>
         {[0, 0.25, 0.5, 0.75, 1].map((i) => (
           <span
             key={i}
@@ -1330,7 +1339,7 @@ function ActivityHeatmap() {
             }}
           />
         ))}
-        <span style={{ color: "#666", fontSize: 10 }}>More</span>
+        <span style={{ color: "#8491a3", fontSize: 10 }}>More</span>
       </div>
     </div>
   );
@@ -1339,7 +1348,7 @@ function ActivityHeatmap() {
 export function DashboardScreen() {
   return (
     <div className="pf-app" style={SCREEN_ROOT}>
-      <div style={{ color: "#fff", fontSize: 24, fontWeight: 800 }}>
+      <div style={{ color: "#f4f7fb", fontSize: 24, fontWeight: 800 }}>
         Dashboard
       </div>
       <div style={{ display: "flex", gap: 10 }}>
@@ -1348,7 +1357,7 @@ export function DashboardScreen() {
           value="6"
           subtitle="last 30 days"
           delta="↑ 50.0%"
-          deltaColor="#22c55e"
+          deltaColor="#34d399"
           color="#fbbf24"
           sparkData={[2, 3, 4, 4, 5, 6]}
         />
@@ -1357,7 +1366,7 @@ export function DashboardScreen() {
           value="48.2k"
           subtitle="last 30 days"
           delta="↑ 14.3%"
-          deltaColor="#22c55e"
+          deltaColor="#34d399"
           color="#3b82f6"
           sparkData={[23, 27, 30, 34, 39, 45, 48]}
         />
@@ -1398,7 +1407,7 @@ function MealFieldRow() {
         <div key={f.label} style={{ flex: 1 }}>
           <div
             style={{
-              color: "#666",
+              color: "#8491a3",
               fontSize: 11,
               marginBottom: 4,
               textAlign: "center",
@@ -1408,19 +1417,19 @@ function MealFieldRow() {
           </div>
           <div
             style={{
-              background: "#161616",
-              borderRadius: 10,
+              background: "#131a24",
+              borderRadius: 12,
               padding: "12px 0",
-              color: "#fff",
+              color: "#f4f7fb",
               fontSize: 16,
               borderWidth: 1,
 
               borderStyle: "solid",
-              borderColor: "#2a2a2a",
+              borderColor: "#243043",
               textAlign: "center",
             }}
           >
-            <span style={{ color: "#444" }}>{f.placeholder}</span>
+            <span style={{ color: "#8491a3" }}>{f.placeholder}</span>
           </div>
         </div>
       ))}
@@ -1431,7 +1440,9 @@ function MealFieldRow() {
 export function MealsScreen() {
   return (
     <div className="pf-app" style={SCREEN_ROOT}>
-      <div style={{ color: "#fff", fontSize: 24, fontWeight: 800 }}>Meals</div>
+      <div style={{ color: "#f4f7fb", fontSize: 24, fontWeight: 800 }}>
+        Meals
+      </div>
       <SegmentedControl options={["Log", "History"]} />
       <div style={{ ...CARD, padding: "14px 16px" }}>
         <div
@@ -1441,9 +1452,9 @@ export function MealsScreen() {
             alignItems: "center",
           }}
         >
-          <span style={{ color: "#fff", fontSize: 18, fontWeight: 700 }}>
+          <span style={{ color: "#f4f7fb", fontSize: 18, fontWeight: 700 }}>
             1480{" "}
-            <span style={{ color: "#888", fontSize: 14, fontWeight: 500 }}>
+            <span style={{ color: "#b6c0ce", fontSize: 14, fontWeight: 500 }}>
               / 2400 kcal
             </span>
           </span>
@@ -1455,39 +1466,39 @@ export function MealsScreen() {
           style={{
             height: 8,
             borderRadius: 4,
-            background: "#222",
+            background: "#192231",
             marginTop: 10,
             overflow: "hidden",
           }}
         >
           <div
             className="pf-barx"
-            style={{ height: 8, width: "62%", background: "#22c55e" }}
+            style={{ height: 8, width: "62%", background: "#34d399" }}
           />
         </div>
-        <div style={{ color: "#666", fontSize: 12, marginTop: 5 }}>
+        <div style={{ color: "#8491a3", fontSize: 12, marginTop: 5 }}>
           Today: P128g C184g F64g
         </div>
       </div>
       <div style={CARD}>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div>
-            <div style={{ color: "#888", fontSize: 12 }}>Current</div>
-            <div style={{ color: "#fff", fontSize: 20, fontWeight: 700 }}>
+            <div style={{ color: "#b6c0ce", fontSize: 12 }}>Current</div>
+            <div style={{ color: "#f4f7fb", fontSize: 20, fontWeight: 700 }}>
               86.4 kg
             </div>
           </div>
           <div style={{ textAlign: "center" }}>
-            <div style={{ color: "#888", fontSize: 12 }}>Target</div>
-            <div style={{ color: "#22c55e", fontSize: 20, fontWeight: 700 }}>
+            <div style={{ color: "#b6c0ce", fontSize: 12 }}>Target</div>
+            <div style={{ color: "#34d399", fontSize: 20, fontWeight: 700 }}>
               83 kg
             </div>
           </div>
           <div>
-            <div style={{ color: "#888", fontSize: 12, textAlign: "right" }}>
+            <div style={{ color: "#b6c0ce", fontSize: 12, textAlign: "right" }}>
               TDEE
             </div>
-            <div style={{ color: "#fff", fontSize: 20, fontWeight: 700 }}>
+            <div style={{ color: "#f4f7fb", fontSize: 20, fontWeight: 700 }}>
               2800
             </div>
           </div>
@@ -1506,15 +1517,15 @@ export function MealsScreen() {
       <div style={LABEL}>Log Meal</div>
       <div
         style={{
-          background: "#161616",
-          borderRadius: 10,
+          background: "#131a24",
+          borderRadius: 12,
           padding: "13px 14px",
-          color: "#555",
+          color: "#8491a3",
           fontSize: 16,
           borderWidth: 1,
 
           borderStyle: "solid",
-          borderColor: "#2a2a2a",
+          borderColor: "#243043",
         }}
       >
         Meal name (optional)
@@ -1524,34 +1535,34 @@ export function MealsScreen() {
         <div
           style={{
             flex: 1,
-            background: "#161616",
-            borderRadius: 10,
+            background: "#131a24",
+            borderRadius: 12,
             padding: "13px 0",
             borderWidth: 1,
 
             borderStyle: "solid",
-            borderColor: "#2a2a2a",
+            borderColor: "#243043",
             textAlign: "center",
           }}
         >
-          <span style={{ color: "#8b5cf6", fontSize: 13, fontWeight: 600 }}>
+          <span style={{ color: "#3b82f6", fontSize: 13, fontWeight: 600 }}>
             Take Photo
           </span>
         </div>
         <div
           style={{
             flex: 1,
-            background: "#161616",
-            borderRadius: 10,
+            background: "#131a24",
+            borderRadius: 12,
             padding: "13px 0",
             borderWidth: 1,
 
             borderStyle: "solid",
-            borderColor: "#2a2a2a",
+            borderColor: "#243043",
             textAlign: "center",
           }}
         >
-          <span style={{ color: "#8b5cf6", fontSize: 13, fontWeight: 600 }}>
+          <span style={{ color: "#3b82f6", fontSize: 13, fontWeight: 600 }}>
             Pick from Gallery
           </span>
         </div>
@@ -1560,7 +1571,7 @@ export function MealsScreen() {
         <div
           style={{
             flex: 2,
-            background: "#22c55e",
+            background: "#34d399",
             borderRadius: 14,
             minHeight: 46,
             display: "flex",
@@ -1569,14 +1580,14 @@ export function MealsScreen() {
             textAlign: "center",
           }}
         >
-          <span style={{ color: "#fff", fontSize: 14, fontWeight: 800 }}>
+          <span style={{ color: "#080b10", fontSize: 14, fontWeight: 800 }}>
             Save Meal
           </span>
         </div>
         <div
           style={{
             flex: 1,
-            background: "#161616",
+            background: "#131a24",
             borderRadius: 14,
             minHeight: 46,
             display: "flex",
@@ -1587,16 +1598,16 @@ export function MealsScreen() {
             borderWidth: 1,
 
             borderStyle: "solid",
-            borderColor: "#f59e0b",
+            borderColor: "#fbbf24",
           }}
         >
-          <span style={{ color: "#f59e0b", fontSize: 13, fontWeight: 700 }}>
+          <span style={{ color: "#fbbf24", fontSize: 13, fontWeight: 700 }}>
             Save for later
           </span>
         </div>
       </div>
       <div style={{ ...LABEL, marginTop: 4 }}>Saved Meals</div>
-      <div style={{ color: "#666", fontSize: 12, marginBottom: 6 }}>
+      <div style={{ color: "#8491a3", fontSize: 12, marginBottom: 6 }}>
         Swipe left to reveal Delete; swipe all the way to delete.
       </div>
       {[
@@ -1606,13 +1617,13 @@ export function MealsScreen() {
         <div
           key={m.name}
           style={{
-            background: "#161616",
-            borderRadius: 10,
+            background: "#131a24",
+            borderRadius: 12,
             padding: 14,
             borderWidth: 1,
 
             borderStyle: "solid",
-            borderColor: "#2a2a2a",
+            borderColor: "#243043",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
@@ -1622,7 +1633,7 @@ export function MealsScreen() {
             <span
               style={{
                 display: "block",
-                color: "#e5e5e5",
+                color: "#f4f7fb",
                 fontSize: 15,
                 fontWeight: 600,
               }}
@@ -1632,7 +1643,7 @@ export function MealsScreen() {
             <span
               style={{
                 display: "block",
-                color: "#666",
+                color: "#8491a3",
                 fontSize: 12,
                 marginTop: 2,
               }}
@@ -1686,11 +1697,11 @@ function scoreLabel(score: number): string {
 }
 
 function scoreColor(score: number): string {
-  if (score >= 80) return "#22c55e";
+  if (score >= 80) return "#34d399";
   if (score >= 60) return "#84cc16";
-  if (score >= 40) return "#f59e0b";
+  if (score >= 40) return "#fbbf24";
   if (score >= 20) return "#f97316";
-  return "#ef4444";
+  return "#fb7185";
 }
 
 const MUSCLE_COLORS: Record<string, string> = {
@@ -1928,15 +1939,15 @@ function BodyMap({
             style={{
               padding: "7px 20px",
               borderRadius: 8,
-              background: view === v ? "#3b82f6" : "#161616",
+              background: view === v ? "#3b82f6" : "#131a24",
               borderWidth: 1,
 
               borderStyle: "solid",
-              borderColor: view === v ? "#3b82f6" : "#2a2a2a",
+              borderColor: view === v ? "#3b82f6" : "#243043",
               fontSize: 13,
               fontWeight: 600,
               textTransform: "capitalize",
-              color: view === v ? "#fff" : "#888",
+              color: view === v ? "#f4f7fb" : "#b6c0ce",
               cursor: "pointer",
               fontFamily: "inherit",
             }}
@@ -1965,7 +1976,7 @@ function BodyMap({
                 data-muscle="Quads"
                 fill={MUSCLE_COLORS.Quads}
                 opacity={sel ? 0.9 : 0.15 + intensity("Quads") * 0.65}
-                stroke={sel ? "#fff" : "rgba(255,255,255,0.08)"}
+                stroke={sel ? "#f4f7fb" : "rgba(244,247,251,0.08)"}
                 strokeWidth={sel ? 2 : 0.5}
               />
             );
@@ -1973,7 +1984,7 @@ function BodyMap({
         {MUSCLE_PATH_GROUPS.map((g) => {
           const paths = view === "front" ? g.front : g.back;
           if (!paths) return null;
-          const color = MUSCLE_COLORS[g.muscle] || "#666";
+          const color = MUSCLE_COLORS[g.muscle] || "#8491a3";
           const sel = selected === g.muscle;
           return (
             <g
@@ -1991,7 +2002,7 @@ function BodyMap({
                   data-muscle={g.muscle}
                   fill={color}
                   opacity={sel ? 0.9 : 0.15 + intensity(g.muscle) * 0.65}
-                  stroke={sel ? "#fff" : "rgba(255,255,255,0.08)"}
+                  stroke={sel ? "#f4f7fb" : "rgba(244,247,251,0.08)"}
                   strokeWidth={sel ? 2 : 0.5}
                 />
               ))}
@@ -2022,7 +2033,7 @@ function MuscleRow({
         paddingBottom: 10,
         borderBottomStyle: "solid",
         borderBottomWidth: 1,
-        borderBottomColor: "#222",
+        borderBottomColor: "#243043",
       }}
     >
       <span
@@ -2039,19 +2050,19 @@ function MuscleRow({
         <span
           style={{
             display: "block",
-            color: "#e5e5e5",
+            color: "#f4f7fb",
             fontSize: 13,
             fontWeight: 600,
           }}
         >
           {name}
         </span>
-        <span style={{ display: "block", color: "#666", fontSize: 11 }}>
+        <span style={{ display: "block", color: "#8491a3", fontSize: 11 }}>
           {sets} sets
         </span>
       </span>
       <span style={{ fontSize: 16, marginRight: 8 }}>{tier.icon}</span>
-      <span style={{ color: "#888", fontSize: 12 }}>{tier.name}</span>
+      <span style={{ color: "#b6c0ce", fontSize: 12 }}>{tier.name}</span>
     </div>
   );
 }
@@ -2065,7 +2076,7 @@ function MuscleDetailCard({
   sets: number;
   score: number;
 }) {
-  const color = MUSCLE_COLORS[muscle] || "#666";
+  const color = MUSCLE_COLORS[muscle] || "#8491a3";
   const tier = tierOf(sets);
   const pct = progressToNext(sets);
   return (
@@ -2077,7 +2088,7 @@ function MuscleDetailCard({
           alignItems: "center",
         }}
       >
-        <span style={{ color: "#fff", fontSize: 18, fontWeight: 700 }}>
+        <span style={{ color: "#f4f7fb", fontSize: 18, fontWeight: 700 }}>
           {muscle}
         </span>
         <span style={{ fontSize: 24 }}>{tier.icon}</span>
@@ -2085,14 +2096,14 @@ function MuscleDetailCard({
       <div style={{ color, fontSize: 14, fontWeight: 600, marginTop: 4 }}>
         {tier.name}
       </div>
-      <div style={{ color: "#888", fontSize: 13, marginTop: 8 }}>
+      <div style={{ color: "#b6c0ce", fontSize: 13, marginTop: 8 }}>
         {sets} lifetime sets
       </div>
       <div style={{ marginTop: 10 }}>
         <div
           style={{
             height: 6,
-            background: "#222",
+            background: "#192231",
             borderRadius: 3,
             overflow: "hidden",
           }}
@@ -2107,7 +2118,7 @@ function MuscleDetailCard({
             }}
           />
         </div>
-        <div style={{ color: "#666", fontSize: 11, marginTop: 4 }}>
+        <div style={{ color: "#8491a3", fontSize: 11, marginTop: 4 }}>
           {pct}% to next tier
         </div>
       </div>
@@ -2120,11 +2131,13 @@ function MuscleDetailCard({
           paddingTop: 12,
           borderTopStyle: "solid",
           borderTopWidth: 1,
-          borderTopColor: "#222",
+          borderTopColor: "#243043",
         }}
       >
         <div>
-          <div style={{ color: "#666", fontSize: 11 }}>HYPERTROPHY SCORE</div>
+          <div style={{ color: "#8491a3", fontSize: 11 }}>
+            HYPERTROPHY SCORE
+          </div>
           <div
             style={{
               color: scoreColor(score),
@@ -2168,7 +2181,7 @@ export function MusclesScreen() {
   const selData = selected ? MUSCLE_STATS[selected] : null;
   return (
     <div className="pf-app" style={SCREEN_ROOT}>
-      <div style={{ color: "#fff", fontSize: 24, fontWeight: 800 }}>
+      <div style={{ color: "#f4f7fb", fontSize: 24, fontWeight: 800 }}>
         Muscles
       </div>
       <BodyMap
@@ -2204,13 +2217,13 @@ function SegmentedControl({ options }: { options: [string, string] }) {
       style={{
         display: "flex",
         flexDirection: "row",
-        background: "#161616",
+        background: "#131a24",
         borderRadius: 12,
         padding: 3,
         borderWidth: 1,
 
         borderStyle: "solid",
-        borderColor: "#222",
+        borderColor: "#243043",
       }}
     >
       <div
@@ -2221,7 +2234,7 @@ function SegmentedControl({ options }: { options: [string, string] }) {
           borderRadius: 9,
           textAlign: "center",
           background: "#3b82f6",
-          color: "#fff",
+          color: "#f4f7fb",
           fontSize: 14,
           fontWeight: 700,
         }}
@@ -2235,7 +2248,7 @@ function SegmentedControl({ options }: { options: [string, string] }) {
           paddingBottom: 9,
           borderRadius: 9,
           textAlign: "center",
-          color: "#888",
+          color: "#b6c0ce",
           fontSize: 14,
           fontWeight: 600,
         }}
@@ -2247,16 +2260,16 @@ function SegmentedControl({ options }: { options: [string, string] }) {
 }
 
 const setInput: React.CSSProperties = {
-  background: "#1a1a1a",
+  background: "#192231",
   borderRadius: 8,
   padding: "8px 0",
-  color: "#fff",
+  color: "#f4f7fb",
   fontSize: 12,
   textAlign: "center",
   borderWidth: 1,
 
   borderStyle: "solid",
-  borderColor: "#2a2a2a",
+  borderColor: "#243043",
 };
 
 const SET_GRID_COLUMNS =
@@ -2287,7 +2300,12 @@ function SetRowMock({
       }}
     >
       <span
-        style={{ color: "#666", fontSize: 13, width: 24, textAlign: "center" }}
+        style={{
+          color: "#8491a3",
+          fontSize: 13,
+          width: 24,
+          textAlign: "center",
+        }}
       >
         {index}
       </span>
@@ -2300,7 +2318,7 @@ function SetRowMock({
             background: "#fbbf24",
             borderRadius: 6,
             padding: "2px 6px",
-            color: "#000",
+            color: "#080b10",
             fontSize: 10,
             fontWeight: 800,
           }}
@@ -2341,7 +2359,7 @@ function ExerciseThumbnail({ name, size }: { name: string; size: number }) {
         width: size,
         height: size,
         borderRadius: 8,
-        background: "#f4f4f5",
+        background: "#192231",
         objectFit: "cover",
         flexShrink: 0,
       }}
@@ -2351,7 +2369,7 @@ function ExerciseThumbnail({ name, size }: { name: string; size: number }) {
 
 function ExerciseBlock({ name = "Bench Press" }: { name?: string }) {
   const statHead: React.CSSProperties = {
-    color: "#555",
+    color: "#8491a3",
     fontSize: 11,
     textAlign: "center",
   };
@@ -2367,11 +2385,16 @@ function ExerciseBlock({ name = "Bench Press" }: { name?: string }) {
       >
         <ExerciseThumbnail name={name} size={46} />
         <span
-          style={{ color: "#e5e5e5", fontSize: 15, fontWeight: 700, flex: 1 }}
+          style={{
+            color: "#f4f7fb",
+            fontSize: 15,
+            fontWeight: 700,
+            flex: 1,
+          }}
         >
           {name}
         </span>
-        <span style={{ color: "#ef4444", fontSize: 13 }}>Remove</span>
+        <span style={{ color: "#fb7185", fontSize: 13 }}>Remove</span>
       </div>
       <div
         style={{
@@ -2398,7 +2421,7 @@ function ExerciseBlock({ name = "Bench Press" }: { name?: string }) {
           borderRadius: 8,
           borderWidth: 1,
           borderStyle: "dashed",
-          borderColor: "#2a2a2a",
+          borderColor: "#344258",
           textAlign: "center",
         }}
       >
@@ -2413,23 +2436,23 @@ function ExerciseBlock({ name = "Bench Press" }: { name?: string }) {
 export function LoggingScreen() {
   return (
     <div className="pf-app" style={SCREEN_ROOT}>
-      <div style={{ color: "#fff", fontSize: 24, fontWeight: 800 }}>
+      <div style={{ color: "#f4f7fb", fontSize: 24, fontWeight: 800 }}>
         Workouts
       </div>
       <SegmentedControl options={["Log", "History"]} />
       <div
         style={{
           alignSelf: "flex-start",
-          background: "#102a1a",
+          background: "#34d39922",
           borderRadius: 10,
           padding: "8px 12px",
           borderWidth: 1,
 
           borderStyle: "solid",
-          borderColor: "#22c55e",
+          borderColor: "#34d399",
         }}
       >
-        <span style={{ color: "#22c55e", fontSize: 13, fontWeight: 700 }}>
+        <span style={{ color: "#34d399", fontSize: 13, fontWeight: 700 }}>
           ✓ At Powerhouse
         </span>
       </div>
@@ -2443,11 +2466,11 @@ export function LoggingScreen() {
               background: "#3b82f6",
             }}
           />
-          <span style={{ color: "#fff", fontSize: 15, fontWeight: 700 }}>
+          <span style={{ color: "#f4f7fb", fontSize: 15, fontWeight: 700 }}>
             Today: Push Day
           </span>
         </div>
-        <div style={{ color: "#888", fontSize: 12, marginTop: 4 }}>
+        <div style={{ color: "#b6c0ce", fontSize: 12, marginTop: 4 }}>
           Push / Pull / Legs (4 exercises)
         </div>
         <div
@@ -2459,37 +2482,37 @@ export function LoggingScreen() {
             marginTop: 12,
           }}
         >
-          <span style={{ color: "#fff", fontSize: 14, fontWeight: 700 }}>
+          <span style={{ color: "#f4f7fb", fontSize: 14, fontWeight: 700 }}>
             Start Workout
           </span>
         </div>
       </div>
       <div
         style={{
-          background: "#161616",
-          borderRadius: 10,
+          background: "#131a24",
+          borderRadius: 12,
           padding: 14,
           borderWidth: 1,
 
           borderStyle: "solid",
-          borderColor: "#2a2a2a",
+          borderColor: "#243043",
           textAlign: "center",
         }}
       >
-        <span style={{ color: "#8b5cf6", fontSize: 14, fontWeight: 600 }}>
+        <span style={{ color: "#3b82f6", fontSize: 14, fontWeight: 600 }}>
           Schedule
         </span>
       </div>
       <div
         style={{
-          background: "#161616",
-          borderRadius: 10,
+          background: "#131a24",
+          borderRadius: 12,
           padding: "13px 14px",
           borderWidth: 1,
 
           borderStyle: "solid",
-          borderColor: "#2a2a2a",
-          color: "#555",
+          borderColor: "#243043",
+          color: "#8491a3",
           fontSize: 16,
         }}
       >
@@ -2504,8 +2527,8 @@ export function LoggingScreen() {
       >
         <div
           style={{
-            background: "#161616",
-            borderRadius: 10,
+            background: "#131a24",
+            borderRadius: 12,
             minHeight: 44,
             padding: "6px",
             textAlign: "center",
@@ -2515,12 +2538,12 @@ export function LoggingScreen() {
             borderWidth: 1,
 
             borderStyle: "solid",
-            borderColor: "#2a2a2a",
+            borderColor: "#243043",
           }}
         >
           <span
             style={{
-              color: "#8b5cf6",
+              color: "#3b82f6",
               fontSize: 12,
               lineHeight: "16px",
               fontWeight: 600,
@@ -2531,8 +2554,8 @@ export function LoggingScreen() {
         </div>
         <div
           style={{
-            background: "#161616",
-            borderRadius: 10,
+            background: "#131a24",
+            borderRadius: 12,
             minHeight: 44,
             padding: "6px",
             textAlign: "center",
@@ -2542,12 +2565,12 @@ export function LoggingScreen() {
             borderWidth: 1,
 
             borderStyle: "solid",
-            borderColor: "#2a2a2a",
+            borderColor: "#243043",
           }}
         >
           <span
             style={{
-              color: "#f59e0b",
+              color: "#fbbf24",
               fontSize: 12,
               lineHeight: "16px",
               fontWeight: 600,
@@ -2560,7 +2583,7 @@ export function LoggingScreen() {
       <ExerciseBlock />
       <div
         style={{
-          background: "#161616",
+          background: "#131a24",
           borderRadius: 14,
           padding: "13px 0",
           textAlign: "center",
@@ -2578,7 +2601,7 @@ export function LoggingScreen() {
       <div style={CARD}>
         <div
           style={{
-            color: "#888",
+            color: "#b6c0ce",
             fontSize: 12,
             fontWeight: 600,
             textTransform: "uppercase",
@@ -2599,14 +2622,14 @@ export function LoggingScreen() {
             <span
               key={p}
               style={{
-                background: p === 90 ? "#3b82f6" : "#1a1a1a",
+                background: p === 90 ? "#3b82f6" : "#192231",
                 borderRadius: 8,
                 padding: "8px 2px",
                 borderWidth: 1,
 
                 borderStyle: "solid",
-                borderColor: p === 90 ? "#3b82f6" : "#2a2a2a",
-                color: p === 90 ? "#fff" : "#888",
+                borderColor: p === 90 ? "#3b82f6" : "#243043",
+                color: p === 90 ? "#f4f7fb" : "#b6c0ce",
                 fontSize: 11,
                 textAlign: "center",
                 fontWeight: 600,
@@ -2618,31 +2641,31 @@ export function LoggingScreen() {
         </div>
         <div
           style={{
-            background: "#22c55e",
+            background: "#34d399",
             borderRadius: 10,
             padding: 12,
             textAlign: "center",
             marginTop: 12,
           }}
         >
-          <span style={{ color: "#fff", fontSize: 15, fontWeight: 700 }}>
+          <span style={{ color: "#080b10", fontSize: 15, fontWeight: 700 }}>
             Start
           </span>
         </div>
       </div>
       <div
         style={{
-          background: "#22c55e",
+          background: "#34d399",
           borderRadius: 14,
           padding: 18,
           textAlign: "center",
         }}
       >
-        <span style={{ color: "#fff", fontSize: 17, fontWeight: 800 }}>
+        <span style={{ color: "#080b10", fontSize: 17, fontWeight: 800 }}>
           Save Workout
         </span>
         <div
-          style={{ color: "#fff", fontSize: 13, opacity: 0.8, marginTop: 2 }}
+          style={{ color: "#080b10", fontSize: 13, opacity: 0.8, marginTop: 2 }}
         >
           2 exercises | 4.9k volume
         </div>
@@ -2650,7 +2673,7 @@ export function LoggingScreen() {
       <div style={CARD}>
         <div
           style={{
-            color: "#f59e0b",
+            color: "#fbbf24",
             fontSize: 14,
             fontWeight: 700,
             marginBottom: 8,
@@ -2659,10 +2682,10 @@ export function LoggingScreen() {
           Suggestions
         </div>
         <div style={{ marginBottom: 10 }}>
-          <div style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>
+          <div style={{ color: "#f4f7fb", fontSize: 13, fontWeight: 600 }}>
             Chest
           </div>
-          <div style={{ color: "#888", fontSize: 11, marginTop: 2 }}>
+          <div style={{ color: "#b6c0ce", fontSize: 11, marginTop: 2 }}>
             Lagging, hit it mid-week
           </div>
           <div style={{ color: "#3b82f6", fontSize: 11, marginTop: 3 }}>
@@ -2670,10 +2693,10 @@ export function LoggingScreen() {
           </div>
         </div>
         <div>
-          <div style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>
+          <div style={{ color: "#f4f7fb", fontSize: 13, fontWeight: 600 }}>
             Back
           </div>
-          <div style={{ color: "#888", fontSize: 11, marginTop: 2 }}>
+          <div style={{ color: "#b6c0ce", fontSize: 11, marginTop: 2 }}>
             Volume down last month
           </div>
           <div style={{ color: "#3b82f6", fontSize: 11, marginTop: 3 }}>
@@ -2681,7 +2704,7 @@ export function LoggingScreen() {
           </div>
         </div>
       </div>
-      <div style={{ color: "#555", fontSize: 9, textAlign: "center" }}>
+      <div style={{ color: "#8491a3", fontSize: 9, textAlign: "center" }}>
         Exercise images © Gym Visual
       </div>
     </div>
@@ -2705,7 +2728,7 @@ export function TemplatesScreen() {
           alignItems: "center",
         }}
       >
-        <span style={{ color: "#fff", fontSize: 20, fontWeight: 700 }}>
+        <span style={{ color: "#f4f7fb", fontSize: 20, fontWeight: 700 }}>
           Workout Templates
         </span>
         <span style={{ color: "#3b82f6", fontSize: 16 }}>Done</span>
@@ -2714,13 +2737,13 @@ export function TemplatesScreen() {
         <div
           key={t.name}
           style={{
-            background: "#161616",
+            background: "#131a24",
             borderRadius: 12,
             padding: 14,
             borderWidth: 1,
 
             borderStyle: "solid",
-            borderColor: "#222",
+            borderColor: "#243043",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
@@ -2730,7 +2753,7 @@ export function TemplatesScreen() {
             <span
               style={{
                 display: "block",
-                color: "#e5e5e5",
+                color: "#f4f7fb",
                 fontSize: 15,
                 fontWeight: 600,
               }}
@@ -2740,7 +2763,7 @@ export function TemplatesScreen() {
             <span
               style={{
                 display: "block",
-                color: "#666",
+                color: "#8491a3",
                 fontSize: 12,
                 marginTop: 2,
               }}
@@ -2748,7 +2771,7 @@ export function TemplatesScreen() {
               {t.ex} exercises
             </span>
           </span>
-          <span style={{ color: "#ef4444", fontSize: 13 }}>Delete</span>
+          <span style={{ color: "#fb7185", fontSize: 13 }}>Delete</span>
         </div>
       ))}
     </div>
@@ -2767,7 +2790,7 @@ export function MeasurementsScreen() {
   const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   return (
     <div className="pf-app" style={SCREEN_ROOT}>
-      <div style={{ color: "#fff", fontSize: 24, fontWeight: 800 }}>
+      <div style={{ color: "#f4f7fb", fontSize: 24, fontWeight: 800 }}>
         Settings
       </div>
       <div style={CARD}>
@@ -2786,31 +2809,31 @@ export function MeasurementsScreen() {
         </div>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <span>
-            <span style={{ display: "block", color: "#888", fontSize: 11 }}>
+            <span style={{ display: "block", color: "#b6c0ce", fontSize: 11 }}>
               Current
             </span>
-            <span style={{ color: "#fff", fontSize: 20, fontWeight: 700 }}>
+            <span style={{ color: "#f4f7fb", fontSize: 20, fontWeight: 700 }}>
               86.4 kg
             </span>
           </span>
           <span style={{ textAlign: "center" }}>
-            <span style={{ display: "block", color: "#888", fontSize: 11 }}>
+            <span style={{ display: "block", color: "#b6c0ce", fontSize: 11 }}>
               Goal
             </span>
-            <span style={{ color: "#22c55e", fontSize: 20, fontWeight: 700 }}>
+            <span style={{ color: "#34d399", fontSize: 20, fontWeight: 700 }}>
               83 kg
             </span>
           </span>
           <span style={{ textAlign: "right" }}>
-            <span style={{ display: "block", color: "#888", fontSize: 11 }}>
+            <span style={{ display: "block", color: "#b6c0ce", fontSize: 11 }}>
               Height
             </span>
-            <span style={{ color: "#fff", fontSize: 20, fontWeight: 700 }}>
+            <span style={{ color: "#f4f7fb", fontSize: 20, fontWeight: 700 }}>
               178cm
             </span>
           </span>
         </div>
-        <div style={{ color: "#666", fontSize: 12 }}>
+        <div style={{ color: "#8491a3", fontSize: 12 }}>
           16.2% BF | 27 yrs | Male | Moderately Active
         </div>
         <div
@@ -2832,13 +2855,13 @@ export function MeasurementsScreen() {
               paddingBottom: 7,
               borderTopStyle: "solid",
               borderTopWidth: i > 0 ? 1 : 0,
-              borderTopColor: "#222",
+              borderTopColor: "#243043",
             }}
           >
-            <span style={{ color: "#e5e5e5", fontSize: 14, fontWeight: 600 }}>
+            <span style={{ color: "#f4f7fb", fontSize: 14, fontWeight: 600 }}>
               {h.w} kg
             </span>
-            <span style={{ color: "#888", fontSize: 12 }}>{h.d}</span>
+            <span style={{ color: "#b6c0ce", fontSize: 12 }}>{h.d}</span>
           </div>
         ))}
       </div>
@@ -2846,7 +2869,7 @@ export function MeasurementsScreen() {
         <div style={{ ...LABEL, marginBottom: 10 }}>Metrics Reminder</div>
         <div
           style={{
-            background: "#1a1a1a",
+            background: "#192231",
             borderRadius: 10,
             padding: 14,
             display: "flex",
@@ -2858,7 +2881,7 @@ export function MeasurementsScreen() {
             borderColor: "#3b82f6",
           }}
         >
-          <span style={{ color: "#e5e5e5", fontSize: 15, fontWeight: 600 }}>
+          <span style={{ color: "#f4f7fb", fontSize: 15, fontWeight: 600 }}>
             Reminder on
           </span>
           <span
@@ -2878,14 +2901,14 @@ export function MeasurementsScreen() {
                 width: 18,
                 height: 18,
                 borderRadius: 9,
-                background: "#fff",
+                background: "#f4f7fb",
               }}
             />
           </span>
         </div>
         <div
           style={{
-            color: "#888",
+            color: "#b6c0ce",
             fontSize: 11,
             marginTop: 12,
             marginBottom: 6,
@@ -2904,15 +2927,15 @@ export function MeasurementsScreen() {
             <span
               key={f}
               style={{
-                background: f === "weekly" ? "#3b82f6" : "#1a1a1a",
+                background: f === "weekly" ? "#3b82f6" : "#192231",
                 borderRadius: 10,
                 padding: "10px 4px",
                 textAlign: "center",
                 borderWidth: 1,
 
                 borderStyle: "solid",
-                borderColor: f === "weekly" ? "#3b82f6" : "#2a2a2a",
-                color: f === "weekly" ? "#fff" : "#888",
+                borderColor: f === "weekly" ? "#3b82f6" : "#243043",
+                color: f === "weekly" ? "#f4f7fb" : "#b6c0ce",
                 fontSize: 12,
                 fontWeight: 600,
                 textTransform: "capitalize",
@@ -2924,7 +2947,7 @@ export function MeasurementsScreen() {
         </div>
         <div
           style={{
-            color: "#888",
+            color: "#b6c0ce",
             fontSize: 11,
             marginTop: 12,
             marginBottom: 6,
@@ -2946,7 +2969,7 @@ export function MeasurementsScreen() {
                 key={label}
                 style={{
                   minWidth: 0,
-                  background: on ? "#3b82f6" : "#1a1a1a",
+                  background: on ? "#3b82f6" : "#192231",
                   borderRadius: 8,
                   paddingTop: 8,
                   paddingBottom: 8,
@@ -2954,8 +2977,8 @@ export function MeasurementsScreen() {
                   borderWidth: 1,
 
                   borderStyle: "solid",
-                  borderColor: on ? "#3b82f6" : "#2a2a2a",
-                  color: on ? "#fff" : "#888",
+                  borderColor: on ? "#3b82f6" : "#243043",
+                  color: on ? "#f4f7fb" : "#b6c0ce",
                   fontSize: 10,
                   fontWeight: 600,
                 }}
@@ -2967,7 +2990,7 @@ export function MeasurementsScreen() {
         </div>
         <div
           style={{
-            color: "#888",
+            color: "#b6c0ce",
             fontSize: 11,
             marginTop: 12,
             marginBottom: 6,
@@ -2981,15 +3004,15 @@ export function MeasurementsScreen() {
               width: 40,
               height: 40,
               borderRadius: 10,
-              background: "#1a1a1a",
+              background: "#192231",
               borderWidth: 1,
 
               borderStyle: "solid",
-              borderColor: "#2a2a2a",
+              borderColor: "#243043",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "#fff",
+              color: "#f4f7fb",
               fontSize: 18,
               fontWeight: 700,
             }}
@@ -2998,7 +3021,7 @@ export function MeasurementsScreen() {
           </div>
           <span
             style={{
-              color: "#fff",
+              color: "#f4f7fb",
               fontSize: 22,
               fontWeight: 700,
               flex: 1,
@@ -3012,36 +3035,36 @@ export function MeasurementsScreen() {
               width: 40,
               height: 40,
               borderRadius: 10,
-              background: "#1a1a1a",
+              background: "#192231",
               borderWidth: 1,
 
               borderStyle: "solid",
-              borderColor: "#2a2a2a",
+              borderColor: "#243043",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "#fff",
+              color: "#f4f7fb",
               fontSize: 18,
               fontWeight: 700,
             }}
           >
             +
           </div>
-          <div style={{ width: 2, height: 26, background: "#222" }} />
+          <div style={{ width: 2, height: 26, background: "#243043" }} />
           <div
             style={{
               width: 40,
               height: 40,
               borderRadius: 10,
-              background: "#1a1a1a",
+              background: "#192231",
               borderWidth: 1,
 
               borderStyle: "solid",
-              borderColor: "#2a2a2a",
+              borderColor: "#243043",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "#fff",
+              color: "#f4f7fb",
               fontSize: 18,
               fontWeight: 700,
             }}
@@ -3050,7 +3073,7 @@ export function MeasurementsScreen() {
           </div>
           <span
             style={{
-              color: "#fff",
+              color: "#f4f7fb",
               fontSize: 22,
               fontWeight: 700,
               flex: 1,
@@ -3064,15 +3087,15 @@ export function MeasurementsScreen() {
               width: 40,
               height: 40,
               borderRadius: 10,
-              background: "#1a1a1a",
+              background: "#192231",
               borderWidth: 1,
 
               borderStyle: "solid",
-              borderColor: "#2a2a2a",
+              borderColor: "#243043",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "#fff",
+              color: "#f4f7fb",
               fontSize: 18,
               fontWeight: 700,
             }}
@@ -3091,15 +3114,15 @@ export function MeasurementsScreen() {
                 key={u}
                 style={{
                   flex: 1,
-                  background: on ? "#3b82f6" : "#1a1a1a",
+                  background: on ? "#3b82f6" : "#192231",
                   borderRadius: 10,
                   padding: 14,
                   textAlign: "center",
                   borderWidth: 1,
 
                   borderStyle: "solid",
-                  borderColor: on ? "#3b82f6" : "#2a2a2a",
-                  color: on ? "#fff" : "#888",
+                  borderColor: on ? "#3b82f6" : "#243043",
+                  color: on ? "#f4f7fb" : "#b6c0ce",
                   fontSize: 15,
                   fontWeight: 700,
                 }}
@@ -3115,10 +3138,10 @@ export function MeasurementsScreen() {
 }
 
 const equipmentChip: React.CSSProperties = {
-  background: "#252525",
+  background: "#192231",
   borderRadius: 6,
   padding: "4px 8px",
-  color: "#aaa",
+  color: "#b6c0ce",
   fontSize: 11,
 };
 
@@ -3129,21 +3152,21 @@ export function GymsScreen() {
       name: "Bench Press",
       sessions: 28,
       badge: "↑ 2.5%",
-      badgeColor: "#22c55e",
+      badgeColor: "#34d399",
     },
     { name: "Squat", sessions: 24, badge: "New PR", badgeColor: "#3b82f6" },
-    { name: "Deadlift", sessions: 21, badge: "— 0.0%", badgeColor: "#666" },
+    { name: "Deadlift", sessions: 21, badge: "0.0%", badgeColor: "#8491a3" },
     {
       name: "Incline DB Press",
       sessions: 19,
       badge: "↑ 1.1%",
-      badgeColor: "#22c55e",
+      badgeColor: "#34d399",
     },
-    { name: "Pull Ups", sessions: 17, badge: "↑ 3.0%", badgeColor: "#22c55e" },
+    { name: "Pull Ups", sessions: 17, badge: "↑ 3.0%", badgeColor: "#34d399" },
   ];
   return (
     <div className="pf-app" style={SCREEN_ROOT}>
-      <div style={{ color: "#fff", fontSize: 24, fontWeight: 800 }}>
+      <div style={{ color: "#f4f7fb", fontSize: 24, fontWeight: 800 }}>
         Exercises
       </div>
       <div style={{ ...CARD, padding: 14 }}>
@@ -3162,36 +3185,36 @@ export function GymsScreen() {
         </div>
         <div
           style={{
-            background: "#102a1a",
+            background: "#34d39922",
             borderRadius: 10,
             padding: 12,
             borderWidth: 1,
 
             borderStyle: "solid",
-            borderColor: "#22c55e",
+            borderColor: "#34d399",
           }}
         >
-          <div style={{ color: "#22c55e", fontSize: 13, fontWeight: 700 }}>
+          <div style={{ color: "#34d399", fontSize: 13, fontWeight: 700 }}>
             ✓ At Powerhouse
           </div>
-          <div style={{ color: "#7fae8f", fontSize: 12, marginTop: 2 }}>
+          <div style={{ color: "#34d399", fontSize: 12, marginTop: 2 }}>
             Showing exercises available at this gym.
           </div>
         </div>
         <div
           style={{
             marginTop: 8,
-            background: "#1a1a1a",
+            background: "#192231",
             borderRadius: 10,
             padding: 12,
             borderWidth: 1,
 
             borderStyle: "solid",
-            borderColor: "#2a2a2a",
+            borderColor: "#243043",
           }}
         >
-          <div style={{ color: "#e5e5e5", fontSize: 14, fontWeight: 600 }}>
-            Powerhouse <span style={{ color: "#22c55e" }}>●</span>
+          <div style={{ color: "#f4f7fb", fontSize: 14, fontWeight: 600 }}>
+            Powerhouse <span style={{ color: "#34d399" }}>●</span>
           </div>
           <div
             style={{
@@ -3211,14 +3234,14 @@ export function GymsScreen() {
       </div>
       <div
         style={{
-          background: "#161616",
-          borderRadius: 10,
+          background: "#131a24",
+          borderRadius: 12,
           padding: 12,
           borderWidth: 1,
 
           borderStyle: "solid",
-          borderColor: "#2a2a2a",
-          color: "#555",
+          borderColor: "#243043",
+          color: "#8491a3",
           fontSize: 14,
         }}
       >
@@ -3228,13 +3251,13 @@ export function GymsScreen() {
         <div
           key={ex.name}
           style={{
-            background: "#161616",
+            background: "#131a24",
             borderRadius: 12,
             padding: 10,
             borderWidth: 1,
 
             borderStyle: "solid",
-            borderColor: "#222",
+            borderColor: "#243043",
             display: "flex",
             alignItems: "center",
             gap: 12,
@@ -3245,7 +3268,7 @@ export function GymsScreen() {
             <span
               style={{
                 display: "block",
-                color: "#e5e5e5",
+                color: "#f4f7fb",
                 fontSize: 14,
                 fontWeight: 600,
               }}
@@ -3255,7 +3278,7 @@ export function GymsScreen() {
             <span
               style={{
                 display: "block",
-                color: "#666",
+                color: "#8491a3",
                 fontSize: 12,
                 marginTop: 2,
               }}
@@ -3280,7 +3303,7 @@ export function GymsScreen() {
           </span>
         </div>
       ))}
-      <div style={{ color: "#555", fontSize: 9, textAlign: "center" }}>
+      <div style={{ color: "#8491a3", fontSize: 9, textAlign: "center" }}>
         Exercise images © Gym Visual
       </div>
     </div>

@@ -8,10 +8,10 @@ type SubmitButtonProps = React.ComponentProps<typeof TButton> & {
 export const SubmitButton = TButton as unknown as React.FC<SubmitButtonProps>;
 
 const baseFieldStyle: React.CSSProperties = {
-  backgroundColor: "#111111",
-  border: "1px solid #222222",
-  borderRadius: 14,
-  color: "#e5e5e5",
+  backgroundColor: "#0d121a",
+  border: "1px solid #243043",
+  borderRadius: 12,
+  color: "#f4f7fb",
   fontSize: 15,
   fontFamily: "inherit",
   width: "100%",

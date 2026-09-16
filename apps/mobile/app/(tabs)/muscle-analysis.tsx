@@ -1,14 +1,19 @@
-import { useState, useCallback, useMemo } from "react";
-import { ScrollView, View, Text, RefreshControl } from "react-native";
 import { useFocusEffect } from "expo-router";
+import { useCallback, useMemo, useState } from "react";
+import { RefreshControl, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useAppStore } from "../../lib/store";
-import type { Muscle } from "../../constants/muscles";
-import { MUSCLES, MUSCLE_COLORS } from "../../constants/muscles";
-import { computeMuscleAchievements, type MuscleAchievement } from "../../lib/analysis/muscleAchievement";
-import { computeWeeklySets } from "../../lib/analysis/weeklySets";
 import { BodyMap } from "../../components/muscle/BodyMap";
 import { MuscleDetail } from "../../components/muscle/MuscleDetail";
+import { Card, ScreenTitle, SectionLabel } from "../../components/shared/ui";
+import type { Muscle } from "../../constants/muscles";
+import { MUSCLE_COLORS } from "../../constants/muscles";
+import {
+  computeMuscleAchievements,
+  type MuscleAchievement,
+} from "../../lib/analysis/muscleAchievement";
+import { computeWeeklySets } from "../../lib/analysis/weeklySets";
+import { useAppStore } from "../../lib/store";
+import { colors, fontSizes, spacing } from "../../lib/theme";
 
 export default function MuscleAnalysisScreen() {
   const insets = useSafeAreaInsets();
@@ -16,7 +21,9 @@ export default function MuscleAnalysisScreen() {
   const weightUnit = useAppStore((s) => s.weightUnit);
   const [selectedMuscle, setSelectedMuscle] = useState<Muscle | null>(null);
   const [achievements, setAchievements] = useState<MuscleAchievement[]>([]);
-  const [weeklySetsMap, setWeeklySetsMap] = useState<Map<string, { weeklySets: number; hypertrophyScore: number }>>(new Map());
+  const [weeklySetsMap, setWeeklySetsMap] = useState<
+    Map<string, { weeklySets: number; hypertrophyScore: number }>
+  >(new Map());
   const [refreshing, setRefreshing] = useState(false);
 
   const loadData = useCallback(async () => {
@@ -26,15 +33,22 @@ export default function MuscleAnalysisScreen() {
       computeWeeklySets(workouts, 30, weightUnit),
     ]);
     setAchievements(ach);
-    const map = new Map<string, { weeklySets: number; hypertrophyScore: number }>();
-    for (const m of ws) map.set(m.muscle, { weeklySets: m.weeklySets, hypertrophyScore: m.hypertrophyScore });
+    const map = new Map<
+      string,
+      { weeklySets: number; hypertrophyScore: number }
+    >();
+    for (const m of ws)
+      map.set(m.muscle, {
+        weeklySets: m.weeklySets,
+        hypertrophyScore: m.hypertrophyScore,
+      });
     setWeeklySetsMap(map);
   }, [workouts, weightUnit]);
 
   useFocusEffect(
     useCallback(() => {
       loadData();
-    }, [loadData])
+    }, [loadData]),
   );
 
   const onRefresh = async () => {
@@ -50,32 +64,42 @@ export default function MuscleAnalysisScreen() {
 
   const sortedAchievements = useMemo(
     () => [...achievements].sort((a, b) => b.lifetimeSets - a.lifetimeSets),
-    [achievements]
+    [achievements],
   );
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: "#0a0a0a" }}
+      style={{ flex: 1, backgroundColor: colors.background }}
       contentContainerStyle={{
         paddingTop: insets.top + 16,
-        paddingHorizontal: 16,
+        paddingHorizontal: spacing.screen,
         paddingBottom: 100,
         gap: 12,
       }}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3b82f6" />}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor={colors.brand}
+        />
+      }
     >
-      <Text style={{ color: "#fff", fontSize: 28, fontWeight: "800" }}>Muscles</Text>
+      <ScreenTitle>Muscles</ScreenTitle>
 
       {workouts.length === 0 ? (
         <View style={{ marginTop: 60, alignItems: "center" }}>
-          <Text style={{ color: "#666", fontSize: 15 }}>No workout data yet.</Text>
+          <Text style={{ color: colors.textMuted, fontSize: fontSizes.sm }}>
+            No workout data yet.
+          </Text>
         </View>
       ) : (
         <>
           {/* Body Map */}
           <BodyMap
             muscleData={weeklySetsMap}
-            onSelectMuscle={(m) => setSelectedMuscle(m === selectedMuscle ? null : m)}
+            onSelectMuscle={(m) =>
+              setSelectedMuscle(m === selectedMuscle ? null : m)
+            }
             selectedMuscle={selectedMuscle}
           />
 
@@ -92,10 +116,8 @@ export default function MuscleAnalysisScreen() {
           )}
 
           {/* All Muscles List */}
-          <View style={{ backgroundColor: "#161616", borderRadius: 14, padding: 16, borderWidth: 1, borderColor: "#222" }}>
-            <Text style={{ color: "#888", fontSize: 12, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.5 }}>
-              All Muscles
-            </Text>
+          <Card>
+            <SectionLabel>All Muscles</SectionLabel>
             {sortedAchievements.map((ach) => (
               <View
                 key={ach.muscle}
@@ -104,19 +126,41 @@ export default function MuscleAnalysisScreen() {
                   alignItems: "center",
                   paddingVertical: 10,
                   borderBottomWidth: 1,
-                  borderBottomColor: "#222",
+                  borderBottomColor: colors.border,
                 }}
               >
-                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: MUSCLE_COLORS[ach.muscle], marginRight: 10 }} />
+                <View
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: 4,
+                    backgroundColor: MUSCLE_COLORS[ach.muscle],
+                    marginRight: 10,
+                  }}
+                />
                 <View style={{ flex: 1 }}>
-                  <Text style={{ color: "#e5e5e5", fontSize: 13, fontWeight: "600" }}>{ach.muscle}</Text>
-                  <Text style={{ color: "#666", fontSize: 11 }}>{ach.lifetimeSets} sets</Text>
+                  <Text
+                    style={{
+                      color: colors.text,
+                      fontSize: 13,
+                      fontWeight: "600",
+                    }}
+                  >
+                    {ach.muscle}
+                  </Text>
+                  <Text style={{ color: colors.textMuted, fontSize: 11 }}>
+                    {ach.lifetimeSets} sets
+                  </Text>
                 </View>
-                <Text style={{ fontSize: 16, marginRight: 8 }}>{ach.tierIcon}</Text>
-                <Text style={{ color: "#888", fontSize: 12 }}>{ach.tierName}</Text>
+                <Text style={{ fontSize: 16, marginRight: 8 }}>
+                  {ach.tierIcon}
+                </Text>
+                <Text style={{ color: colors.textSecondary, fontSize: 12 }}>
+                  {ach.tierName}
+                </Text>
               </View>
             ))}
-          </View>
+          </Card>
         </>
       )}
     </ScrollView>

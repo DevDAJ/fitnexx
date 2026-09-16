@@ -1,6 +1,7 @@
 "use client";
 
 import { Heading, Text, View, XStack, YStack } from "@fitnexx/ui";
+import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -15,7 +16,7 @@ import {
   TemplatesScreen,
 } from "./phone-mockup";
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const SLIDES = [
   {
@@ -112,11 +113,10 @@ const SLIDES = [
 ];
 
 const SHOWCASE_CSS = `
-.pf-showcase-track { height: var(--showcase-height); position: relative; }
+.pf-showcase-track { height: calc(100dvh - 64px); position: relative; }
 .pf-showcase-stage {
-  position: sticky;
-  top: 56px;
-  height: calc(100dvh - 56px);
+  position: relative;
+  height: calc(100dvh - 64px);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -129,10 +129,10 @@ const SHOWCASE_CSS = `
   gap: 48px;
   padding: 24px 16px;
   width: 100%;
-  max-width: 900px;
+  max-width: 1040px;
 }
 .pf-showcase-copy { flex: 1; min-width: 280px; }
-.pf-showcase-copy-active { animation: pfShowcaseCopy 0.5s ease both; }
+.pf-showcase-copy-active { will-change: transform, opacity; }
 .pf-showcase-phone {
   width: min(300px, calc((100dvh - 112px) * 0.51));
   max-width: 100%;
@@ -144,10 +144,6 @@ const SHOWCASE_CSS = `
   right: 32px;
   top: 50%;
   transform: translateY(-50%);
-}
-@keyframes pfShowcaseCopy {
-  from { opacity: 0; transform: translateY(18px); }
-  to { opacity: 1; transform: none; }
 }
 @keyframes pfShowcaseFade {
   from { opacity: 0; }
@@ -183,7 +179,7 @@ const SHOWCASE_CSS = `
   }
   .pf-showcase-scroll-hint {
     display: block;
-    color: #888;
+    color: #8491a3;
     font-size: 13px;
     text-align: center;
   }
@@ -199,7 +195,7 @@ function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-export function AppShowcase() {
+export function AppShowcase({ embedded = false }: { embedded?: boolean }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -231,48 +227,78 @@ export function AppShowcase() {
     };
   }, []);
 
-  useEffect(() => {
-    const wrap = wrapRef.current;
-    if (!wrap) return;
-    const media = gsap.matchMedia();
+  useGSAP(
+    () => {
+      const wrap = wrapRef.current;
+      const stage = stageRef.current;
+      if (!wrap || !stage) return;
+      const media = gsap.matchMedia();
 
-    media.add("(min-width: 801px)", () => {
-      const apply = (progress: number) => {
-        const unit = progress * SLIDES.length;
-        const nextActive = Math.min(Math.floor(unit), SLIDES.length - 1);
-        const localProgress = Math.min(Math.max(unit - nextActive, 0), 1);
+      media.add(
+        "(min-width: 801px) and (prefers-reduced-motion: no-preference)",
+        () => {
+          const apply = (progress: number) => {
+            const unit = progress * SLIDES.length;
+            const nextActive = Math.min(Math.floor(unit), SLIDES.length - 1);
+            const localProgress = Math.min(Math.max(unit - nextActive, 0), 1);
 
-        if (nextActive !== activeRef.current) {
-          activeRef.current = nextActive;
-          setActive(nextActive);
-        }
+            if (nextActive !== activeRef.current) {
+              activeRef.current = nextActive;
+              setActive(nextActive);
+            }
 
-        const scroller = wrap.querySelector<HTMLElement>(".pf-scroll");
-        if (scroller) {
-          scroller.scrollTop = Math.round(
-            localProgress * (scroller.scrollHeight - scroller.clientHeight),
-          );
-        }
-      };
+            const scroller = wrap.querySelector<HTMLElement>(".pf-scroll");
+            if (scroller) {
+              scroller.scrollTop = Math.round(
+                localProgress * (scroller.scrollHeight - scroller.clientHeight),
+              );
+            }
+          };
 
-      const trigger = ScrollTrigger.create({
-        trigger: wrap,
-        start: "top top+=56",
-        end: "bottom bottom",
-        onRefresh: (self) => apply(self.progress),
-        onUpdate: (self) => apply(self.progress),
-      });
-      triggerRef.current = trigger;
-      apply(trigger.progress);
+          const playhead = { value: 0 };
+          const tween = gsap.to(playhead, {
+            value: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: wrap,
+              start: "top top+=64",
+              end: () => `+=${(window.innerHeight - 64) * SLIDES.length}`,
+              pin: wrap,
+              pinSpacing: true,
+              anticipatePin: 1,
+              scrub: 0.65,
+              invalidateOnRefresh: true,
+              onRefresh: (self) => apply(self.progress),
+              onUpdate: (self) => apply(self.progress),
+            },
+          });
+          const trigger = tween.scrollTrigger;
+          if (!trigger) return;
+          triggerRef.current = trigger;
+          apply(trigger.progress);
 
-      return () => {
-        trigger.kill();
-        triggerRef.current = null;
-      };
-    });
+          return () => {
+            triggerRef.current = null;
+          };
+        },
+      );
 
-    return () => media.revert();
-  }, []);
+      return () => media.revert();
+    },
+    { scope: wrapRef },
+  );
+
+  useGSAP(
+    () => {
+      if (prefersReducedMotion()) return;
+      gsap.fromTo(
+        ".pf-showcase-copy-active, .pf-screen",
+        { opacity: 0, y: 18 },
+        { opacity: 1, y: 0, duration: 0.55, stagger: 0.06, ease: "power3.out" },
+      );
+    },
+    { dependencies: [active], scope: stageRef },
+  );
 
   const scrollToIndex = useCallback((index: number) => {
     const trigger = triggerRef.current;
@@ -315,66 +341,61 @@ export function AppShowcase() {
       tag="section"
       className="pf-showcase-section"
       aria-label="App showcase"
-      borderTopWidth={1}
+      borderTopWidth={embedded ? 0 : 1}
       borderBottomWidth={1}
       borderColor="$borderColor"
-      backgroundColor="rgba(59,130,246,0.03)"
-      paddingVertical={96}
-      paddingHorizontal={16}
+      backgroundColor="$surface"
+      paddingTop={embedded ? 0 : 112}
+      paddingBottom={112}
+      paddingHorizontal={20}
       $sm={{ paddingVertical: 0 }}
-      style={{ overflow: "clip" }}
+      style={{ position: "relative" }}
     >
       <style>{SHOWCASE_CSS}</style>
       <YStack
-        maxWidth={1024}
+        maxWidth={1180}
         width="100%"
         marginLeft="auto"
         marginRight="auto"
         gap={40}
       >
-        <YStack
-          className="pf-showcase-intro"
-          $sm={{ display: "none" }}
-          maxWidth={640}
-          gap={12}
-          marginLeft="auto"
-          marginRight="auto"
-          alignItems="center"
-        >
-          <div data-reveal>
-            <Heading
-              tag="h2"
-              fontSize={36}
-              fontWeight="800"
-              color="$color"
-              textAlign="center"
-              $sm={{ fontSize: 30 }}
-            >
-              Every feature, one page.
-            </Heading>
-          </div>
-          <div data-reveal data-reveal-delay="0.06">
-            <Text
-              color="$muted"
-              fontSize={15}
-              lineHeight={24}
-              textAlign="center"
-            >
-              Explore each feature. Scroll on desktop, or use the controls to
-              move between them.
-            </Text>
-          </div>
-        </YStack>
+        {embedded ? null : (
+          <YStack
+            className="pf-showcase-intro"
+            $sm={{ display: "none" }}
+            maxWidth={640}
+            gap={12}
+            marginLeft="auto"
+            marginRight="auto"
+            alignItems="center"
+          >
+            <div data-reveal>
+              <Heading
+                tag="h2"
+                fontSize={36}
+                fontWeight="800"
+                color="$color"
+                textAlign="center"
+                $sm={{ fontSize: 30 }}
+              >
+                One history. A clearer next move.
+              </Heading>
+            </div>
+            <div data-reveal data-reveal-delay="0.06">
+              <Text
+                color="$muted"
+                fontSize={15}
+                lineHeight={24}
+                textAlign="center"
+              >
+                Your logs become a private performance system as the weeks add
+                up.
+              </Text>
+            </div>
+          </YStack>
+        )}
 
-        <div
-          ref={wrapRef}
-          className="pf-showcase-track"
-          style={
-            {
-              "--showcase-height": `calc(${(SLIDES.length + 1) * 100}dvh - ${(SLIDES.length + 1) * 56}px)`,
-            } as React.CSSProperties
-          }
-        >
+        <div ref={wrapRef} className="pf-showcase-track">
           <div ref={stageRef} className="pf-showcase-stage">
             <div
               style={{
@@ -388,14 +409,14 @@ export function AppShowcase() {
                 zIndex: 5,
               }}
             >
-              <span style={{ color: "#888", fontSize: 12, fontWeight: 600 }}>
+              <span style={{ color: "#8491a3", fontSize: 12, fontWeight: 600 }}>
                 {active + 1} / {SLIDES.length}
               </span>
               <div
                 style={{
                   width: 120,
                   height: 4,
-                  background: "#222",
+                  background: "#243043",
                   borderRadius: 999,
                   overflow: "hidden",
                 }}
@@ -421,7 +442,7 @@ export function AppShowcase() {
                 transformOrigin: "center",
               }}
             >
-              <div data-reveal className="pf-showcase-copy" aria-live="polite">
+              <div className="pf-showcase-copy" aria-live="polite">
                 <div key={slide.title} className="pf-showcase-copy-active">
                   <YStack gap={10}>
                     <Text
@@ -478,8 +499,6 @@ export function AppShowcase() {
               </div>
 
               <div
-                data-reveal
-                data-reveal-delay="0.1"
                 className="pf-showcase-phone"
                 style={{ color: slide.accent }}
               >
@@ -493,7 +512,7 @@ export function AppShowcase() {
                       borderRadius: 999,
                       background: "currentColor",
                       filter: "blur(70px)",
-                      opacity: 0.22,
+                      opacity: 0.14,
                       transition: "color 0.8s ease",
                     }}
                   />
@@ -529,7 +548,7 @@ export function AppShowcase() {
                     top: 0,
                     bottom: 0,
                     width: 2,
-                    background: "#222",
+                    background: "#243043",
                     borderRadius: 999,
                   }}
                 />
@@ -562,7 +581,7 @@ export function AppShowcase() {
                       border: "none",
                       cursor: "pointer",
                       padding: 0,
-                      background: active === index ? "#fff" : "#374151",
+                      background: active === index ? "#f4f7fb" : "#344258",
                       transform: active === index ? "scale(1.5)" : "scale(1)",
                       transition: "all 0.3s",
                       zIndex: 2,
@@ -588,13 +607,13 @@ export function AppShowcase() {
                 disabled={active === 0}
                 onClick={() => scrollToIndex(Math.max(active - 1, 0))}
                 style={{
-                  background: "#161616",
+                  background: "#131a24",
                   borderWidth: 1,
                   borderStyle: "solid",
-                  borderColor: active === 0 ? "#232323" : "#2a2a2a",
-                  borderRadius: 10,
+                  borderColor: active === 0 ? "#243043" : "#344258",
+                  borderRadius: 999,
                   padding: "8px 14px",
-                  color: active === 0 ? "#444" : "#fff",
+                  color: active === 0 ? "#617087" : "#f4f7fb",
                   fontSize: 14,
                   fontWeight: 600,
                   cursor: active === 0 ? "default" : "pointer",
@@ -610,14 +629,14 @@ export function AppShowcase() {
                   scrollToIndex(Math.min(active + 1, SLIDES.length - 1))
                 }
                 style={{
-                  background: "#161616",
+                  background: "#131a24",
                   borderWidth: 1,
                   borderStyle: "solid",
                   borderColor:
-                    active === SLIDES.length - 1 ? "#232323" : "#2a2a2a",
-                  borderRadius: 10,
+                    active === SLIDES.length - 1 ? "#243043" : "#344258",
+                  borderRadius: 999,
                   padding: "8px 14px",
-                  color: active === SLIDES.length - 1 ? "#444" : "#fff",
+                  color: active === SLIDES.length - 1 ? "#617087" : "#f4f7fb",
                   fontSize: 14,
                   fontWeight: 600,
                   cursor: active === SLIDES.length - 1 ? "default" : "pointer",

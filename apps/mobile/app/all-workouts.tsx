@@ -3,7 +3,9 @@ import { useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SessionCard } from "../components/logging/SessionCard";
+import { ScreenTitle } from "../components/shared/ui";
 import { useAppStore } from "../lib/store";
+import { colors, fontSizes, spacing } from "../lib/theme";
 
 export default function AllWorkoutsScreen() {
   const insets = useSafeAreaInsets();
@@ -13,10 +15,10 @@ export default function AllWorkoutsScreen() {
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: "#0a0a0a" }}
+      style={{ flex: 1, backgroundColor: colors.background }}
       contentContainerStyle={{
         paddingTop: insets.top + 16,
-        paddingHorizontal: 16,
+        paddingHorizontal: spacing.screen,
         paddingBottom: 100,
         gap: 10,
       }}
@@ -30,13 +32,13 @@ export default function AllWorkoutsScreen() {
         }}
       >
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 4 }}>
-          <Text style={{ color: "#3b82f6", fontSize: 16 }}>&larr; Back</Text>
+          <Text style={{ color: colors.brand, fontSize: fontSizes.md }}>
+            &larr; Back
+          </Text>
         </TouchableOpacity>
-        <Text style={{ color: "#fff", fontSize: 28, fontWeight: "800" }}>
-          All Workouts
-        </Text>
+        <ScreenTitle>All Workouts</ScreenTitle>
       </View>
-      <Text style={{ color: "#666", fontSize: 13, marginBottom: 4 }}>
+      <Text style={{ color: colors.textMuted, fontSize: 13, marginBottom: 4 }}>
         {workouts.length} workout{workouts.length !== 1 ? "s" : ""} logged
       </Text>
 

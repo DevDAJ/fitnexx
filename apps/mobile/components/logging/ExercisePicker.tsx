@@ -6,7 +6,6 @@ import {
   Image,
   Modal,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -16,10 +15,12 @@ import {
 } from "../../lib/exerciseDatabase";
 import { isExerciseAvailable } from "../../lib/gyms";
 import { useAppStore } from "../../lib/store";
+import { colors, spacing } from "../../lib/theme";
 import type { ExerciseAsset, Gym } from "../../lib/types";
 import { ExerciseInfoSheet } from "../shared/ExerciseInfoSheet";
 import { FilterDropdown } from "../shared/FilterDropdown";
 import { Toggle } from "../shared/Toggle";
+import { AppButton, AppTextInput, EmptyState, ScreenTitle } from "../shared/ui";
 
 function applyGymFilter(
   results: ExerciseAsset[],
@@ -114,8 +115,12 @@ export function ExercisePicker({
       animationType="slide"
       presentationStyle="pageSheet"
     >
-      <View style={{ flex: 1, backgroundColor: "#0a0a0a", paddingTop: 60 }}>
-        <View style={{ paddingHorizontal: 16, marginBottom: 12 }}>
+      <View
+        style={{ flex: 1, backgroundColor: colors.background, paddingTop: 60 }}
+      >
+        <View
+          style={{ paddingHorizontal: spacing.lg, marginBottom: spacing.md }}
+        >
           <View
             style={{
               flexDirection: "row",
@@ -124,29 +129,22 @@ export function ExercisePicker({
               marginBottom: 12,
             }}
           >
-            <Text style={{ color: "#fff", fontSize: 20, fontWeight: "700" }}>
-              Add Exercise
-            </Text>
+            <ScreenTitle style={{ fontSize: 20 }}>Add Exercise</ScreenTitle>
             <TouchableOpacity onPress={onClose}>
-              <Text style={{ color: "#3b82f6", fontSize: 16 }}>Cancel</Text>
+              <Text style={{ color: colors.brand, fontSize: 16 }}>Cancel</Text>
             </TouchableOpacity>
           </View>
-          <TextInput
+          <AppTextInput
             placeholder="Search exercises..."
-            placeholderTextColor="#666"
             value={query}
             onChangeText={setQuery}
             style={{
-              backgroundColor: "#161616",
               borderRadius: 10,
               padding: 12,
-              color: "#fff",
               fontSize: 15,
-              borderWidth: 1,
-              borderColor: "#2a2a2a",
             }}
           />
-          <Text style={{ color: "#555", fontSize: 11, marginTop: 6 }}>
+          <Text style={{ color: colors.textMuted, fontSize: 11, marginTop: 6 }}>
             {currentGym
               ? `${filteredResults.length} of ${results.length} exercises`
               : `${filteredResults.length} exercises`}
@@ -164,11 +162,11 @@ export function ExercisePicker({
             <View
               style={{
                 marginTop: 10,
-                backgroundColor: "#161616",
+                backgroundColor: colors.surface,
                 borderRadius: 10,
                 paddingHorizontal: 12,
                 borderWidth: 1,
-                borderColor: "#222",
+                borderColor: colors.border,
               }}
             >
               <Toggle
@@ -190,7 +188,7 @@ export function ExercisePicker({
           >
             <Text
               style={{
-                color: "#ef4444",
+                color: colors.danger,
                 fontSize: 15,
                 fontWeight: "600",
                 textAlign: "center",
@@ -200,7 +198,7 @@ export function ExercisePicker({
             </Text>
             <Text
               style={{
-                color: "#888",
+                color: colors.textSecondary,
                 fontSize: 13,
                 marginTop: 6,
                 textAlign: "center",
@@ -208,25 +206,16 @@ export function ExercisePicker({
             >
               Check your connection and try again.
             </Text>
-            <TouchableOpacity
-              onPress={loadData}
-              style={{
-                marginTop: 18,
-                backgroundColor: "#3b82f6",
-                borderRadius: 10,
-                paddingHorizontal: 28,
-                paddingVertical: 12,
-              }}
-            >
-              <Text style={{ color: "#fff", fontSize: 15, fontWeight: "700" }}>
-                Retry
-              </Text>
-            </TouchableOpacity>
+            <AppButton onPress={loadData} style={{ marginTop: 18 }}>
+              Retry
+            </AppButton>
           </View>
         ) : loading ? (
           <View style={{ alignItems: "center", marginTop: 60 }}>
-            <ActivityIndicator color="#3b82f6" />
-            <Text style={{ color: "#666", fontSize: 13, marginTop: 10 }}>
+            <ActivityIndicator color={colors.brand} />
+            <Text
+              style={{ color: colors.textMuted, fontSize: 13, marginTop: 10 }}
+            >
               Downloading exercise database...
             </Text>
           </View>
@@ -247,7 +236,7 @@ export function ExercisePicker({
                   paddingHorizontal: 16,
                   paddingVertical: 10,
                   borderBottomWidth: 1,
-                  borderBottomColor: "#1a1a1a",
+                  borderBottomColor: colors.border,
                   flexDirection: "row",
                   alignItems: "center",
                   gap: 12,
@@ -260,7 +249,7 @@ export function ExercisePicker({
                       width: 48,
                       height: 48,
                       borderRadius: 8,
-                      backgroundColor: "#1a1a1a",
+                      backgroundColor: colors.surfaceRaised,
                     }}
                   />
                 ) : (
@@ -269,25 +258,33 @@ export function ExercisePicker({
                       width: 48,
                       height: 48,
                       borderRadius: 8,
-                      backgroundColor: "#1a1a1a",
+                      backgroundColor: colors.surfaceRaised,
                       alignItems: "center",
                       justifyContent: "center",
                     }}
                   >
-                    <Text style={{ color: "#666", fontSize: 13 }}>IMG</Text>
+                    <Text style={{ color: colors.textMuted, fontSize: 13 }}>
+                      IMG
+                    </Text>
                   </View>
                 )}
                 <View style={{ flex: 1 }}>
                   <Text
                     style={{
-                      color: "#e5e5e5",
+                      color: colors.text,
                       fontSize: 15,
                       fontWeight: "600",
                     }}
                   >
                     {item.name}
                   </Text>
-                  <Text style={{ color: "#666", fontSize: 12, marginTop: 2 }}>
+                  <Text
+                    style={{
+                      color: colors.textSecondary,
+                      fontSize: 12,
+                      marginTop: 2,
+                    }}
+                  >
                     {item.primaryMuscle}
                     {item.secondaryMuscles.length > 0
                       ? ` + ${item.secondaryMuscles.join(", ")}`
@@ -296,7 +293,7 @@ export function ExercisePicker({
                   {item.equipment && (
                     <Text
                       style={{
-                        color: "#555",
+                        color: colors.textMuted,
                         fontSize: 11,
                         marginTop: 1,
                         textTransform: "capitalize",
@@ -314,18 +311,12 @@ export function ExercisePicker({
                   <Ionicons
                     name="information-circle-outline"
                     size={24}
-                    color="#555"
+                    color={colors.textMuted}
                   />
                 </TouchableOpacity>
               </TouchableOpacity>
             )}
-            ListEmptyComponent={
-              <Text
-                style={{ color: "#666", textAlign: "center", marginTop: 40 }}
-              >
-                No exercises found
-              </Text>
-            }
+            ListEmptyComponent={<EmptyState title="No exercises found" />}
           />
         )}
       </View>

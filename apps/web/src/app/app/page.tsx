@@ -64,67 +64,111 @@ export default function AppHome() {
 
       <View
         flex={1}
-        paddingVertical={40}
+        paddingVertical={56}
         paddingHorizontal={16}
-        $sm={{ paddingVertical: 24 }}
+        $sm={{ paddingVertical: 32 }}
       >
         <YStack
-          maxWidth={1024}
+          maxWidth={1160}
           width="100%"
           marginLeft="auto"
           marginRight="auto"
-          gap={24}
+          gap={40}
         >
-          <YStack gap={4}>
-            <Heading fontSize={28} fontWeight="800" color="$color">
+          <View
+            flexDirection="row"
+            justifyContent="space-between"
+            alignItems="flex-end"
+            gap={32}
+            paddingBottom={28}
+            borderBottomWidth={1}
+            borderColor="$borderColor"
+            $sm={{ flexDirection: "column", alignItems: "flex-start", gap: 16 }}
+          >
+            <Heading
+              fontSize={44}
+              lineHeight={48}
+              fontWeight="800"
+              color="$color"
+              $sm={{ fontSize: 36, lineHeight: 40 }}
+            >
               Dashboard
             </Heading>
-            <Text color="$muted" fontSize={15}>
+            <Text color="$muted" fontSize={15} lineHeight={23} maxWidth={360}>
               Your training and nutrition at a glance.
             </Text>
-          </YStack>
+          </View>
 
-          <div className="app-kpi-grid">
-            <KpiCard
-              title="PRs"
-              value="12"
-              subtitle="last 30 days"
-              delta="up"
-              color="#fbbf24"
-            />
-            <KpiCard
-              title="Volume"
-              value="48.2k"
-              subtitle="last 30 days"
-              delta="up"
-              color="#3b82f6"
-            />
-            <KpiCard
-              title="Weekly Sets"
-              value="9.4"
-              subtitle="avg / muscle"
-              delta="same"
-              color="#8b5cf6"
-            />
-          </div>
+          <View
+            flexDirection="row"
+            alignItems="stretch"
+            gap={24}
+            $sm={{ flexDirection: "column" }}
+          >
+            <YStack flexBasis="68%" gap={16}>
+              <Text
+                color="$subtle"
+                fontSize={12}
+                fontWeight="600"
+                letterSpacing={0.8}
+              >
+                30-DAY TRAINING SIGNALS
+              </Text>
+              <View
+                flexDirection="row"
+                gap={16}
+                $sm={{ flexDirection: "column" }}
+              >
+                <KpiCard
+                  title="Volume"
+                  value="48.2k"
+                  subtitle="last 30 days"
+                  delta="up"
+                  featured
+                />
+                <YStack flex={1} gap={16}>
+                  <KpiCard
+                    title="PRs"
+                    value="12"
+                    subtitle="last 30 days"
+                    delta="up"
+                  />
+                  <KpiCard
+                    title="Weekly Sets"
+                    value="9.4"
+                    subtitle="avg / muscle"
+                    delta="same"
+                  />
+                </YStack>
+              </View>
+            </YStack>
 
-          <YStack gap={12}>
-            <Heading fontSize={18} fontWeight="700" color="$color">
-              Quick actions
-            </Heading>
-            <div className="app-action-grid">
-              <QuickAction icon={Dumbbell} label="Workouts" />
-              <QuickAction icon={Utensils} label="Meals" />
-              <QuickAction icon={Activity} label="Muscles" />
-              <QuickAction icon={Settings} label="Settings" />
-            </div>
-          </YStack>
+            <YStack flexBasis="32%" gap={16}>
+              <Text
+                color="$subtle"
+                fontSize={12}
+                fontWeight="600"
+                letterSpacing={0.8}
+              >
+                QUICK ACTIONS
+              </Text>
+              <Card className="route-card" padding={8} backgroundColor="$card">
+                <QuickAction icon={Dumbbell} label="Workouts" />
+                <QuickAction icon={Utensils} label="Meals" />
+                <QuickAction icon={Activity} label="Muscles" />
+                <QuickAction icon={Settings} label="Settings" last />
+              </Card>
+            </YStack>
+          </View>
 
           <Card
             className="route-card"
-            gap={12}
+            gap={16}
             flexDirection="row"
             alignItems="center"
+            padding={24}
+            backgroundColor="rgba(59,130,246,0.06)"
+            borderColor="rgba(59,130,246,0.28)"
             $sm={{ flexDirection: "column", alignItems: "flex-start" }}
           >
             <TrendingUp size={20} color="#3b82f6" style={{ flexShrink: 0 }} />
@@ -137,8 +181,8 @@ export default function AppHome() {
                 get started when signups open.
               </Text>
             </YStack>
-            <LinkButton href="/coming-soon" size="sm">
-              Get started
+            <LinkButton href="/early-access" size="sm">
+              Get early access
             </LinkButton>
           </Card>
         </YStack>
@@ -152,13 +196,13 @@ function KpiCard({
   value,
   subtitle,
   delta,
-  color,
+  featured = false,
 }: {
   title: string;
   value: string;
   subtitle: string;
   delta: "up" | "down" | "same";
-  color: string;
+  featured?: boolean;
 }) {
   const deltaColor =
     delta === "up" ? "#22c55e" : delta === "down" ? "#ef4444" : "#666666";
@@ -166,7 +210,17 @@ function KpiCard({
     delta === "up" ? "↑ 8.2%" : delta === "down" ? "↓ 3.1%" : "→ 0.0%";
 
   return (
-    <Card className="route-card" gap={4} backgroundColor="$card">
+    <Card
+      className="route-card"
+      flex={featured ? 1.4 : undefined}
+      minHeight={featured ? 244 : 114}
+      gap={6}
+      padding={featured ? 28 : 20}
+      justifyContent="space-between"
+      backgroundColor={featured ? "rgba(59,130,246,0.08)" : "$card"}
+      borderColor={featured ? "rgba(59,130,246,0.34)" : "$borderColor"}
+      $sm={{ minHeight: featured ? 190 : 114 }}
+    >
       <Text
         color="$muted"
         fontSize={12}
@@ -176,7 +230,12 @@ function KpiCard({
       >
         {title}
       </Text>
-      <Text color="$color" fontSize={28} fontWeight="800">
+      <Text
+        color="$color"
+        fontSize={featured ? 48 : 28}
+        lineHeight={featured ? 52 : 32}
+        fontWeight="800"
+      >
         {value}
       </Text>
       <Text color="$subtle" fontSize={12}>
@@ -185,9 +244,12 @@ function KpiCard({
       <Text color={deltaColor} fontSize={13} fontWeight="700" marginTop={6}>
         {deltaText}
       </Text>
-      <View marginTop={6}>
-        <View height={3} width={40} borderRadius={2} backgroundColor={color} />
-      </View>
+      <View
+        marginTop={6}
+        height={2}
+        width={featured ? 64 : 32}
+        backgroundColor="$primary"
+      />
     </Card>
   );
 }
@@ -195,6 +257,7 @@ function KpiCard({
 function QuickAction({
   icon: Icon,
   label,
+  last = false,
 }: {
   icon: React.ComponentType<{
     size?: number;
@@ -202,13 +265,16 @@ function QuickAction({
     style?: React.CSSProperties;
   }>;
   label: string;
+  last?: boolean;
 }) {
   return (
-    <Card
+    <View
       flexDirection="row"
       alignItems="center"
       gap={10}
-      className="route-card"
+      padding={12}
+      borderBottomWidth={last ? 0 : 1}
+      borderColor="$borderColor"
     >
       <View
         width={36}
@@ -224,6 +290,6 @@ function QuickAction({
         {label}
       </Text>
       <Badge label="Soon" variant="neutral" />
-    </Card>
+    </View>
   );
 }

@@ -143,7 +143,7 @@ export default function PrivacyPolicyPage() {
       <p>
         For privacy inquiries or GDPR requests:&nbsp;
         <Link
-          href="/contact"
+          href="/#contact"
           className="text-foreground underline underline-offset-4"
         >
           Contact form

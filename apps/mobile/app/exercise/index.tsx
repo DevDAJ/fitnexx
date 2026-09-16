@@ -6,7 +6,6 @@ import {
   Image,
   ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -16,9 +15,17 @@ import { Badge } from "../../components/shared/Badge";
 import { ExerciseInfoSheet } from "../../components/shared/ExerciseInfoSheet";
 import { FilterDropdown } from "../../components/shared/FilterDropdown";
 import { Toggle } from "../../components/shared/Toggle";
+import {
+  AppButton,
+  AppTextInput,
+  Card,
+  ScreenTitle,
+  SectionLabel,
+} from "../../components/shared/ui";
 import { analyzeExerciseTrend } from "../../lib/analysis/exerciseTrend";
 import { isExerciseAvailable } from "../../lib/gyms";
 import { useAppStore } from "../../lib/store";
+import { colors, fontSizes, radii, spacing } from "../../lib/theme";
 import type { ExerciseAsset, Gym } from "../../lib/types";
 import { useExerciseEquipment } from "../../lib/useExerciseEquipment";
 
@@ -127,28 +134,18 @@ export default function ExercisesScreen() {
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: "#0a0a0a" }}
+      style={{ flex: 1, backgroundColor: colors.background }}
       contentContainerStyle={{
         paddingTop: insets.top + 16,
-        paddingHorizontal: 16,
+        paddingHorizontal: spacing.screen,
         paddingBottom: 100,
         gap: 10,
       }}
     >
-      <Text style={{ color: "#fff", fontSize: 28, fontWeight: "800" }}>
-        Exercises
-      </Text>
+      <ScreenTitle>Exercises</ScreenTitle>
 
       {/* My Gyms */}
-      <View
-        style={{
-          backgroundColor: "#161616",
-          borderRadius: 14,
-          padding: 14,
-          borderWidth: 1,
-          borderColor: "#222",
-        }}
-      >
+      <Card>
         <View
           style={{
             flexDirection: "row",
@@ -157,19 +154,15 @@ export default function ExercisesScreen() {
             marginBottom: 10,
           }}
         >
-          <Text
-            style={{
-              color: "#888",
-              fontSize: 12,
-              fontWeight: "600",
-              textTransform: "uppercase",
-              letterSpacing: 0.5,
-            }}
-          >
-            My Gyms
-          </Text>
+          <SectionLabel>My Gyms</SectionLabel>
           <TouchableOpacity onPress={() => setGyModalOpen(true)}>
-            <Text style={{ color: "#3b82f6", fontSize: 14, fontWeight: "700" }}>
+            <Text
+              style={{
+                color: colors.brand,
+                fontSize: fontSizes.sm,
+                fontWeight: "700",
+              }}
+            >
               + Add Gym
             </Text>
           </TouchableOpacity>
@@ -178,54 +171,63 @@ export default function ExercisesScreen() {
         {currentGym ? (
           <View
             style={{
-              backgroundColor: "#102a1a",
-              borderRadius: 10,
+              backgroundColor: colors.surfaceRaised,
+              borderRadius: radii.md,
               padding: 12,
               borderWidth: 1,
-              borderColor: "#22c55e",
+              borderColor: colors.success,
             }}
           >
-            <Text style={{ color: "#22c55e", fontSize: 13, fontWeight: "700" }}>
+            <Text
+              style={{ color: colors.success, fontSize: 13, fontWeight: "700" }}
+            >
               ✓ At {currentGym.name}
             </Text>
-            <Text style={{ color: "#7fae8f", fontSize: 12, marginTop: 2 }}>
+            <Text
+              style={{
+                color: colors.textSecondary,
+                fontSize: fontSizes.xs,
+                marginTop: 2,
+              }}
+            >
               Showing exercises available at this gym.
             </Text>
           </View>
         ) : (
           <View
             style={{
-              backgroundColor: "#1a1a1a",
-              borderRadius: 10,
+              backgroundColor: colors.surfaceRaised,
+              borderRadius: radii.md,
               padding: 12,
               borderWidth: 1,
-              borderColor: "#2a2a2a",
+              borderColor: colors.borderStrong,
               flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
             }}
           >
-            <Text style={{ color: "#888", fontSize: 12 }}>
+            <Text
+              style={{
+                color: colors.textSecondary,
+                fontSize: fontSizes.xs,
+                flex: 1,
+              }}
+            >
               {gyms.length > 0
                 ? "No gym detected at your location."
                 : "Add a gym to track its equipment."}
             </Text>
             {gyms.length > 0 && (
-              <TouchableOpacity
+              <AppButton
                 onPress={refreshCurrentGym}
                 style={{
-                  backgroundColor: "#3b82f6",
-                  borderRadius: 8,
-                  paddingHorizontal: 10,
-                  paddingVertical: 6,
+                  minHeight: 34,
+                  marginLeft: spacing.sm,
+                  paddingHorizontal: spacing.md,
                 }}
               >
-                <Text
-                  style={{ color: "#fff", fontSize: 12, fontWeight: "700" }}
-                >
-                  Recheck
-                </Text>
-              </TouchableOpacity>
+                Recheck
+              </AppButton>
             )}
           </View>
         )}
@@ -240,11 +242,11 @@ export default function ExercisesScreen() {
             onLongPress={() => confirmDeleteGym(g.id, g.name)}
             style={{
               marginTop: 8,
-              backgroundColor: "#1a1a1a",
-              borderRadius: 10,
+              backgroundColor: colors.surfaceRaised,
+              borderRadius: radii.md,
               padding: 12,
               borderWidth: 1,
-              borderColor: "#2a2a2a",
+              borderColor: colors.borderStrong,
             }}
           >
             <View
@@ -255,11 +257,15 @@ export default function ExercisesScreen() {
               }}
             >
               <Text
-                style={{ color: "#e5e5e5", fontSize: 14, fontWeight: "600" }}
+                style={{
+                  color: colors.text,
+                  fontSize: fontSizes.sm,
+                  fontWeight: "600",
+                }}
               >
                 {g.name}
                 {currentGym?.id === g.id ? (
-                  <Text style={{ color: "#22c55e" }}> ●</Text>
+                  <Text style={{ color: colors.success }}> ●</Text>
                 ) : null}
               </Text>
             </View>
@@ -272,7 +278,9 @@ export default function ExercisesScreen() {
               }}
             >
               {g.equipment.length === 0 && (
-                <Text style={{ color: "#666", fontSize: 12 }}>
+                <Text
+                  style={{ color: colors.textMuted, fontSize: fontSizes.xs }}
+                >
                   No equipment saved.
                 </Text>
               )}
@@ -280,34 +288,26 @@ export default function ExercisesScreen() {
                 <View
                   key={eq}
                   style={{
-                    backgroundColor: "#252525",
-                    borderRadius: 6,
+                    backgroundColor: colors.surfacePressed,
+                    borderRadius: radii.sm,
                     paddingHorizontal: 8,
                     paddingVertical: 4,
                   }}
                 >
-                  <Text style={{ color: "#aaa", fontSize: 11 }}>{eq}</Text>
+                  <Text style={{ color: colors.textSecondary, fontSize: 11 }}>
+                    {eq}
+                  </Text>
                 </View>
               ))}
             </View>
           </TouchableOpacity>
         ))}
-      </View>
+      </Card>
 
-      <TextInput
+      <AppTextInput
         placeholder="Search exercises..."
-        placeholderTextColor="#555"
         value={search}
         onChangeText={setSearch}
-        style={{
-          backgroundColor: "#161616",
-          borderRadius: 10,
-          padding: 12,
-          color: "#fff",
-          fontSize: 14,
-          borderWidth: 1,
-          borderColor: "#2a2a2a",
-        }}
       />
 
       <FilterDropdown
@@ -321,11 +321,9 @@ export default function ExercisesScreen() {
       {currentGym && (
         <View
           style={{
-            backgroundColor: "#161616",
-            borderRadius: 10,
-            padding: 12,
-            borderWidth: 1,
-            borderColor: "#222",
+            backgroundColor: colors.surfaceRaised,
+            borderRadius: radii.md,
+            padding: spacing.md,
           }}
         >
           <Toggle
@@ -338,13 +336,13 @@ export default function ExercisesScreen() {
 
       {equipmentLoading && currentGym && (
         <View style={{ alignItems: "center", paddingVertical: 20 }}>
-          <ActivityIndicator color="#3b82f6" />
+          <ActivityIndicator color={colors.brand} />
         </View>
       )}
 
       {exercises.length === 0 && !equipmentLoading && (
         <View style={{ marginTop: 40, alignItems: "center" }}>
-          <Text style={{ color: "#666", fontSize: 15 }}>
+          <Text style={{ color: colors.textMuted, fontSize: 15 }}>
             No exercises found.
           </Text>
         </View>
@@ -358,11 +356,11 @@ export default function ExercisesScreen() {
           }
           activeOpacity={0.7}
           style={{
-            backgroundColor: "#161616",
-            borderRadius: 12,
-            padding: 10,
+            backgroundColor: colors.surface,
+            borderRadius: radii.md,
+            padding: spacing.sm,
             borderWidth: 1,
-            borderColor: "#222",
+            borderColor: colors.border,
             flexDirection: "row",
             justifyContent: "space-between",
             alignItems: "center",
@@ -382,7 +380,7 @@ export default function ExercisesScreen() {
                   width: 52,
                   height: 52,
                   borderRadius: 8,
-                  backgroundColor: "#1a1a1a",
+                  backgroundColor: colors.surfaceRaised,
                 }}
               />
             </TouchableOpacity>
@@ -392,19 +390,31 @@ export default function ExercisesScreen() {
                 width: 52,
                 height: 52,
                 borderRadius: 8,
-                backgroundColor: "#1a1a1a",
+                backgroundColor: colors.surfaceRaised,
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <Text style={{ color: "#666", fontSize: 11 }}>IMG</Text>
+              <Text style={{ color: colors.textMuted, fontSize: 11 }}>IMG</Text>
             </View>
           )}
           <View style={{ flex: 1 }}>
-            <Text style={{ color: "#e5e5e5", fontSize: 14, fontWeight: "600" }}>
+            <Text
+              style={{
+                color: colors.text,
+                fontSize: fontSizes.sm,
+                fontWeight: "600",
+              }}
+            >
               {ex.name}
             </Text>
-            <Text style={{ color: "#666", fontSize: 12, marginTop: 2 }}>
+            <Text
+              style={{
+                color: colors.textMuted,
+                fontSize: fontSizes.xs,
+                marginTop: 2,
+              }}
+            >
               {ex.sessions} sessions
             </Text>
           </View>

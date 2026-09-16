@@ -1,5 +1,13 @@
-import { useState, useCallback, createContext, useContext, useRef, useEffect } from "react";
-import { View, Text, Animated, Dimensions } from "react-native";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { Animated, Text, View } from "react-native";
+import { colors, radii, spacing } from "../../lib/theme";
 
 interface Toast {
   id: number;
@@ -18,10 +26,10 @@ export function useToast() {
 }
 
 const TOAST_COLORS: Record<Toast["type"], string> = {
-  info: "#3b82f6",
-  success: "#22c55e",
-  pr: "#fbbf24",
-  error: "#ef4444",
+  info: colors.brand,
+  success: colors.success,
+  pr: colors.warning,
+  error: colors.danger,
 };
 
 const TOAST_ICONS: Record<Toast["type"], string> = {
@@ -35,13 +43,16 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const counter = useRef(0);
 
-  const showToast = useCallback((message: string, type: Toast["type"] = "info") => {
-    const id = counter.current++;
-    setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 3000);
-  }, []);
+  const showToast = useCallback(
+    (message: string, type: Toast["type"] = "info") => {
+      const id = counter.current++;
+      setToasts((prev) => [...prev, { id, message, type }]);
+      setTimeout(() => {
+        setToasts((prev) => prev.filter((t) => t.id !== id));
+      }, 3000);
+    },
+    [],
+  );
 
   return (
     <ToastContext.Provider value={{ showToast }}>
@@ -52,10 +63,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         style={{
           position: "absolute",
           top: 60,
-          left: 16,
-          right: 16,
+          left: spacing.lg,
+          right: spacing.lg,
           zIndex: 9999,
-          gap: 8,
+          gap: spacing.sm,
         }}
       >
         {toasts.map((toast) => (
@@ -72,14 +83,30 @@ function ToastItem({ toast }: { toast: Toast }) {
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(opacity, { toValue: 1, duration: 200, useNativeDriver: true }),
-      Animated.timing(translateY, { toValue: 0, duration: 200, useNativeDriver: true }),
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
     ]).start();
 
     const timer = setTimeout(() => {
       Animated.parallel([
-        Animated.timing(opacity, { toValue: 0, duration: 200, useNativeDriver: true }),
-        Animated.timing(translateY, { toValue: -20, duration: 200, useNativeDriver: true }),
+        Animated.timing(opacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(translateY, {
+          toValue: -20,
+          duration: 200,
+          useNativeDriver: true,
+        }),
       ]).start();
     }, 2600);
 
@@ -94,23 +121,26 @@ function ToastItem({ toast }: { toast: Toast }) {
       style={{
         opacity,
         transform: [{ translateY }],
-        backgroundColor: "#161616",
-        borderLeftWidth: 3,
+        backgroundColor: colors.surfaceRaised,
+        borderLeftWidth: 1,
+        borderWidth: 1,
         borderColor: bgColor,
-        borderRadius: 10,
-        padding: 12,
+        borderRadius: radii.md,
+        padding: spacing.md,
         flexDirection: "row",
         alignItems: "center",
-        gap: 8,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        elevation: 4,
+        gap: spacing.sm,
+        shadowColor: colors.shadow,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.32,
+        shadowRadius: 16,
+        elevation: 8,
       }}
     >
       <Text style={{ fontSize: 14 }}>{icon}</Text>
-      <Text style={{ color: "#e5e5e5", fontSize: 13, fontWeight: "500", flex: 1 }}>
+      <Text
+        style={{ color: colors.text, fontSize: 13, fontWeight: "500", flex: 1 }}
+      >
         {toast.message}
       </Text>
     </Animated.View>
