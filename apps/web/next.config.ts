@@ -31,7 +31,6 @@ const nextConfig: NextConfig = {
     "tamagui",
     "@tamagui/core",
     "@tamagui/config",
-    "@tamagui/next-theme",
   ],
   turbopack: {
     resolveAlias: {},

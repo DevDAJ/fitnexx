@@ -399,7 +399,7 @@ function KpiCard({
         )}
         {sparkData && sparkData.length >= 2 ? (
           <svg width="80" height="32" viewBox="0 0 80 32">
-            <title>{title} sparkline</title>
+            <title>{`${title} sparkline`}</title>
             <polyline
               points={sparkPoints(sparkData, 80, 32)}
               fill="none"

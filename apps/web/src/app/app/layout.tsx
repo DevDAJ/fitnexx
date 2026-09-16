@@ -30,7 +30,7 @@ export default function AppLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="h-full">
+      <body className="h-full" suppressHydrationWarning>
         <TamaguiProvider>{children}</TamaguiProvider>
       </body>
     </html>

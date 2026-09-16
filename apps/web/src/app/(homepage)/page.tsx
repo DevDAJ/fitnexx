@@ -253,7 +253,7 @@ function SignalStrip() {
         {signals.map((signal) => (
           <YStack
             key={signal.label}
-            data-reveal
+            data-reveal="card"
             minWidth={152}
             padding={24}
             gap={3}
@@ -328,7 +328,7 @@ function SectionPricing() {
           {tiers.map((tier, index) => (
             <Card
               key={tier.name}
-              data-reveal
+              data-reveal="card"
               data-reveal-delay={`${index * 0.06}`}
               className="route-card"
               flex={1}
@@ -493,7 +493,7 @@ function SectionMission() {
           {principles.map((principle, index) => (
             <Card
               key={principle.title}
-              data-reveal
+              data-reveal="card"
               data-reveal-delay={`${index * 0.06}`}
               className="route-card"
               flex={1}
@@ -653,7 +653,7 @@ function SectionContact() {
         $sm={{ flexDirection: "column", gap: 40 }}
       >
         <YStack
-          data-reveal
+          data-reveal="left"
           gap={24}
           flex={1}
           paddingTop={28}
@@ -686,7 +686,7 @@ function SectionContact() {
           </Text>
         </YStack>
         <Card
-          data-reveal
+          data-reveal="card"
           className="route-card"
           padding={36}
           flexBasis="52%"

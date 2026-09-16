@@ -1,5 +1,7 @@
 import { Text, View, XStack, YStack } from "@fitnexx/ui";
+import type { ReactNode } from "react";
 import { BrandLogo } from "@/components/brand-logo";
+import { BugReportTrigger } from "@/components/bug-report-modal";
 import { LinkButton, TextLink } from "@/components/ui/link";
 
 const productLinks = [
@@ -94,7 +96,9 @@ export function SiteFooter() {
 
           <XStack gap={72} flexWrap="wrap" $sm={{ gap: 40 }}>
             <FooterGroup title="Product" links={productLinks} />
-            <FooterGroup title="Company & legal" links={legalLinks} />
+            <FooterGroup title="Company & legal" links={legalLinks}>
+              <BugReportTrigger />
+            </FooterGroup>
           </XStack>
         </XStack>
 
@@ -121,9 +125,11 @@ export function SiteFooter() {
 function FooterGroup({
   title,
   links,
+  children,
 }: {
   title: string;
   links: { href: string; label: string }[];
+  children?: ReactNode;
 }) {
   return (
     <YStack gap={10} minWidth={130}>
@@ -141,6 +147,7 @@ function FooterGroup({
           {label}
         </TextLink>
       ))}
+      {children}
     </YStack>
   );
 }

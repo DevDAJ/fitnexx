@@ -1,0 +1,86 @@
+name: Bug report
+description: Report something broken in the web app or mobile app.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened? Be specific about what you saw.
+      placeholder: The workout timer freezes when I lock my phone mid-set.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      description: Where did the bug happen?
+      options:
+        - Web
+        - Mobile
+        - Both
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device / Browser
+      description: e.g. iPhone 16 Pro, Pixel 9, Chrome 130, Safari 18.
+      placeholder: Pixel 9 / Chrome 130
+
+  - type: input
+    id: os
+    attributes:
+      label: OS version
+      description: e.g. Android 15, iOS 18, macOS 15, Windows 11.
+      placeholder: Android 15
+
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: Web and mobile both report this in Settings or the footer area. Current release is 0.1.0.
+      placeholder: "0.1.0"
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps that trigger the bug.
+      placeholder: |
+        1. Start a workout from a template.
+        2. Lock the phone during a rest timer.
+        3. Unlock and resume.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots / logs
+      description: Drag images here. For crashes, include any error text.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Anything else that might help (account type, sync setup, network, etc.).

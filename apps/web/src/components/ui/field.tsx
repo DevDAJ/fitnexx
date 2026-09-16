@@ -23,6 +23,7 @@ export function TextField(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
+      className={`fitnexx-field ${props.className ?? ""}`.trim()}
       style={{
         ...baseFieldStyle,
         height: 44,
@@ -39,6 +40,7 @@ export function TextAreaField(
   return (
     <textarea
       {...props}
+      className={`fitnexx-field ${props.className ?? ""}`.trim()}
       style={{
         ...baseFieldStyle,
         height: 140,
