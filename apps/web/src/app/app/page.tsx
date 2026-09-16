@@ -4,8 +4,10 @@ import {
   Dumbbell,
   Settings,
   TrendingUp,
+  User,
   Utensils,
 } from "lucide-react";
+import { BrandLogo } from "@/components/brand-logo";
 import { LinkButton } from "@/components/ui/link";
 
 export default function AppHome() {
@@ -26,28 +28,7 @@ export default function AppHome() {
         zIndex={20}
         style={{ position: "sticky" }}
       >
-        <XStack alignItems="center" gap={9}>
-          <View
-            width={28}
-            height={28}
-            borderRadius={9}
-            alignItems="center"
-            justifyContent="center"
-            style={{ background: "linear-gradient(145deg, #60a5fa, #2563eb)" }}
-          >
-            <Text color="#fff" fontSize={12} fontWeight="800">
-              F
-            </Text>
-          </View>
-          <Text
-            fontSize={16}
-            fontWeight="800"
-            color="$color"
-            letterSpacing={-0.02}
-          >
-            Fitnexx
-          </Text>
-        </XStack>
+        <BrandLogo />
         <View
           width={32}
           height={32}
@@ -56,9 +37,7 @@ export default function AppHome() {
           alignItems="center"
           justifyContent="center"
         >
-          <Text color="$primary" fontSize={13} fontWeight="700">
-            FX
-          </Text>
+          <User size={15} color="#60a5fa" />
         </View>
       </XStack>
 

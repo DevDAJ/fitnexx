@@ -54,22 +54,29 @@ export function RevealSection({ children }: { children: React.ReactNode }) {
       media.add("(prefers-reduced-motion: no-preference)", () => {
         const targets = gsap.utils.toArray<HTMLElement>("[data-reveal]");
         targets.forEach((target) => {
-          gsap.fromTo(
-            target,
-            { opacity: 0, y: 28 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.75,
-              delay: Number(target.dataset.revealDelay ?? 0),
-              ease: "power3.out",
-              scrollTrigger: {
-                trigger: target,
-                start: "clamp(top 86%)",
-                once: true,
-              },
+          const variant = target.dataset.reveal;
+          const from =
+            variant === "card"
+              ? { opacity: 0, y: 36, scale: 0.96 }
+              : variant === "left"
+                ? { opacity: 0, x: -36 }
+                : { opacity: 0, y: 28 };
+
+          gsap.fromTo(target, from, {
+            opacity: 1,
+            x: 0,
+            y: 0,
+            scale: 1,
+            duration: 0.75,
+            delay: Number(target.dataset.revealDelay ?? 0),
+            ease: "power3.out",
+            clearProps: "transform,opacity",
+            scrollTrigger: {
+              trigger: target,
+              start: "clamp(top 86%)",
+              once: true,
             },
-          );
+          });
         });
       });
       return () => media.revert();

@@ -3,6 +3,7 @@ import * as Haptics from "expo-haptics";
 import { useMemo, useState } from "react";
 import {
   Alert,
+  Image,
   Modal,
   ScrollView,
   Text,
@@ -11,6 +12,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AISettingsCard } from "../../components/settings/AISettingsCard";
+import { BugReportCard } from "../../components/settings/BugReportCard";
 import { ProCard } from "../../components/settings/ProCard";
 import { UsageHistory } from "../../components/settings/UsageHistory";
 import { LineChart } from "../../components/shared/Sparkline";
@@ -955,6 +957,8 @@ export default function SettingsScreen() {
 
       <ProCard />
 
+      <BugReportCard />
+
       <View
         style={{
           backgroundColor: colors.surface,
@@ -1104,11 +1108,21 @@ export default function SettingsScreen() {
         >
           About
         </Text>
-        <Text style={{ color: colors.text, fontSize: 15, fontWeight: "700" }}>
-          Fitnexx
-        </Text>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+          <Image
+            source={require("../../assets/branding/logo.png")}
+            style={{ width: 42, height: 42 }}
+            resizeMode="contain"
+          />
+          <Text
+            style={{ fontSize: 18, fontWeight: "800", letterSpacing: -0.5 }}
+          >
+            <Text style={{ color: colors.text }}>Fit</Text>
+            <Text style={{ color: colors.brand }}>nexx</Text>
+          </Text>
+        </View>
         <Text
-          style={{ color: colors.textSecondary, fontSize: 13, marginTop: 2 }}
+          style={{ color: colors.textSecondary, fontSize: 13, marginTop: 8 }}
         >
           Privacy-first gym performance tracker.
         </Text>

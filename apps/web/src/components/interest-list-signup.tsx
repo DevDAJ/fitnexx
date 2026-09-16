@@ -73,6 +73,7 @@ function InterestListFormBody() {
             required
             maxLength={200}
             autoComplete="name"
+            placeholder="Your name"
           />
         </YStack>
 
@@ -88,6 +89,7 @@ function InterestListFormBody() {
             name="email"
             type="email"
             autoComplete="email"
+            placeholder="you@example.com"
           />
         </YStack>
 

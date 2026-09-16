@@ -67,6 +67,7 @@ export function ContactForm() {
             required
             maxLength={200}
             autoComplete="name"
+            placeholder="Your name"
           />
         </YStack>
 
@@ -83,6 +84,7 @@ export function ContactForm() {
             type="email"
             required
             autoComplete="email"
+            placeholder="you@example.com"
           />
         </YStack>
 
@@ -99,6 +101,7 @@ export function ContactForm() {
             required
             minLength={10}
             maxLength={8000}
+            placeholder="How can we help?"
           />
           <Text color="$subtle" fontSize={12}>
             10–8,000 characters.

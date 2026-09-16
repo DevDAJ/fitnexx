@@ -114,11 +114,11 @@ export default async function EarlyAccessPage() {
                 </Text>
               </YStack>
               <YStack gap={12} alignItems="stretch">
-                <LinkButton href={siteConfig.apkDownloadUrl}>
+                <LinkButton href={siteConfig.apkDownloadUrl} size="lg">
                   Download Android APK
                 </LinkButton>
                 <InterestListSignup />
-                <LinkButton href="/" variant="outline">
+                <LinkButton href="/" variant="outline" size="lg">
                   Back to home
                 </LinkButton>
               </YStack>
